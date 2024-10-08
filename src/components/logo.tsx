@@ -7,7 +7,7 @@ interface FlowTechLogoProps {
   height?: number
 }
 
-export default function FlowTechLogo({ width = 200, height = 60 }: FlowTechLogoProps = {}) {
+export default function FlowTechLogo({ width = 150, height = 60 }: FlowTechLogoProps = {}) {
     
   return (
     <div>

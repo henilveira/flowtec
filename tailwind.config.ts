@@ -11,22 +11,22 @@ const config = {
   prefix: "",
   theme: {
   	container: {
-  		// center: 'true',
   		padding: '2rem',
   		screens: {
   			'2xl': '1400px'
   		}
   	},
   	extend: {
-		fontFamily: {
-			'inter-tight': ['"Inter Tight"', 'sans-serif'],
-		  },
-		backgroundImage: {
-			'flowtech-gradient': 'linear-gradient(135deg, #007bff, #00d084)',
-		},
+  		fontFamily: {
+  			'inter-tight': ['Inter Tight"', 'sans-serif']
+  		},
+  		backgroundImage: {
+			'flowtech-gradient-transparent': 'linear-gradient(135deg, rgba(0, 123, 255, 0.3), rgba(0, 208, 132, 0.3))',
+  			'flowtech-gradient': 'linear-gradient(135deg, #007bff, #00d084)'
+  		},
   		colors: {
-			'flowtech-blue': '#007BFF',
-			'flowtech-green': '#00D084',
+  			'flowtech-blue': '#007BFF',
+  			'flowtech-green': '#00D084',
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
@@ -101,13 +101,25 @@ const config = {
   				'100%': {
   					transform: 'translateZ(0) rotate(360deg)'
   				}
+  			},
+  			shine: {
+  				'0%': {
+  					'background-position': '0% 0%'
+  				},
+  				'50%': {
+  					'background-position': '100% 100%'
+  				},
+  				to: {
+  					'background-position': '0% 0%'
+  				}
   			}
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out',
   			'shimmer-slide': 'shimmer-slide var(--speed) ease-in-out infinite alternate',
-  			'spin-around': 'spin-around calc(var(--speed) * 2) infinite linear'
+  			'spin-around': 'spin-around calc(var(--speed) * 2) infinite linear',
+  			shine: 'shine var(--duration) infinite linear'
   		}
   	}
   },
