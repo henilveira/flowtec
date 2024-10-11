@@ -28,7 +28,7 @@ export function NavItem({
     <Link href={href} className="w-full block relative">
       <div
         className={clsx(
-          'flex items-center p-2 rounded-xl text-muted-foreground transition-colors hover:text-flowtech-blue relative',
+          'flex items-center p-2 rounded-xl  transition-colors hover:text-flowtech-blue relative',
           {
             'text-blue-600 font-medium': isActive,
           }

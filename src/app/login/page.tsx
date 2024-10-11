@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FaGoogle } from "react-icons/fa"
 import { AuroraBackground } from "@/components/ui/aurora-background"
+import LoginForm from "./form"
 
 export default function Login() {
   const [email, setEmail] = useState("henriqueataide.dev@gmail.com")

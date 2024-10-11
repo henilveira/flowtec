@@ -14,12 +14,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SearchInput } from "./search";
-import Profile from "@/components/profile";
 import Logo from "@/components/logo";
 import { ThemeProvider } from "next-themes";
 import { ThemeSwitcher } from "@/components/ui/theme-switcher";
 import { NavItem } from "./nav-item";
 import FlowTechLogo from "@/components/logo";
+import NotificationIcon from "@/components/notificacoes";
+import Profile from "@/components/profile";
+
 
 export default function DashboardLayout({
   children,
@@ -49,14 +51,15 @@ export default function DashboardLayout({
 function DesktopNavbar() {
   return (
     <nav className="sticky top-0 z-40 w-full border-b bg-background lg:flex h-16">
-      <div className="w-full flex items-center justify-between px-4">
+      <div className="w-full flex items-center justify-between px-4 h-full">
         <Link href="/" className="flex items-center">
-          <FlowTechLogo />
+          {/* <FlowTechLogo /> */}
         </Link>
         <div className="flex items-center gap-4">
           <SearchInput />
           <ThemeSwitcher />
-          <Bell className="h-5 w-5 text-muted-foreground" />
+          {/* <Bell className="h-5 w-5 text-muted-foreground" /> */}
+          <NotificationIcon />
           <Profile />
         </div>
       </div>
