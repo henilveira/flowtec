@@ -3,21 +3,20 @@ import { useRouter } from 'next/navigation';
 
 const API_URL = 'http://127.0.0.1:8000/api';
 
-export function useLogin() {
+export function useCreateContabilidade() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const login = async (email: string, password: string) => {
+  const create = async (cnpj: string) => {
     setIsLoading(true);
     setError(null);
 
-    console.log(email,password)
     try {
-      const response = await fetch(`${API_URL}/accounts/token/`, {
+      const response = await fetch(`${API_URL}/contabilidades/create-contabilidade/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ cnpj }),
         credentials: 'include',
       });
       
@@ -28,13 +27,12 @@ export function useLogin() {
         
         const data = await response.json();
         console.log(data)
-      router.push('/dashboard'); // Redirect to dashboard or home page
     } catch (err) {
-      setError('Failed to login. Please check your credentials.');
+      setError('Falha ao cadastrar contabilidade');
     } finally {
       setIsLoading(false);
     }
   };
 
-  return { login, isLoading, error };
+  return { create, isLoading, error };
 }

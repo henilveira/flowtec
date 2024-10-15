@@ -8,6 +8,7 @@ import {
   Settings,
   HelpCircle,
   PanelLeft,
+  Building2,
   Bell,
 } from "lucide-react";
 
@@ -21,7 +22,8 @@ import { NavItem } from "./nav-item";
 import FlowTechLogo from "@/components/logo";
 import NotificationIcon from "@/components/notificacoes";
 import Profile from "@/components/profile";
-
+import Title from "./page-title";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function DashboardLayout({
   children,
@@ -40,7 +42,8 @@ export default function DashboardLayout({
                 <MobileNav />
               </div>
             </header>
-            <div className="flex-1 p-4 sm:p-6">{children}</div>
+            <div className="flex-1 ">{children}</div>
+            <Toaster />
           </main>
         </div>
       </div>
@@ -53,7 +56,7 @@ function DesktopNavbar() {
     <nav className="sticky top-0 z-40 w-full border-b bg-background lg:flex h-16">
       <div className="w-full flex items-center justify-between px-4 h-full">
         <Link href="/" className="flex items-center">
-          {/* <FlowTechLogo /> */}
+          <FlowTechLogo />
         </Link>
         <div className="flex items-center gap-4">
           <SearchInput />
@@ -77,6 +80,13 @@ function DesktopAside() {
           </div>
           <NavItem href="/dashboard" label="Dashboard" text="Dashboard">
             <LayoutGrid className="h-5 w-5" />
+          </NavItem>
+          <NavItem
+            href="/dashboard/gerenciamento"
+            label="Gerenciamento"
+            text="Gerenciamento"
+          >
+            <Building2 className="h-5 w-5" />
           </NavItem>
           <NavItem
             href="/dashboard/societario"

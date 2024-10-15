@@ -76,9 +76,11 @@ const Navbar = () => {
               <NavItem title="Preços" />
               <NavItem title="Recursos" />
             </div>
-            <Button variant="outline" className="w-full" onClick={toggleMenu}>
-              Iniciar sessão
-            </Button>
+            <Link href='/login'>
+              <Button variant="outline" className="w-full" onClick={toggleMenu}>
+                Iniciar sessão
+              </Button>
+            </Link>
             <Button
               className="bg-flowtech-gradient p-3 text-sm w-full"
               onClick={toggleMenu}
