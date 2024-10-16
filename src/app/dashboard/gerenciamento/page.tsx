@@ -1,12 +1,25 @@
+'use client'
 import { Button } from "@/components/ui/button";
-import { FilterIcon, PlusCircle, Search } from "lucide-react";
+import { FilterIcon, PlusCircle } from "lucide-react";
 import TableContabilidades from "./table";
 import Title from "../page-title";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import CreateContabilidadeForm from "./form";
 import RefreshButton from "./refresh";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SelectDemo } from "./select";
+import { useState } from "react";
 
 export default function GerenciamentoAtividades() {
+  const [activeTab, setActiveTab] = useState("contabilidades");
+
   return (
     <div className=" mx-auto">
       <Title titulo="Gerenciamento">
@@ -20,7 +33,7 @@ export default function GerenciamentoAtividades() {
               <PlusCircle className="mr-2 h-4 w-4" /> Cadastrar contabilidade
             </Button>
           </DialogTrigger>
-          <DialogContent >
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Cadastrar contabilidade</DialogTitle>
               <DialogDescription>
@@ -35,7 +48,24 @@ export default function GerenciamentoAtividades() {
         <div className="flex justify-between">
           <div className="space-x-3"></div>
         </div>
-        <TableContabilidades />
+
+        <Tabs defaultValue="contabilidades" onValueChange={setActiveTab}>
+          <div className="flex justify-between items-center">
+            <div>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="contabilidades">Contabilidades</TabsTrigger>
+                <TabsTrigger value="usuarios">Usuários</TabsTrigger>
+              </TabsList>
+            </div>
+            {activeTab === "usuarios" && <SelectDemo />}
+          </div>
+          <TabsContent value="contabilidades">
+            <TableContabilidades />
+          </TabsContent>
+          <TabsContent value="usuarios">
+            <h1>Usuarios</h1>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

@@ -19,10 +19,12 @@ export const useUser = () => {
 
   return {
     // Verifica se `data` existe e, em seguida, acessa os campos de forma segura
+    id: data?.user.id ?? null,
     primeiroNome: data?.user?.first_name || null,
     ultimoNome: data?.user?.last_name || null,
     email: data?.user?.email || null,
     isAdminContabilidade: data?.user?.is_admin_contabilidade || null,
+    profilePicture: data?.user?.profile_picture || null,
     isLoading: !error && !data, // Define o estado de carregamento
     isError: error,
   };

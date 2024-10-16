@@ -1,8 +1,14 @@
-export default function Painel() {
+import { FilterIcon } from "lucide-react";
+import Title from "../page-title";
+import { Button } from "@/components/ui/button";
+
+export default function CertificadosDigitais() {
     return (
-        <div>
-            <h1>Certificados digitais</h1>
-        </div>
+        <Title titulo="Certificados Digitais">
+        <Button variant="outline">
+          <FilterIcon className="mr-2 h-4 w-4" /> Filtrar
+        </Button>
+      </Title>
     );
 
 }

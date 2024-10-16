@@ -42,10 +42,14 @@ const Navbar = () => {
           </div>
           <div className="hidden lg:block">
             <div className="ml-4 flex items-center md:ml-6">
-              <Button variant="outline" className="text-gray-700">
-                Iniciar sessão
-              </Button>
-              <Button className="ml-3 bg-flowtech-gradient">Cadastre-se</Button>
+              <Link href='/login'>
+                <Button variant="outline" className="text-gray-700">
+                  Iniciar sessão
+                </Button>
+                <Button className="ml-3 bg-flowtech-gradient">
+                  Cadastre-se
+                </Button>
+              </Link>
             </div>
           </div>
           <div className="lg:hidden">
@@ -76,7 +80,7 @@ const Navbar = () => {
               <NavItem title="Preços" />
               <NavItem title="Recursos" />
             </div>
-            <Link href='/login'>
+            <Link href="/login">
               <Button variant="outline" className="w-full" onClick={toggleMenu}>
                 Iniciar sessão
               </Button>

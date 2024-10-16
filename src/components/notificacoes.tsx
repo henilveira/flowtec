@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { CardDemo } from "./notificacoes-card"
 
 interface Notification {
   id: number
@@ -62,37 +63,9 @@ export default function NotificationIcon() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 w-80 z-50"
+            className="absolute right-14 mt-2 w-80 z-50"
           >
-            <div className="p-4 rounded-md shadow-sm bg-white border border-gray-200">
-              <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-200">
-                <h3 className="font-semibold text-gray-800">Notificações</h3>
-                {unreadCount > 0 && (
-                  <Button
-                    variant="ghost"
-                    className="text-sm text-blue-600 hover:text-blue-800"
-                    onClick={markAllAsRead}
-                  >
-                    Marcar como lido
-                  </Button>
-                )}
-              </div>
-              {notifications.length > 0 ? (
-                <ul className="space-y-2">
-                  {notifications.map((notification) => (
-                    <li 
-                      key={notification.id} 
-                      className={`p-2 rounded-md ${notification.read ? 'bg-gray-50' : 'bg-blue-50'} hover:bg-gray-100 transition-colors duration-200 cursor-pointer`}
-                      onClick={() => markAsRead(notification.id)}
-                    >
-                      <p className="text-sm text-gray-800">{notification.message}</p>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-gray-500">Nenhuma nova notificação</p>
-              )}
-            </div>
+            <CardDemo />
           </motion.div>
         )}
       </AnimatePresence>

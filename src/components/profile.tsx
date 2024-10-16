@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, LogOut, Settings } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import Logout from "./ui/logout";
+import ProfileAvatar from "./avatar";
 
 export default function Profile() {
-    const {primeiroNome, ultimoNome, email} = useUser()
+  const { primeiroNome, ultimoNome, email } = useUser();
 
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -30,14 +31,11 @@ export default function Profile() {
   return (
     <div className="relative font-sans" ref={dropdownRef}>
       <Button
-        variant='ghost'
+        variant="ghost"
         className="flex items-center hover:bg-white dark:bg-zinc-950 p-2 space-x-2 rounded-md duration-200"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <Avatar className="w-10 h-10">
-          <AvatarImage src='' alt={`${primeiroNome} ${ultimoNome}`} />
-          <AvatarFallback>H</AvatarFallback>
-        </Avatar>
+        <ProfileAvatar className="w-10 h-10" />
       </Button>
 
       <AnimatePresence>
@@ -51,12 +49,9 @@ export default function Profile() {
           >
             <div className="rounded-md shadow-sm bg-white border border-gray-200">
               <div className="p-4 flex items-center space-x-3 mb-4 pb-4 border-b border-gray-200">
-                <Avatar className="w-12 h-12">
-                    <AvatarImage src='' alt={`${primeiroNome} ${ultimoNome}`} />
-                    <AvatarFallback>H</AvatarFallback>
-                </Avatar>
+                <ProfileAvatar />
                 <div>
-                  <h3 className="font-semibold text-gray-800">{primeiroNome}</h3>
+                  <h3 className="font-semibold text-gray-800">{`${primeiroNome} ${ultimoNome}`}</h3>
                   <p className="text-sm text-gray-500">{email}</p>
                 </div>
               </div>
