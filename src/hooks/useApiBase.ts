@@ -32,18 +32,21 @@ export function useApiBase<T = any>(
     fetcher,
     {
       ...options,
-      onError: async (err: ApiError) => {
+      onErrorRetry: (err, key, config, revalidate, { retryCount }) => {
+        // Verifica se o erro é 401
         if (err.status === 401) {
-          const refreshed = await refreshAccessToken();
-          if (refreshed) {
-            mutate();
+          // Tenta novamente até 1 vez
+          if (retryCount < 1) {
+            revalidate();  // Refaz a requisição
           } else {
+            // Se continuar falhando, redireciona para a página de login
             router.push('/login');
           }
         }
       },
     }
   );
+  
 
   return { data, error, mutate, isLoading: !error && !data, isValidating };
 }

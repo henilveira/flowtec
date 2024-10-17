@@ -12,33 +12,28 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
-import { useUser } from "@/hooks/useUser"; // Importando o hook que busca dados do usuário
+import { useUser } from "@/hooks/useUser";
 import { useUpdateUser } from "@/hooks/useUpdateUser";
 import { ChangeEvent, useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { mutate } from "swr";
 import ProfileAvatar from "@/components/avatar";
+import { Loader2 } from "lucide-react";
 
 // Definição da interface UpdateUser
 interface UpdateUser {
   first_name?: string;
   last_name?: string;
   email?: string;
-  profile_picture?: File | null; // Atualizando o campo para corresponder ao seu código
+  avatar?: File | null; // Adiciona o campo avatar à interface
 }
 
 export default function ProfileSettings() {
   const { toast } = useToast();
-  const {
-    id,
-    primeiroNome,
-    ultimoNome,
-    email,
-    profilePicture,
-    isLoading: isUserLoading,
-  } = useUser(); // Obtendo dados do usuário
+
+  const { primeiroNome, ultimoNome, email, profilePicture } = useUser();
   const { updateUser, isLoading, error } = useUpdateUser();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [loadingUpload, setLoadingUpload] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null); // Estado para armazenar o arquivo selecionado
 
   const form = useForm<UpdateUser>({
@@ -46,7 +41,7 @@ export default function ProfileSettings() {
       first_name: primeiroNome || "",
       last_name: ultimoNome || "",
       email: email || "",
-      profile_picture: null, // Inicializa o campo profile_picture como null
+      avatar: null, // Inicializa o campo avatar como null
     },
   });
 
@@ -63,25 +58,15 @@ export default function ProfileSettings() {
   };
 
   const handleUpdate = async (data: UpdateUser) => {
-    const { profile_picture, ...userData } = data;
-
-    // Atualização otimista
-    const updatedUser = {
-      id,
-      first_name: data.first_name || primeiroNome,
-      last_name: data.last_name || ultimoNome,
-      email: data.email || email,
-      profile_picture: selectedAvatar || null, // Define como null se não houver um arquivo
-    };
-
-    // Atualiza o estado local com os novos dados
-    mutate("http://127.0.0.1:8000/api/accounts/get-user/", updatedUser, false);
+    const { avatar, ...userData } = data; // Remove avatar para a atualização
 
     try {
-      await updateUser({
-        ...userData,
-        profile_picture: selectedAvatar || undefined,
-      }); // Passa undefined se selectedAvatar for null
+      if (selectedAvatar) {
+        // Inclui o arquivo selecionado no objeto de atualização
+        await updateUser({ ...userData, profile_picture: selectedAvatar });
+      } else {
+        await updateUser(userData); // Chama a função de atualização com os dados do formulário
+      }
       toast({
         title: "Perfil atualizado com sucesso!",
         variant: "default",
@@ -105,11 +90,11 @@ export default function ProfileSettings() {
       <CardContent className="space-y-4">
         <form onSubmit={form.handleSubmit(handleUpdate)}>
           <div className="flex items-center space-x-4 mb-2">
-            <ProfileAvatar className="w-20 h-20" />
-            <div>
+            <ProfileAvatar className="h-20 w-20" />
+            <div className="">
               <Label
                 htmlFor="avatar"
-                className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-800"
+                className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-800" // Aciona o clique no botão
               >
                 Alterar foto de perfil
               </Label>
@@ -120,7 +105,7 @@ export default function ProfileSettings() {
                 className="hidden"
                 ref={(e) => {
                   fileInputRef.current = e; // Atualiza o ref
-                  form.register("profile_picture").ref(e); // Registra o input
+                  form.register("avatar").ref(e); // Registra o input
                 }}
                 onChange={handleFileChange} // Adiciona o manipulador de mudança
               />
@@ -132,35 +117,55 @@ export default function ProfileSettings() {
               <Label htmlFor="first_name">Primeiro nome</Label>
               <Input
                 id="first_name"
-                {...form.register("first_name", { required: true })}
                 placeholder={primeiroNome}
+                {...form.register("first_name", {
+                  required: true,
+                  minLength: 2,
+                })}
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="last_name">Sobrenome</Label>
+              <Label htmlFor="last_name">Último nome</Label>
               <Input
                 id="last_name"
-                {...form.register("last_name", { required: true })}
                 placeholder={ultimoNome}
+                {...form.register("last_name", {
+                  required: true,
+                  minLength: 2,
+                })}
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"
-                disabled
-                {...form.register("email", { required: false })}
                 placeholder={email}
+                {...form.register("email")}
+                disabled
               />
             </div>
-            <Button
-              type="submit"
-              variant="flowtec"
-              disabled={isLoading || isUserLoading || !id} // Desabilita se o id não estiver disponível
+          <Button
+            type="submit"
+            className="bg-flowtech-gradient text-white"
+            disabled={isLoading} // Desabilita o botão enquanto carrega
             >
-              {isLoading ? "Atualizando..." : "Atualizar perfil"}
-            </Button>
+                {isLoading ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Salvando...
+                    </>
+                ) : (
+                    'Salvar alterações'
+                )}
+          </Button>
+
+          
+
+          {error && <p className="text-red-500">{error}</p>}
           </div>
+
         </form>
       </CardContent>
     </Card>

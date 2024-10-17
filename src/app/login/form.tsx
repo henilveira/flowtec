@@ -44,7 +44,8 @@ const LoginForm = () => {
                 />
             </div>
             <Button
-                className="w-full bg-gradient-to-r from-blue-500 to-green-400 hover:from-blue-600 hover:to-green-500 text-white"
+                variant='flowtec'
+                className="w-full"
                 disabled={isLoading} // Desabilita o botão enquanto carrega
             >
                 {isLoading ? (

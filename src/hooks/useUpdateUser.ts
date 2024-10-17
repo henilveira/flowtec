@@ -31,10 +31,6 @@ export function useUpdateUser() {
     }
 
     try {
-      if (!id) {
-        throw new Error('User ID is not available');
-      }
-
       const response = await fetch(`${API_URL}/accounts/update-user/?id=${id}`, {
         method: 'PATCH',
         body: formData, // Envia o FormData no corpo da requisição
