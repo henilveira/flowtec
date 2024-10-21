@@ -2,7 +2,7 @@ import useSWR, { SWRConfiguration } from 'swr';
 import { useRouter } from 'next/navigation';
 import { ApiError } from '@/@types/ApiBase'; // Importe o tipo ApiError do seu arquivo de tipos
 
-const API_URL = 'http://127.0.0.1:8000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 async function fetcher(url: string) {
   const res = await fetch(url, {

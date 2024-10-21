@@ -1,11 +1,12 @@
 import useSWR from 'swr';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 // Função para buscar dados da API
 const fetcher = (url: string) => fetch(url, {
-  credentials: 'include', // Inclui cookies/credenciais na requisição
+  credentials: 'include',
 }).then((res) => {
   if (!res.ok) {
-    // Se o status for 401, lançar um erro para que o SWR o capture
     if (res.status === 401) {
       throw new Error('Unauthorized');
     }
@@ -15,17 +16,16 @@ const fetcher = (url: string) => fetch(url, {
 });
 
 export const useUser = () => {
-  const { data, error } = useSWR('http://127.0.0.1:8000/api/accounts/get-user/', fetcher); // Ajuste o endpoint conforme necessário
+  const { data, error } = useSWR(`${API_URL}/accounts/get-user/`, fetcher);
 
   return {
-    // Verifica se `data` existe e, em seguida, acessa os campos de forma segura
     id: data?.user.id ?? null,
     primeiroNome: data?.user?.first_name || null,
     ultimoNome: data?.user?.last_name || null,
     email: data?.user?.email || null,
     isAdminContabilidade: data?.user?.is_admin_contabilidade || null,
     profilePicture: data?.user?.profile_picture || null,
-    isLoading: !error && !data, // Define o estado de carregamento
+    isLoading: !error && !data,
     isError: error,
   };
 };
