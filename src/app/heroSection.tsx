@@ -8,7 +8,7 @@ export default function Hero() {
   return (
     <section className="relative dark:bg-zinc-950 dark:text-white text-neutral-800 pt-6 md:pt-12 lg:pt-24 overflow-hidden">
       <div className="relative flex h-full w-full items-center flex-col justify-center overflow-hidden bg-background p-20 space-y-6">
-        <div className="justify-center flex flex-col items-center space-y-7 text-center font-inter-tight">
+        <div className="justify-center flex flex-col items-center space-y-7 text-center">
           <h1 className="font-bold text-6xl w-[800px] relative">
             Simplifique seus processos societários com
             <span className="ml-3 font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-green-400">

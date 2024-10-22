@@ -21,7 +21,7 @@ async function fetcher(url: string) {
   return data;
 }
 
-export function useApiBase<T = any>(
+export function useApiBase<T>(
   endpoint: string,
   options: SWRConfiguration = {}
 ) {
@@ -49,18 +49,4 @@ export function useApiBase<T = any>(
   
 
   return { data, error, mutate, isLoading: !error && !data, isValidating };
-}
-
-async function refreshAccessToken(): Promise<boolean> {
-  try {
-    const response = await fetch(`${API_URL}/accounts/token/refresh/`, {
-      method: 'POST',
-      credentials: 'include',
-    });
-
-    return response.ok;
-  } catch (error) {
-    console.error('Error refreshing access token:', error);
-    return false;
-  }
 }

@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export function useCreateContabilidade() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   const create = async (cnpj: string) => {
     setIsLoading(true);
@@ -27,8 +25,8 @@ export function useCreateContabilidade() {
         
         const data = await response.json();
         console.log(data)
-    } catch (err) {
-      setError('Falha ao cadastrar contabilidade');
+    } catch (error: any) {
+      setError(error);
     } finally {
       setIsLoading(false);
     }

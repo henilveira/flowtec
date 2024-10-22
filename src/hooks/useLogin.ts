@@ -29,8 +29,8 @@ export function useLogin() {
         const data = await response.json();
         console.log(data)
       router.push('/dashboard'); // Redirect to dashboard or home page
-    } catch (err) {
-      setError('Failed to login. Please check your credentials.');
+    } catch (error:any) {
+      setError(error);
     } finally {
       setIsLoading(false);
     }

@@ -1,0 +1,39 @@
+{
+    "extends": [
+      "stylelint-config-standard",
+      "stylelint-config-tailwindcss"
+    ],
+    "plugins": [
+      "stylelint-order"
+    ],
+    "rules": {
+      "at-rule-no-unknown": [
+        true,
+        {
+          "ignoreAtRules": ["tailwind", "apply", "variants", "screen", "layer"]
+        }
+      ],
+      "string-quotes": ["single", { "avoidEscape": true }],
+      "indentation": 2,
+      "max-empty-lines": 1,
+      "selector-no-id": true,
+      "declaration-colon-space-after": "always",
+      "declaration-colon-space-before": "never",
+      "block-no-empty": true,
+      "color-no-invalid-hex": true,
+      "function-url-quotes": "always",
+      "no-duplicate-selectors": true,
+      "property-no-unknown": [
+        true,
+        {
+          "ignoreProperties": ["composes"]
+        }
+      ],
+      "order/order": [
+        "custom-properties",
+        "declarations"
+      ],
+      "order/properties-order": []
+    }
+  }
+  

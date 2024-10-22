@@ -23,8 +23,8 @@ export function useLogout() {
       }
 
       router.push('/login');
-    } catch (err) {
-      setError('Failed to logout. Please try again.');
+    } catch (error: any) {
+      setError(error);
     } finally {
       setIsLoading(false);
     }

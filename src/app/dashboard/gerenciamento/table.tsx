@@ -65,9 +65,7 @@ const TableContabilidades = () => {
                   <TableCell>{company.desc_atividade_principal}</TableCell>
                   <TableCell>{company.tipo}</TableCell>
                   <TableCell>{company.porte}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={company.situacao} />
-                  </TableCell>
+                  <TableCell>{company.situacao}</TableCell>
                   <TableCell>{company.data_abertura}</TableCell>
                 </TableRow>
               ))}

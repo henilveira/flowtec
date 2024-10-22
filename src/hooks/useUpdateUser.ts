@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useUser } from './useUser';
-import useSWR, { mutate } from 'swr';
-import { UpdateUser, User } from '@/@types/User';
+import { mutate } from 'swr';
+import { UpdateUser } from '@/@types/User';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
