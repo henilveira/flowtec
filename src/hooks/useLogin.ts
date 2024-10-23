@@ -12,25 +12,28 @@ export function useLogin() {
     setIsLoading(true);
     setError(null);
 
-    console.log(email,password)
     try {
       const response = await fetch(`${API_URL}/accounts/token/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
-        credentials: 'include',
+        credentials: 'include',  // Mantém cookies de sessão se necessário
       });
-      
-      
+
+      const data = await response.json();  // Captura a resposta JSON da API
+
       if (!response.ok) {
-          throw new Error('Login failed');
-        }
-        
-        const data = await response.json();
-        console.log(data)
-      router.push('/dashboard'); // Redirect to dashboard or home page
-    } catch (error:any) {
-      setError(error);
+        // A API pode retornar detalhes do erro no corpo da resposta
+        const errorMessage = data?.detail || 'Ocorreu um erro ao efetuar o login';
+        throw new Error(errorMessage);
+      }
+
+      console.log('Login bem-sucedido:', data);
+      
+      // Redirecionar para o dashboard
+      router.push('/dashboard');
+    } catch (error: any) {
+      setError(error.message);  // Captura e define o erro com a mensagem correta
     } finally {
       setIsLoading(false);
     }

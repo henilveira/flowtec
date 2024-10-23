@@ -1,52 +1,81 @@
 'use client'
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react"; // Certifique-se que está importando o ícone correto
-import { useLogin } from "@/hooks/useLogin";
-import { useState } from "react";
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Loader2 } from "lucide-react"
+import { useLogin } from "@/hooks/useLogin"
+import { useToast } from "@/hooks/use-toast"
+import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
 
 const LoginForm = () => {
-    const { login } = useLogin();
-    const [isLoading, setIsLoading] = useState(false);
-    const [email, setEmail] = useState("");
-    const [senha, setSenha] = useState("");
+    const { login, isLoading, error } = useLogin()
+    const { toast } = useToast()
+    const [email, setEmail] = useState("")
+    const [senha, setSenha] = useState("")
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setIsLoading(true); // Define como carregando
+        e.preventDefault()
         try {
-            await login(email, senha);
-            console.log('login efetuado com sucesso');
-        } catch (error: any) {
-            console.log('ocorreu algum erro ao efetuar login', error);
-        } finally {
-            setIsLoading(false); // Finaliza o carregamento
+            await login(email, senha)
+            toast({
+                title: "Login efetuado com sucesso!",
+                description: "Redirecionando para o painel...",
+                duration: 3000,
+            })
+        } catch (err) {
+            console.error(err)
         }
-    };
+    }
 
     return (
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
             <div className="space-y-4">
-                <Input
-                    type="email"
-                    placeholder="E-mail"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={isLoading} // Desabilita o input enquanto carrega
-                />
-                <Input
-                    type="password"
-                    placeholder="Senha"
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                    disabled={isLoading} // Desabilita o input enquanto carrega
-                />
+                <div className="space-y-2">
+                    <Label htmlFor="email">E-mail</Label>
+                    <Input
+                        id="email"
+                        type="email"
+                        placeholder="E-mail"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        disabled={isLoading}
+                        required
+                        className={cn(
+                            error && "border-red-500 focus-visible:ring-red-500"
+                        )}
+                    />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="senha">Senha</Label>
+                    <Input
+                        id="senha"
+                        type="password"
+                        placeholder="Senha"
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                        disabled={isLoading}
+                        required
+                        className={cn(
+                            error && "border-red-500 focus-visible:ring-red-500"
+                        )}
+                    />
+                </div>
             </div>
+
+            {/* Exibe erro da API se houver algum */}
+            {error && (
+                <div className="text-sm text-red-500">
+                    {error}
+                </div>
+            )}
+
             <Button
                 variant='flowtec'
                 className="w-full"
-                disabled={isLoading} // Desabilita o botão enquanto carrega
+                disabled={isLoading}
+                type="submit"
             >
                 {isLoading ? (
                     <>
@@ -58,7 +87,7 @@ const LoginForm = () => {
                 )}
             </Button>
         </form>
-    );
-};
+    )
+}
 
-export default LoginForm;
+export default LoginForm
