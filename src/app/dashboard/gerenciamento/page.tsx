@@ -1,6 +1,6 @@
-'use client'
+"use client";
 import { Button } from "@/components/ui/button";
-import { FilterIcon, PlusCircle } from "lucide-react";
+import { FilterIcon, Plus, PlusCircle } from "lucide-react";
 import TableContabilidades from "./table";
 import Title from "../page-title";
 import {
@@ -29,9 +29,11 @@ export default function GerenciamentoAtividades() {
         </Button>
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="flowtec">
-              <PlusCircle className="mr-2 h-4 w-4" /> Cadastrar contabilidade
-            </Button>
+            <div className="items-center flex justify-center">
+              <Button variant="flowtec">
+                <Plus className="mr-2 h-4 w-4" /> Cadastrar contabilidade
+              </Button>
+            </div>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>

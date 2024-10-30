@@ -23,7 +23,7 @@ import FlowTechLogo from "@/components/logo";
 import NotificationIcon from "@/components/notificacoes";
 import Profile from "@/components/profile";
 import Title from "./page-title";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function DashboardLayout({
   children,
@@ -32,17 +32,19 @@ export default function DashboardLayout({
 }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system">
-      <div className="flex min-h-screen w-full flex-col bg-muted/40">
+      <div className="flex flex-col h-screen w-full bg-muted/40 overflow-hidden"> {/* Adicionado overflow-hidden */}
         <DesktopNavbar />
-        <div className="flex flex-1">
+        <div className="flex flex-1 overflow-hidden"> {/* Adicionado overflow-hidden */}
           <DesktopAside />
-          <main className="flex-1 flex flex-col">
+          <main className="flex-1 flex flex-col overflow-hidden"> {/* Adicionado overflow-hidden */}
             <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b justify-between px-4 sm:px-6 lg:hidden">
               <div className="w-full">
                 <MobileNav />
               </div>
             </header>
-            <div className="flex-1 ">{children}</div>
+            <div className="flex-1 overflow-auto"> {/* Mudado para overflow-auto */}
+              {children}
+            </div>
             <Toaster />
           </main>
         </div>
