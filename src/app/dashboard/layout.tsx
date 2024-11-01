@@ -24,6 +24,7 @@ import NotificationIcon from "@/components/notificacoes";
 import Profile from "@/components/profile";
 import Title from "./page-title";
 import { Toaster } from "@/components/ui/sonner";
+import { ContabilidadeProvider } from "./societario/select";
 
 export default function DashboardLayout({
   children,
@@ -31,6 +32,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
+    <ContabilidadeProvider>
+
     <ThemeProvider attribute="class" defaultTheme="system">
       <div className="flex flex-col h-screen w-full bg-muted/40 overflow-hidden"> {/* Adicionado overflow-hidden */}
         <DesktopNavbar />
@@ -50,6 +53,8 @@ export default function DashboardLayout({
         </div>
       </div>
     </ThemeProvider>
+    </ContabilidadeProvider>
+
   );
 }
 

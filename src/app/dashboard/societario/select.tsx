@@ -1,3 +1,4 @@
+'use client'
 import * as React from "react";
 import {
   Select,
@@ -9,17 +10,38 @@ import {
 } from "@/components/ui/select";
 import { useListContabilidades } from "@/hooks/useListContabilidade";
 
-export function SelectContabilidade({ onSelectChange }: any) {
-  const { companies } = useListContabilidades();
-  const [selectedCompany, setSelectedCompany] = React.useState(null);
+const ContabilidadeContext = React.createContext<{
+  selectedCompany: string | null;
+  setSelectedCompany: (value: string) => void;
+}>({
+  selectedCompany: null,
+  setSelectedCompany: () => {},
+});
 
-  const handleSelectChange = (value: any) => {
-    setSelectedCompany(value);
-    onSelectChange && onSelectChange(value); // Chama a função de callback com o valor selecionado
-  };
+export const useContabilidade = () => {
+  const context = React.useContext(ContabilidadeContext);
+  if (!context) {
+    throw new Error('useContabilidade must be used within a ContabilidadeProvider');
+  }
+  return context;
+};
+
+export const ContabilidadeProvider = ({ children }: { children: React.ReactNode }) => {
+  const [selectedCompany, setSelectedCompany] = React.useState<string | null>(null);
 
   return (
-    <Select onValueChange={handleSelectChange}>
+    <ContabilidadeContext.Provider value={{ selectedCompany, setSelectedCompany }}>
+      {children}
+    </ContabilidadeContext.Provider>
+  );
+};
+
+export function SelectContabilidade() {
+  const { companies } = useListContabilidades();
+  const { selectedCompany, setSelectedCompany } = useContabilidade();
+
+  return (
+    <Select value={selectedCompany || ""} onValueChange={setSelectedCompany}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Contabilidade..." />
       </SelectTrigger>

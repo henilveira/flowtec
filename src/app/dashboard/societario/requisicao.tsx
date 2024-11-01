@@ -24,17 +24,18 @@ import { useSocietario } from "@/hooks/useSocietario";
 import { Copy, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { SelectContabilidade } from "./select";
+import { SelectContabilidade, useContabilidade } from "./select";
 
 export function Requisicao() {
     const { novoRegistro } = useSocietario()
+    const { selectedCompany } = useContabilidade();
     const [name, setName] = useState('')
 
     const handleRequest = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
     
         try {
-            await novoRegistro(SelectContabilidade, name);
+            await novoRegistro(selectedCompany, name);
             toast("Processo criado com sucesso!", {
                 description:
                   "Envie o link de formulário para seu cliente preencher os dados!",
@@ -90,7 +91,7 @@ export function Requisicao() {
                 </SelectContent>
               </Select>
 
-              <Select>
+              {/* <Select>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Processo..." />
                 </SelectTrigger>
@@ -105,7 +106,7 @@ export function Requisicao() {
                     <SelectItem value="transformacao">Transformação</SelectItem>
                   </SelectGroup>
                 </SelectContent>
-              </Select>
+              </Select> */}
             </div>
             <div className="flex justify-center items-start gap-2">
               <div className="flex flex-1 gap-2 flex-col">

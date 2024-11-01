@@ -4,8 +4,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 interface SocietarioData {
   id: string;
-  nome: string;
-  idContabilidade: any;
+  registro_inicial: string;
+  contabilidade_id: any;
   // Adicione outros campos conforme necessário
 }
 
@@ -48,7 +48,7 @@ export function useSocietario() {
   };
 
   // Create - Criar novo processo societário com argumentos separados
-  const novoRegistro = async (idContabilidade: any, nome: string) => {
+  const novoRegistro = async (id_contabilidade: any, registro_inicial: string) => {
     setIsLoading(true);
     setError(null);
 
@@ -58,8 +58,8 @@ export function useSocietario() {
         {
           method: 'POST',
           body: JSON.stringify({
-            idContabilidade,
-            nome
+            id_contabilidade,
+            registro_inicial
           }),
         }
       );
