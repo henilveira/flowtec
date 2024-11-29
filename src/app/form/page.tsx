@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { FaGoogle } from "react-icons/fa"
 import { AuroraBackground } from "@/components/ui/aurora-background"
-import LoginForm from "../login/form"
+import FormularioAbertura from './form'
 import Logo from "@/components/logo"
 
 export default function Login() {
@@ -32,22 +32,10 @@ export default function Login() {
           </div>
 
           {/* Form */}
-          <LoginForm />
+          <FormularioAbertura />
 
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-            </div>
-          </div>
 
-          {/* Google login button */}
-          <Button variant="outline" className="w-full">
-            <FaGoogle className="mr-2" />
-            Google
-          </Button>
+
         </motion.div>
       </div>
   )

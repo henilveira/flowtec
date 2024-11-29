@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Flowtech",
+  title: "flowtec",
   description: "Soluções contábeis",
 };
 
