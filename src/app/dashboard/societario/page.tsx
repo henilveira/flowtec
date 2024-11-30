@@ -53,6 +53,18 @@ export default function Societario() {
     </Button>
   )
 
+  const tasksProposta = [
+    { id: 1, label: "Proposta enviada", checked: true },
+    { id: 2, label: "Proposta aceita e formulário enviado", checked: true },
+    { id: 3, label: "Formulário recebido", checked: false }
+  ];
+
+  const tasksViabilidade = [
+    { id: 1, label: "Análise da viabilidade", checked: false },
+    { id: 2, label: "Documentos enviados", checked: false }
+  ];
+
+  // Definindo as tarefas para cada processo
   const cards = {
     [STAGES.PROPOSTA]: (
       <>
@@ -61,14 +73,20 @@ export default function Societario() {
             name="EcoWave"
             stage={STAGES.PROPOSTA}
             process="abertura_de_empresa"
-            currentDay={33} startDate={""}          />
+            currentDay={33}
+            startDate={""}
+            tasks={tasksProposta} // Passando as tarefas
+          />
         } />
         <EditCard triggerContent={
           <Card
             name="Lego"
             stage={STAGES.PROPOSTA}
             process="abertura_contratual"
-            currentDay={15} startDate={""}          />
+            currentDay={15}
+            startDate={""}
+            tasks={tasksProposta} // Passando as tarefas
+          />
         } />
       </>
     ),
@@ -78,7 +96,10 @@ export default function Societario() {
           name="Luz"
           stage={STAGES.VIABILIDADE}
           process="alteracao_contratual"
-          currentDay={25} startDate={""}        />
+          currentDay={25}
+          startDate={""}
+          tasks={tasksViabilidade} // Passando as tarefas
+        />
       } />
     ),
     [STAGES.ALVARAS]: (
@@ -88,14 +109,20 @@ export default function Societario() {
             name="Polar Carros"
             stage={STAGES.ALVARAS}
             process="transformacao"
-            currentDay={48} startDate={""}          />
+            currentDay={48}
+            startDate={""}
+            tasks={[]} // Passando as tarefas
+          />
         } />
         <EditCard triggerContent={
           <Card
             name="Terrask"
             stage={STAGES.ALVARAS}
             process="abertura_de_empresa"
-            currentDay={48} startDate={""}          />
+            currentDay={48}
+            startDate={""}
+            tasks={[]} // Passando as tarefas
+          />
         } />
       </>
     ),
@@ -105,7 +132,10 @@ export default function Societario() {
           name="Venom"
           stage={STAGES.SIMPLES}
           process="abertura_de_empresa"
-          currentDay={70} startDate={""}        />
+          currentDay={70}
+          startDate={""}
+          tasks={[]} // Passando as tarefas
+        />
       } />
     ),
     [STAGES.CONCLUSAO]: (
@@ -114,7 +144,10 @@ export default function Societario() {
           name="Lotus"
           stage={STAGES.CONCLUSAO}
           process="abertura_de_empresa"
-          currentDay={54} startDate={""}        />
+          currentDay={54}
+          startDate={""}
+          tasks={[]} // Passando as tarefas
+        />
       } />
     )
   }

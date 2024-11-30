@@ -15,15 +15,11 @@ import {
 } from "@/components/ui/select";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
-  SheetDescription,
   SheetFooter,
-  SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { CalendarIcon, Copy, X } from "lucide-react";
+import { CalendarIcon, Copy, ChevronDown, ChevronUp } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -39,6 +35,7 @@ export default function EditCard({ triggerContent }: any) {
     { id: 2, label: "Proposta aceita e formulário enviado", checked: true },
     { id: 3, label: "Formulário recebido", checked: false },
   ]);
+  const [isTaskDropdownOpen, setIsTaskDropdownOpen] = useState(true);
   const formLink = "forms.com.br/formulario/939887/bxg93ky4tgj8";
 
   const copyToClipboard = () => {
@@ -111,47 +108,66 @@ export default function EditCard({ triggerContent }: any) {
               </Popover>
             </div>
 
-            <div className="space-y-4">
-              <Label>Tarefas</Label>
-              {tasks.map((task) => (
-                <div key={task.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={task.checked}
-                    onCheckedChange={(checked) => {
-                      setTasks(
-                        tasks.map((t) =>
-                          t.id === task.id ? { ...t, checked: !!checked } : t
-                        )
-                      );
-                    }}
-                  />
-                  <label
-                    htmlFor={`task-${task.id}`}
-                    className={`text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
-                      task.checked ? "line-through text-muted-foreground" : ""
-                    }`}
-                  >
-                    {task.label}
-                  </label>
+            {/* Dropdown estilo Notion (sempre ativo inicialmente) */}
+            <div className="space-y-2">
+              <div
+                className="flex items-center justify-between cursor-pointer py-2 px-3 border rounded bg-gray-50 hover:bg-gray-100"
+                onClick={() => setIsTaskDropdownOpen(!isTaskDropdownOpen)}
+              >
+                <Label className="font-medium">Tarefas</Label>
+                {isTaskDropdownOpen ? (
+                  <ChevronUp className="h-5 w-5 text-gray-600" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-gray-600" />
+                )}
+              </div>
+              {isTaskDropdownOpen && (
+                <div className="mt-2 space-y-2 border-t pt-3">
+                  {tasks.map((task) => (
+                    <div key={task.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        checked={task.checked}
+                        onCheckedChange={(checked) =>
+                          setTasks(
+                            tasks.map((t) =>
+                              t.id === task.id ? { ...t, checked: !!checked } : t
+                            )
+                          )
+                        }
+                      />
+                      <label
+                        htmlFor={`task-${task.id}`}
+                        className={`text-sm leading-none ${
+                          task.checked
+                            ? "line-through text-muted-foreground"
+                            : ""
+                        }`}
+                      >
+                        {task.label}
+                      </label>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-
           </div>
         </div>
 
-            <div className="space-y-2">
-              <Label>Link para formulário</Label>
-              <div className="flex space-x-2">
-                <Input readOnly value={formLink} className="flex-1" />
-                <Button variant="outline" size="icon" onClick={copyToClipboard}>
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+        <div className="space-y-2">
+          <Label>Link para formulário</Label>
+          <div className="flex space-x-2">
+            <Input readOnly value={formLink} className="flex-1" />
+            <Button variant="outline" size="icon" onClick={copyToClipboard}>
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
         <SheetFooter className="mt-auto flex justify-end sm:justify-end">
           <Button variant="destructive">Excluir processo</Button>
-          <Button variant='flowtec' type="submit">Salvar alterações</Button>
+          <Button variant="flowtec" type="submit">
+            Salvar alterações
+          </Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>

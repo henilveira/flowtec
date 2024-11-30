@@ -10,13 +10,15 @@ interface KanbanColumnsProps {
 
 export default function KanbanColumns({ cards }: KanbanColumnsProps) {
   return (
-    <div className="flex gap-6 min-w-max px-6">
+    <div className="flex gap-6 px-6 overflow-x-auto h-full">
       {COLUMNS.map((column) => (
-        <Coluna key={column.id} title={column.title}>
-          <div className="space-y-4">
-            {cards[column.id]}
-          </div>
-        </Coluna>
+        <div key={column.id} className="flex-shrink-0 min-w-[300px] max-w-[1fr]">
+          <Coluna title={column.title}>
+            <div className="space-y-4">
+              {cards[column.id]}
+            </div>
+          </Coluna>
+        </div>
       ))}
     </div>
   )
