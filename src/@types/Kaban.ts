@@ -1,11 +1,8 @@
-export type Stage = {
-    name: string
-    processes: string[]
-  }
+
   
   export type KanbanCard = {
     id: string
-    title: string
+    name: string
     description: string
     stage: number
     color: string
@@ -21,28 +18,7 @@ export type Stage = {
     completedProcesses: string[]
   }
   
-  export const stages: Stage[] = [
-    {
-      name: "PROPOSTA/FORMULÁRIO",
-      processes: ["PROPOSTA ENVIADA", "PROPOSTA ACEITA E FORMULÁRIO ENVIADO", "FORMULÁRIO RECEBIDO"]
-    },
-    {
-      name: "VIABILIDADE",
-      processes: ["SOLICITAR VIABILIDADE", "VIABILIDADE DEFERIDA", "ENVIAR DOCUMENTOS O CLIENTE CONFERIR E SOLICITAR OS E-CPF'S", "PROTOCOLADO JUCESC", "LIBERADO JUCESC E INICIAR ALVARÁ"]
-    },
-    {
-      name: "ALVARÁS",
-      processes: ["BOMBEIROS", "VIGILÂNCIA", "MEIO AMBIENTE", "POLÍCIA", "INSCRIÇÃO ESTADUAL", "ALVARÁ MUNICIPAL"]
-    },
-    {
-      name: "SIMPLES/NF",
-      processes: ["SOLICITAR SIMPLES", "INICIAR LIBERAÇÃO NOTAS", "RESULTADO SIMPLES", "NF LIBERADA E CONFIGURADA"]
-    },
-    {
-      name: "CONCLUÍDO",
-      processes: ["FINALIZAR PROCESSO"]
-    }
-  ]
+
   
   export const gradientColors = [
     "from-yellow-300 to-yellow-100",

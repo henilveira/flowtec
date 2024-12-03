@@ -12,7 +12,6 @@ import { STAGES } from "./constantes-cor";
 import { Requisicao } from "./requisicao";
 import EditCard from "./editCard";
 import FilterDropdown from "./filter";
-import { SelectEtapas } from "./select-etapas";
 
 export default function Societario() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -55,123 +54,10 @@ export default function Societario() {
     >
       <ChevronRightIcon className="h-4 w-4" />
     </Button>
-  );
-
-  const tasksProposta = [
-    { id: 1, label: "Proposta enviada", checked: true },
-    { id: 2, label: "Proposta aceita e formulário enviado", checked: true },
-    { id: 3, label: "Formulário recebido", checked: false },
-  ];
-
-  const tasksViabilidade = [
-    { id: 1, label: "Análise da viabilidade", checked: false },
-    { id: 2, label: "Documentos enviados", checked: false },
-  ];
-
-  // Definindo as tarefas para cada processo
-  const cards = {
-    [STAGES.PROPOSTA]: (
-      <>
-        <EditCard
-          triggerContent={
-            <Card
-              name="EcoWave"
-              stage={STAGES.PROPOSTA}
-              process="abertura_de_empresa"
-              currentDay={33}
-              startDate={""}
-              tasks={tasksProposta} // Passando as tarefas
-            />
-          }
-        />
-        <EditCard
-          triggerContent={
-            <Card
-              name="Lego"
-              stage={STAGES.PROPOSTA}
-              process="abertura_contratual"
-              currentDay={15}
-              startDate={""}
-              tasks={tasksProposta} // Passando as tarefas
-            />
-          }
-        />
-      </>
-    ),
-    [STAGES.VIABILIDADE]: (
-      <EditCard
-        triggerContent={
-          <Card
-            name="Luz"
-            stage={STAGES.VIABILIDADE}
-            process="alteracao_contratual"
-            currentDay={25}
-            startDate={""}
-            tasks={tasksViabilidade} // Passando as tarefas
-          />
-        }
-      />
-    ),
-    [STAGES.ALVARAS]: (
-      <>
-        <EditCard
-          triggerContent={
-            <Card
-              name="Polar Carros"
-              stage={STAGES.ALVARAS}
-              process="transformacao"
-              currentDay={48}
-              startDate={""}
-              tasks={[]} // Passando as tarefas
-            />
-          }
-        />
-        <EditCard
-          triggerContent={
-            <Card
-              name="Terrask"
-              stage={STAGES.ALVARAS}
-              process="abertura_de_empresa"
-              currentDay={48}
-              startDate={""}
-              tasks={[]} // Passando as tarefas
-            />
-          }
-        />
-      </>
-    ),
-    [STAGES.SIMPLES]: (
-      <EditCard
-        triggerContent={
-          <Card
-            name="Venom"
-            stage={STAGES.SIMPLES}
-            process="abertura_de_empresa"
-            currentDay={70}
-            startDate={""}
-            tasks={[]} // Passando as tarefas
-          />
-        }
-      />
-    ),
-    [STAGES.CONCLUSAO]: (
-      <EditCard
-        triggerContent={
-          <Card
-            name="Lotus"
-            stage={STAGES.CONCLUSAO}
-            process="abertura_de_empresa"
-            currentDay={54}
-            startDate={""}
-            tasks={[]} // Passando as tarefas
-          />
-        }
-      />
-    ),
-  };
+  );  
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col overflow-x-hidden h-full">
       <div className="flex-none">
         <Title titulo="Societário">
           <Button variant="outline">
@@ -190,8 +76,8 @@ export default function Societario() {
 
       <div className="flex-1 overflow-hidden relative">
         <ScrollArea className="h-full" ref={scrollAreaRef}>
-          <div className="h-full p-6 flex">
-            <KanbanColumns cards={cards} />
+          <div className="h-full overflow-hidden p-6 flex">
+            <KanbanColumns cards={Card} />
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>

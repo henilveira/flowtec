@@ -2,6 +2,7 @@ import { useApiBase } from './useApiBase';
 import { 
   SocietarioData, 
   CreateSocietarioParams,  
+  ProcessosResponse,
 } from '@/@types/Societario'; // Certifique-se de criar este tipo em `@/@types/Societario`
 
 // Types para diferentes respostas de listagem
@@ -55,6 +56,20 @@ export function useListTipoProcessos() {
   };
 }
 
+export function getProcessosByEtapas() {
+  const { data, error, mutate, isLoading, isValidating } = useApiBase<ProcessosResponse>(
+    `/societario/list-processos-etapas/` // Certifique-se de que este endpoint está correto
+  );
+
+  return {
+    processos: data?.processos_por_etapa || [], // Atualize para refletir a estrutura correta
+    isLoading,
+    isError: error,
+    mutate,
+    isValidating,
+  };
+}
+
 // Funções de Ações Societárias
 export function useSocietarioActions() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -87,7 +102,6 @@ export function useSocietarioActions() {
     const data = await response.json();
     return data;
   };
-  
 
   // Obter Etapa por ID
   const getEtapaById = (id: string) => {
