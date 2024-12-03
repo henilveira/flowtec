@@ -60,23 +60,34 @@ export function useSocietarioActions() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   // Criar novo registro
-  const novoRegistro = async (params: CreateSocietarioParams) => {
-    const response = await fetch(`${API_URL}/societario/novo-registro/`, {
-      method: 'POST',
-      credentials: 'include',
+  const novoRegistro = async (
+    nome: string,
+    contabilidade_id: any,
+    tipo_processo_id: string,
+    etapa_id: string
+  ) => {
+    const response = await fetch(`${API_URL}/societario/create-processo/`, {
+      method: "POST",
+      credentials: "include",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(params),
+      body: JSON.stringify({
+        nome,
+        contabilidade_id,
+        tipo_processo_id,
+        etapa_id,
+      }),
     });
-
+  
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.message || `Request failed with status ${response.status}`);
+      throw new Error("Erro ao criar novo registro");
     }
-
-    return response.json();
+  
+    const data = await response.json();
+    return data;
   };
+  
 
   // Obter Etapa por ID
   const getEtapaById = (id: string) => {

@@ -24,7 +24,7 @@ import NotificationIcon from "@/components/notificacoes";
 import Profile from "@/components/profile";
 import Title from "./page-title";
 import { Toaster } from "@/components/ui/sonner";
-import { ContabilidadeProvider } from "./societario/select";
+import { ContabilidadeProvider } from "./societario/select-contabilidade";
 
 export default function DashboardLayout({
   children,
@@ -33,28 +33,34 @@ export default function DashboardLayout({
 }) {
   return (
     <ContabilidadeProvider>
-
-    <ThemeProvider attribute="class" defaultTheme="system">
-      <div className="flex flex-col h-screen w-full bg-muted/40 overflow-hidden"> {/* Adicionado overflow-hidden */}
-        <DesktopNavbar />
-        <div className="flex flex-1 overflow-hidden"> {/* Adicionado overflow-hidden */}
-          <DesktopAside />
-          <main className="flex-1 flex flex-col overflow-hidden"> {/* Adicionado overflow-hidden */}
-            <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b justify-between px-4 sm:px-6 lg:hidden">
-              <div className="w-full">
-                <MobileNav />
+      <ThemeProvider attribute="class" defaultTheme="system">
+        <div className="flex flex-col h-screen w-full bg-muted/40 overflow-hidden">
+          {" "}
+          {/* Adicionado overflow-hidden */}
+          <DesktopNavbar />
+          <div className="flex flex-1 overflow-hidden">
+            {" "}
+            {/* Adicionado overflow-hidden */}
+            <DesktopAside />
+            <main className="flex-1 flex flex-col overflow-hidden">
+              {" "}
+              {/* Adicionado overflow-hidden */}
+              <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b justify-between px-4 sm:px-6 lg:hidden">
+                <div className="w-full">
+                  <MobileNav />
+                </div>
+              </header>
+              <div className="flex-1 overflow-auto">
+                {" "}
+                {/* Mudado para overflow-auto */}
+                {children}
               </div>
-            </header>
-            <div className="flex-1 overflow-auto"> {/* Mudado para overflow-auto */}
-              {children}
-            </div>
-            <Toaster />
-          </main>
+              <Toaster />
+            </main>
+          </div>
         </div>
-      </div>
-    </ThemeProvider>
+      </ThemeProvider>
     </ContabilidadeProvider>
-
   );
 }
 
