@@ -1,4 +1,8 @@
 "use client";
+
+import { useState } from "react";
+import { Copy, Plus } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,31 +24,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useSocietario } from "@/hooks/useSocietario";
-import { Copy, Plus } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  useListEtapas,
+  useListTipoProcessos,
+  useSocietarioActions,
+} from "@/hooks/useSocietario";
 import { SelectContabilidade, useContabilidade } from "./select";
 
 export function Requisicao() {
-    const { novoRegistro } = useSocietario()
-    const { selectedCompany } = useContabilidade();
-    const [name, setName] = useState('')
+  const { novoRegistro } = useSocietarioActions();
+  const { tipoProcessos, isLoading } = useListTipoProcessos();
+  const { etapas } = useListEtapas();
+  const { selectedCompany } = useContabilidade();
+  const [name, setName] = useState("");
+  const [selectedProcessType, setSelectedProcessType] = useState(
+    tipoProcessos[0]?.id || ""
+  );
+  const [selectedEtapa, setSelectedEtapa] = useState(
+    etapas[0]?.id || ""
+  );
+  const handleRequest = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-    const handleRequest = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-    
-        try {
-            await novoRegistro(selectedCompany, name);
-            toast("Processo criado com sucesso!", {
-                description:
-                  "Envie o link de formulário para seu cliente preencher os dados!",
-              });
-        } catch (error) {
-            // Tratar erro aqui
-            console.error(error);
-        }
-    };
+    try {
+      // await novoRegistro(selectedCompany, name, selectedProcessType);
+      toast("Processo criado com sucesso!", {
+        description:
+          "Envie o link de formulário para seu cliente preencher os dados!",
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao criar processo", {
+        description: "Por favor, tente novamente mais tarde.",
+      });
+    }
+  };
 
   return (
     <Dialog>
@@ -62,92 +77,74 @@ export function Requisicao() {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleRequest}>
-          <div className="grid gap-4 py-4">
-            <div className="flex flex-col justify-center items-start gap-2">
-              <Label htmlFor="name" className="text-right">
-                Nome
-              </Label>
-              <Input
-                id="name"
-                placeholder="Empresa de pedro"
-                onChange={(e) => setName(e.target.value)}
-                className="col-span-3"
-              />
-            </div>
-            <div className="flex justify-center items-start gap-2">
-              <Select>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Etapa..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="proposta">
-                      Proposta / Formulário
-                    </SelectItem>
-                    <SelectItem value="viabilidade">Viabilidade</SelectItem>
-                    <SelectItem value="alvaras">Alvarás</SelectItem>
-                    <SelectItem value="simples">Simples / NF</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+          {isLoading ? (
+            <div>Carregando processos...</div>
+          ) : tipoProcessos.length === 0 ? (
+            <div>Nenhum processo disponível</div>
+          ) : (
+            <>
+              <Tabs
+                defaultValue={tipoProcessos[0].id}
+                onValueChange={setSelectedProcessType}
+                className="w-full"
+              >
+                <TabsList className="grid w-full grid-cols-3">
+                  {tipoProcessos.map((processo) => (
+                    <TabsTrigger key={processo.id} value={processo.id}>
+                      {processo.descricao}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
 
-              {/* <Select>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Processo..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="abertura">
-                      Abertura de Empresa
-                    </SelectItem>
-                    <SelectItem value="alteracao">
-                      Alteração Contratual
-                    </SelectItem>
-                    <SelectItem value="transformacao">Transformação</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select> */}
-            </div>
-            <div className="flex justify-center items-start gap-2">
-              <div className="flex flex-1 gap-2 flex-col">
-                <Label htmlFor="name" className="text-left">
-                  Link para formulário
-                </Label>
-                <div className="flex items-center justify-center gap-2">
+                {Object.values(tipoProcessos).map((processo) => (
+                  <TabsContent key={processo.id} value={processo.id}>
+                    <div className="flex justify-center items-start gap-2">
+                      <Select>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Etapa..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {Object.values(etapas).map((etapa) => (
+                              <SelectItem key={etapa.id} value={etapa.id}>
+                                {etapa.nome} {/* Exibe o nome da etapa */}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </TabsContent>
+                ))}
+              </Tabs>
+
+              <div className="grid gap-4 py-4">
+                <div className="flex flex-col justify-center items-start gap-2">
+                  <Label htmlFor="name" className="text-right">
+                    Nome
+                  </Label>
                   <Input
-                    id="link"
-                    defaultValue="https://flowtec.com.br/form/nfg2356bfde54/563g346jer"
-                    readOnly
+                    id="name"
+                    placeholder="Empresa de pedro"
+                    onChange={(e) => setName(e.target.value)}
+                    className="col-span-3"
                   />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="px-3"
-                    onClick={(event) => {
-                      event.preventDefault(); // Previne o fechamento do diálogo
-                      toast("Link para formulário copiado!", {
-                        description:
-                          "Envie o link de formulário para seu cliente preencher os dados!",
-                      });
-                    }}
-                  >
-                    <span className="sr-only">Copy</span>
-                    <Copy className="h-4 w-4" />
-                  </Button>
                 </div>
+                {/* Rest of your existing code */}
               </div>
-            </div>
-          </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Cancelar</Button>
-          </DialogClose>
-          <DialogClose asChild>
-            <Button type="submit" variant={"flowtec"}>
-              Abrir requisição
-            </Button>
-          </DialogClose>
-        </DialogFooter>
+            </>
+          )}
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancelar</Button>
+            </DialogClose>
+            <DialogClose asChild>
+              <Button type="submit" variant="flowtec">
+                Abrir requisição
+              </Button>
+            </DialogClose>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

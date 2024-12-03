@@ -1,156 +1,103 @@
-import { useState } from 'react';
+import { useApiBase } from './useApiBase';
+import { 
+  SocietarioData, 
+  CreateSocietarioParams,  
+} from '@/@types/Societario'; // You'll need to create this type definition
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-interface SocietarioData {
-  id: string;
-  registro_inicial: string;
-  contabilidade_id: any;
-  // Adicione outros campos conforme necessário
+// Types for different list responses
+interface EtapasResponse {
+  results: SocietarioData[];
+  count: number;
 }
 
-// Removida a interface CreateSocietarioData já que vamos passar os argumentos separadamente
-
-interface UpdateSocietarioData {
-  id: string;
-  cnpj?: string;
-  status?: string;
-  // Adicione outros campos que podem ser atualizados
+interface TipoProcessosResponse {
+  results: SocietarioData[];
+  count: number;
 }
 
-export function useSocietario() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<SocietarioData[]>([]);
-
-  // Função auxiliar para fazer requisições
-  const fetchWithErrorHandling = async (url: string, options: RequestInit) => {
-    try {
-      const response = await fetch(url, {
-        ...options,
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.message || `Request failed with status ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error: any) {
-      setError(error.message || 'An error occurred');
-      throw error;
-    }
-  };
-
-  // Create - Criar novo processo societário com argumentos separados
-  const novoRegistro = async (id_contabilidade: any, registro_inicial: string) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await fetchWithErrorHandling(
-        `${API_URL}/societario/novo-registro/`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            id_contabilidade,
-            registro_inicial
-          }),
-        }
-      );
-      return result;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Read - Buscar todos os processos
-  const getAll = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await fetchWithErrorHandling(
-        `${API_URL}/societario/`,
-        { method: 'GET' }
-      );
-      setData(result);
-      return result;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Read - Buscar processo específico
-  const getById = async (id: string) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await fetchWithErrorHandling(
-        `${API_URL}/societario/${id}/`,
-        { method: 'GET' }
-      );
-      return result;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Update - Atualizar processo
-  const update = async (updateData: UpdateSocietarioData) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await fetchWithErrorHandling(
-        `${API_URL}/societario/${updateData.id}/`,
-        {
-          method: 'PUT',
-          body: JSON.stringify(updateData),
-        }
-      );
-      return result;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Delete - Remover processo
-  const remove = async (id: string) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      await fetchWithErrorHandling(
-        `${API_URL}/societario/${id}/`,
-        { method: 'DELETE' }
-      );
-      // Atualiza o estado removendo o item deletado
-      setData(prevData => prevData.filter(item => item.id !== id));
-      return true;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Função para limpar erros
-  const clearError = () => setError(null);
+export function useListEtapas() {
+  const { data, error, mutate, isLoading, isValidating } = useApiBase<EtapasResponse>(
+    `/societario/list-etapas/`
+  );
 
   return {
-    data,
+    etapas: data?.results || [],
     isLoading,
-    error,
+    isError: error,
+    mutate,
+    isValidating
+  };
+}
+
+interface TipoProcessosResponse {
+  tipo_processo: SocietarioData[]; // Ajuste conforme o formato da API
+}
+
+export function useListTipoProcessos() {
+  const { data, error, mutate, isLoading, isValidating } = useApiBase<TipoProcessosResponse>(
+    `/societario/list-tipo-processo/`
+  );
+
+  return {
+    tipoProcessos: data?.tipo_processo || [], // Atualize para refletir a estrutura correta
+    isLoading,
+    isError: error,
+    mutate,
+    isValidating
+  };
+}
+
+
+export function useSocietarioActions() {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  // Create - Novo Registro
+  const novoRegistro = async (params: CreateSocietarioParams) => {
+    const response = await fetch(`${API_URL}/societario/novo-registro/`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || `Request failed with status ${response.status}`);
+    }
+
+    return response.json();
+  };
+
+  // Get by ID
+  const getEtapaById = (id: string) => {
+    const { data, error, isLoading } = useApiBase<SocietarioData>(
+      `/societario/get-etapa/?id=${id}/`
+    );
+
+    return { data, error, isLoading };
+  };
+
+
+  // Delete
+  const remove = async (id: string) => {
+    const response = await fetch(`${API_URL}/societario/${id}/`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || `Request failed with status ${response.status}`);
+    }
+
+    return true;
+  };
+
+  return {
     novoRegistro,
-    getAll,
-    getById,
-    update,
+    getEtapaById,
     remove,
-    clearError,
   };
 }
