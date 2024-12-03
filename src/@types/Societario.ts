@@ -25,3 +25,14 @@ export interface TipoProcesso {
     results: SocietarioData[];
     count: number;
   }
+
+  export interface Etapa {
+    id: string;
+    nome: string;
+    ordem: number;
+  }
+  
+  export interface EtapasResponse {
+    etapas: Etapa[]; // Reflete a resposta do endpoint `/societario/list-etapas/`
+  }
+  

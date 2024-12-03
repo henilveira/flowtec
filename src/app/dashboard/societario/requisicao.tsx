@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Copy, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -34,24 +34,35 @@ import { SelectContabilidade, useContabilidade } from "./select";
 
 export function Requisicao() {
   const { novoRegistro } = useSocietarioActions();
-  const { tipoProcessos, isLoading } = useListTipoProcessos();
-  const { etapas } = useListEtapas();
+  const { tipoProcessos, isLoading: tipoProcessosLoading } = useListTipoProcessos();
+  const { etapas, isLoading: etapasLoading } = useListEtapas();
   const { selectedCompany } = useContabilidade();
+
   const [name, setName] = useState("");
-  const [selectedProcessType, setSelectedProcessType] = useState(
-    tipoProcessos[0]?.id || ""
-  );
-  const [selectedEtapa, setSelectedEtapa] = useState(
-    etapas[0]?.id || ""
-  );
+  const [selectedProcessType, setSelectedProcessType] = useState(tipoProcessos[0]?.id || "");
+  const [selectedEtapa, setSelectedEtapa] = useState(etapas[0]?.id || "");
+
+  // Memorize tipoProcessos e etapas para evitar recalcular ou re-fetch
+  const memoizedTipoProcessos = useMemo(() => tipoProcessos, [tipoProcessos]);
+  const memoizedEtapas = useMemo(() => etapas, [etapas]);
+
+  // Estado para controlar se os dados estão carregados
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
+  useEffect(() => {
+    if (memoizedTipoProcessos.length > 0 && memoizedEtapas.length > 0) {
+      setIsDataLoaded(true); // Marca os dados como carregados
+    }
+  }, [memoizedTipoProcessos, memoizedEtapas]);
+
   const handleRequest = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
+      // Supondo que a função de criação de processo seja chamada aqui
       // await novoRegistro(selectedCompany, name, selectedProcessType);
       toast("Processo criado com sucesso!", {
-        description:
-          "Envie o link de formulário para seu cliente preencher os dados!",
+        description: "Envie o link de formulário para seu cliente preencher os dados!",
       });
     } catch (error) {
       console.error(error);
@@ -72,42 +83,44 @@ export function Requisicao() {
         <DialogHeader>
           <DialogTitle>Abrir requisição</DialogTitle>
           <DialogDescription>
-            Preencha os campos abaixo para iniciar o processo de requisição e
-            criar um card
+            Preencha os campos abaixo para iniciar o processo de requisição e criar um card
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleRequest}>
-          {isLoading ? (
-            <div>Carregando processos...</div>
-          ) : tipoProcessos.length === 0 ? (
-            <div>Nenhum processo disponível</div>
+          {tipoProcessosLoading || etapasLoading ? (
+            <div>Carregando dados...</div>
+          ) : !isDataLoaded ? (
+            <div>Nenhum processo ou etapa disponível</div>
           ) : (
             <>
               <Tabs
-                defaultValue={tipoProcessos[0].id}
+                defaultValue={memoizedTipoProcessos[0]?.id}
                 onValueChange={setSelectedProcessType}
                 className="w-full"
               >
                 <TabsList className="grid w-full grid-cols-3">
-                  {tipoProcessos.map((processo) => (
+                  {memoizedTipoProcessos.map((processo) => (
                     <TabsTrigger key={processo.id} value={processo.id}>
                       {processo.descricao}
                     </TabsTrigger>
                   ))}
                 </TabsList>
 
-                {Object.values(tipoProcessos).map((processo) => (
+                {memoizedTipoProcessos.map((processo) => (
                   <TabsContent key={processo.id} value={processo.id}>
                     <div className="flex justify-center items-start gap-2">
-                      <Select>
+                      <Select
+                        onValueChange={setSelectedEtapa} 
+                        value={selectedEtapa} 
+                      >
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Etapa..." />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            {Object.values(etapas).map((etapa) => (
+                            {memoizedEtapas.map((etapa) => (
                               <SelectItem key={etapa.id} value={etapa.id}>
-                                {etapa.nome} {/* Exibe o nome da etapa */}
+                                {etapa.nome}
                               </SelectItem>
                             ))}
                           </SelectGroup>
@@ -125,12 +138,11 @@ export function Requisicao() {
                   </Label>
                   <Input
                     id="name"
-                    placeholder="Empresa de pedro"
+                    placeholder="Empresa de Pedro"
                     onChange={(e) => setName(e.target.value)}
                     className="col-span-3"
                   />
                 </div>
-                {/* Rest of your existing code */}
               </div>
             </>
           )}
