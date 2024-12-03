@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { SelectContabilidade } from "./select-contabilidade";
+import { SelectContabilidade } from "./select";
 import { SelectEtapas } from "./select-etapas";
 
 export default function FilterDropdown({
@@ -139,7 +139,7 @@ export default function FilterDropdown({
           {/* Etapa */}
           <div className="space-y-2">
             <Label>Etapa</Label>
-              <SelectEtapas/>
+            <SelectEtapas />
             <Button
               variant="ghost"
               className="h-auto p-0 text-xs text-blue-500"

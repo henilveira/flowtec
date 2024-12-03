@@ -24,7 +24,7 @@ import NotificationIcon from "@/components/notificacoes";
 import Profile from "@/components/profile";
 import Title from "./page-title";
 import { Toaster } from "@/components/ui/sonner";
-import { ContabilidadeProvider } from "./societario/select-contabilidade";
+import { ContabilidadeProvider } from "./societario/select";
 
 export default function DashboardLayout({
   children,

@@ -14,6 +14,7 @@ interface ProcessCardProps {
   diaAtual: number
   diaInicio: string
   className?: string
+  onEdit: () => void // Função para editar o card
 }
 
 export default function Card({ 
@@ -22,7 +23,8 @@ export default function Card({
   tipoProcesso,  
   diaAtual,
   diaInicio,  
-  className
+  className,
+  onEdit
 }: ProcessCardProps) {
   const currentColumn = COLUMNS.find(column => column.id === etapa.id)
 
@@ -56,7 +58,13 @@ export default function Card({
           <span>100%</span>
         </div>
       </div>
+
+      <button 
+        onClick={onEdit} // Botão para editar
+        className="mt-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+      >
+        Editar
+      </button>
     </div>
   )
 }
-

@@ -3,6 +3,7 @@ import {
   SocietarioData, 
   CreateSocietarioParams,  
   ProcessosResponse,
+  Processo,
 } from '@/@types/Societario'; // Certifique-se de criar este tipo em `@/@types/Societario`
 
 // Types para diferentes respostas de listagem
@@ -39,7 +40,19 @@ export function useListEtapas() {
   };
 }
 
+export function getProcessosById(id: string) {
+  const { data, error, mutate, isLoading, isValidating } = useApiBase<{processo: Processo}>(
+    `/societario/get-processo/?processo_id=${id}`
+  );
 
+  return {
+    processo: data?.processo,  // Extract nested processo
+    isLoading,
+    isError: error,
+    mutate,
+    isValidating,
+  };
+}
 
 // Hook para listar Tipo de Processos
 export function useListTipoProcessos() {
@@ -57,16 +70,13 @@ export function useListTipoProcessos() {
 }
 
 export function getProcessosByEtapas() {
-  const { data, error, mutate, isLoading, isValidating } = useApiBase<ProcessosResponse>(
-    `/societario/list-processos-etapas/` // Certifique-se de que este endpoint está correto
-  );
+  const { data, error } = useApiBase<{processos_por_etapa: any[]}>('/societario/list-processos-etapas/');
+
+  console.log('Dados do hook:', data);
 
   return {
-    processos: data?.processos_por_etapa || [], // Atualize para refletir a estrutura correta
-    isLoading,
-    isError: error,
-    mutate,
-    isValidating,
+    processos: data?.processos_por_etapa || [],
+    error
   };
 }
 

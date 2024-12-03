@@ -30,7 +30,7 @@ import {
   useListTipoProcessos,
   useSocietarioActions,
 } from "@/hooks/useSocietario";
-import { SelectContabilidade, useContabilidade } from "./select-contabilidade";
+import { SelectContabilidade, useContabilidade } from "./select";
 
 export function Requisicao() {
   const { novoRegistro } = useSocietarioActions();
@@ -47,7 +47,12 @@ export function Requisicao() {
 
     try {
       // Supondo que a função de criação de processo seja chamada aqui
-      await novoRegistro(nomeCard, selectedCompany, selectedTipoProcesso, selectedEtapa);
+      await novoRegistro(
+        nomeCard,
+        selectedCompany,
+        selectedTipoProcesso,
+        selectedEtapa
+      );
       toast("Processo criado com sucesso!", {
         description:
           "Envie o link de formulário para seu cliente preencher os dados!",
