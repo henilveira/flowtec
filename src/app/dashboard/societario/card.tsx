@@ -1,70 +1,92 @@
-'use client'
+"use client";
 
-import { cn } from "@/lib/utils"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
-import { COLUMNS } from "./constantes-cor"
-import { Etapa, TipoProcesso } from "@/@types/Societario"
+import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { COLUMNS } from "./constantes-cor";
+import { Etapa, TipoProcesso } from "@/@types/Societario";
 
 interface ProcessCardProps {
-  id?: string
-  nome: string
-  etapa: Etapa
-  tipoProcesso: TipoProcesso
-  diaAtual: number
-  diaInicio: string
-  className?: string
-  onEdit: () => void // Função para editar o card
+  id?: string;
+  nome: string;
+  etapa: string;
+  tipoProcesso: any;
+  diaAtual: number;
+  diaInicio: string;
+  className?: string;
+  onClick: () => void;
+  disabled?: boolean;
 }
 
-export default function Card({ 
+export default function Card({
   nome,
-  etapa,  
-  tipoProcesso,  
+  etapa,
+  tipoProcesso,
   diaAtual,
-  diaInicio,  
+  diaInicio,
   className,
-  onEdit
+  onClick,
+  disabled = false,
 }: ProcessCardProps) {
-  const currentColumn = COLUMNS.find(column => column.id === etapa.id)
+  const currentColumn = COLUMNS.find((column) => column.id === etapa);
+
+  // Determina as cores com base nos dias
+  const getColor = () => {
+    if (diaAtual <= 30) return "green-500";
+    if (diaAtual <= 60) return "yellow-500";
+    return "red-500";
+  };
+
+  // Determina a cor de fundo da barra de progresso
+  const getProgressBarBackground = () => {
+    if (diaAtual <= 30) return "bg-green-500/30";
+    if (diaAtual <= 60) return "bg-yellow-500/30";
+    return "bg-red-500/30";
+  };
 
   return (
-    <div className={cn(
-      "flex flex-col bg-flowtech-blue gap-4 text-white rounded-xl p-6 w-full min-w-[280px] shadow-lg transition-all duration-300 ease-in-out",
-      "hover:shadow-xl hover:translate-y-[-4px]",
-      currentColumn?.color,
-      className
-    )}>
+    <div
+      onClick={disabled ? undefined : onClick}
+      className={cn(
+        "flex flex-col bg-flowtech-blue gap-4 text-white rounded-xl p-6 w-full min-w-[280px] shadow-lg transition-all duration-300 ease-in-out",
+        disabled
+          ? "opacity-50 cursor-not-allowed"
+          : "cursor-pointer hover:shadow-xl hover:translate-y-[-4px]",
+        currentColumn?.color,
+        className
+      )}
+    >
       <div className="flex justify-between items-start">
-        <h3 className="text-2xl font-bold tracking-tight">{nome}</h3> 
-        <Badge 
-          className="text-sm font-medium px-3 py-1 rounded-full bg-white/20 text-white border-none shadow-sm"
+        <h3 className="text-xl font-bold tracking-tight">{nome}</h3>
+        <Badge
+          className={cn(
+            "text-xs font-medium px-3 py-1 rounded-full text-white border-none text-center",
+            `bg-${getColor()}`
+          )}
         >
           {tipoProcesso.descricao}
         </Badge>
       </div>
-      
+
       <div className="mt-auto space-y-2">
         <div className="flex justify-between text-sm font-medium">
-          <span>{diaAtual} dias</span>
-          <span>Meta: 90 dias</span>
+          <span>{diaAtual} dia(s)</span>
+          <span>90 dias</span>
         </div>
-        <Progress 
-          value={(diaAtual / 90) * 100} 
-          className="h-2 bg-white/30" 
-        />
-        <div className="flex justify-between text-xs text-white/70">
-          <span>0%</span>
-          <span>100%</span>
+        <div 
+          className={cn(
+            "h-2 rounded-full overflow-hidden",
+            getProgressBarBackground()
+          )}
+        >
+          <div 
+            className={`h-full bg-${getColor()}`} 
+            style={{ 
+              width: `${Math.min((diaAtual / 90) * 100, 100)}%` 
+            }}
+          />
         </div>
       </div>
-
-      <button 
-        onClick={onEdit} // Botão para editar
-        className="mt-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
-      >
-        Editar
-      </button>
     </div>
-  )
+  );
 }

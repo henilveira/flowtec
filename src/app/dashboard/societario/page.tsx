@@ -1,107 +1,99 @@
-// Societario.tsx
-"use client";
-import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { ChevronRightIcon, FilterIcon } from "lucide-react";
-import { getProcessosByEtapas } from "@/hooks/useSocietario";
-import KanbanColumns from "./quadro"; // Componente KanbanColumns
-import EditCard from "./editCard"; // Modal de edição de card
-import Title from "../page-title";
-import FilterDropdown from "./filter";
-import { Requisicao } from "./requisicao";
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { ChevronRightIcon, FilterIcon } from 'lucide-react';
+import { getProcessosByEtapas } from '@/hooks/useSocietario';
+import KanbanColumns from './quadro';
+import EditSheet from './editCard';
+import Title from '../page-title';
+import FilterDropdown from './filter';
+import { Requisicao } from './requisicao';
 
 export default function Societario() {
-  const { processos } = getProcessosByEtapas();
-  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-  const handleCardEdit = (cardId: string) => {
-    setSelectedCardId(cardId);
-    setIsEditModalOpen(true);
-  };
-
+  const { processos: processosCard } = getProcessosByEtapas();
+  const [selectedProcesso, setSelectedProcesso] = useState<any | null>(null);
   const [showScrollArrow, setShowScrollArrow] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  const handleCardEdit = (processo: any) => {
+    setSelectedProcesso(processo);
+  };
+
+  const handleScroll = () => {
+    scrollAreaRef.current?.scrollBy({ left: 300, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     const checkScroll = () => {
       if (scrollAreaRef.current) {
         const { scrollWidth, clientWidth, scrollLeft } = scrollAreaRef.current;
-        setShowScrollArrow(
-          scrollWidth > clientWidth && scrollLeft + clientWidth < scrollWidth
-        );
+        setShowScrollArrow(scrollWidth > clientWidth && scrollLeft + clientWidth < scrollWidth);
       }
     };
 
     checkScroll();
-
-    window.addEventListener("resize", checkScroll);
-    scrollAreaRef.current?.addEventListener("scroll", checkScroll);
+    window.addEventListener('resize', checkScroll);
+    scrollAreaRef.current?.addEventListener('scroll', checkScroll);
 
     return () => {
-      window.removeEventListener("resize", checkScroll);
-      scrollAreaRef.current?.removeEventListener("scroll", checkScroll);
+      window.removeEventListener('resize', checkScroll);
+      scrollAreaRef.current?.removeEventListener('scroll', checkScroll);
     };
   }, []);
 
-  const handleScroll = () => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollBy({ left: 300, behavior: "smooth" });
-    }
+  const handleSaveEdit = (updatedProcesso: any) => {
+    // Implement your save logic here if needed
+    setSelectedProcesso(null);
   };
 
-  const ScrollArrow = ({ onClick }: { onClick: () => void }) => (
-    <Button
-      variant="outline"
-      size="icon"
-      className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-background/80 backdrop-blur-sm"
-      onClick={onClick}
-    >
-      <ChevronRightIcon className="h-4 w-4" />
-    </Button>
-  );
-
   return (
-    <div className="flex flex-col  h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <div className="flex-none">
         <Title titulo="Societário">
           <Button variant="outline">
             <FilterDropdown>
-              <div>
-                <span className="flex items-center justify-center">
-                  <FilterIcon className="mr-2 h-4 w-4" />
-                  Filtrar
-                </span>
-              </div>
+              <span className="flex items-center justify-center">
+                <FilterIcon className="mr-2 h-4 w-4" />
+                Filtrar
+              </span>
             </FilterDropdown>
           </Button>
           <Requisicao />
         </Title>
       </div>
 
-      <div className="flex flex-col h-full">
-        <div
-          className="flex-1 flex overflow-x-auto relative"
-          ref={scrollAreaRef}
-        >
-          <KanbanColumns
-            processos={processos}
+      {/* Quadro Societario */}
+      <ScrollArea className="flex-1 w-full h-[calc(100vh-100px)]">
+        <div className="min-h-[500px] flex-1 relative py-5" ref={scrollAreaRef}>
+          <KanbanColumns 
+            processosCard={processosCard} 
             handleCardEdit={handleCardEdit}
+            selectedProcessoId={selectedProcesso?.id}
           />
-
-          {showScrollArrow && <ScrollArrow onClick={handleScroll} />}
+          {showScrollArrow && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-background/80 backdrop-blur-sm"
+              onClick={handleScroll}
+            >
+              <ChevronRightIcon className="h-4 w-4" />
+            </Button>
+          )}
         </div>
+        <ScrollBar orientation="vertical" />
+      </ScrollArea>
 
-        {isEditModalOpen && selectedCardId && (
-          <EditCard
-            cardId={selectedCardId}
-            onClose={() => {
-              setSelectedCardId(null);
-              setIsEditModalOpen(false);
-            }}
-          />
-        )}
-      </div>
+      {selectedProcesso && (
+        <EditSheet
+          processo={selectedProcesso}
+          onSave={handleSaveEdit}
+          onCancel={() => setSelectedProcesso(null)}
+        />
+      )}
     </div>
   );
 }
+

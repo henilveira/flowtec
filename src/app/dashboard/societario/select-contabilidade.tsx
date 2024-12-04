@@ -41,18 +41,20 @@ export function SelectContabilidade() {
   const { selectedCompany, setSelectedCompany } = useContabilidade();
 
   return (
-    <Select value={selectedCompany || ""} onValueChange={setSelectedCompany}>
-      <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Contabilidade..." />
-      </SelectTrigger>
-      <SelectContent className="flex items-center justify-center">
-        {Array.isArray(companies) &&
-          companies.map((company) => (
-            <SelectGroup key={company.id}>
-              <SelectItem value={company.id}>{company.nome}</SelectItem>
-            </SelectGroup>
-          ))}
-      </SelectContent>
-    </Select>
+    <div className="w-full">
+      <Select value={selectedCompany || ""} onValueChange={setSelectedCompany}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Selecione a contabilidade..." />
+        </SelectTrigger>
+        <SelectContent className="w-full">
+          {Array.isArray(companies) &&
+            companies.map((company) => (
+              <SelectGroup key={company.id}>
+                <SelectItem className="w-full" value={company.id}>{company.nome}</SelectItem>
+              </SelectGroup>
+            ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 }

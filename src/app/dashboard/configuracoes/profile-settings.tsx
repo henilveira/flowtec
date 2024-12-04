@@ -147,8 +147,8 @@ export default function ProfileSettings() {
               />
             </div>
           <Button
+            variant='outline'
             type="submit"
-            className="bg-flowtech-gradient text-white"
             disabled={isLoading} // Desabilita o botão enquanto carrega
             >
                 {isLoading ? (

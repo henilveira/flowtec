@@ -1,13 +1,13 @@
-'use client';
-import * as React from 'react';
+"use client";
+import * as React from "react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { useListEtapas } from '@/hooks/useSocietario';
+} from "@/components/ui/select";
+import { useListEtapas } from "@/hooks/useSocietario";
 
 const EtapaContext = React.createContext<{
   selectedEtapa: string | null;
@@ -30,7 +30,7 @@ export const EtapaProvider = ({ children }: { children: React.ReactNode }) => {
 export const useEtapa = () => {
   const context = React.useContext(EtapaContext);
   if (!context) {
-    throw new Error('useEtapa must be used within an EtapaProvider');
+    throw new Error("useEtapa must be used within an EtapaProvider");
   }
   return context;
 };
@@ -48,17 +48,19 @@ export function SelectEtapas() {
   }
 
   return (
-    <Select value={selectedEtapa || ''} onValueChange={setSelectedEtapa}>
-      <SelectTrigger className="w-[200px]">
-        <SelectValue placeholder="Selecione uma etapa..." />
-      </SelectTrigger>
-      <SelectContent>
-        {etapas.map((etapa) => (
-          <SelectItem key={etapa.id} value={etapa.id}>
-            {etapa.nome}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="w-full">
+      <Select value={selectedEtapa || ""} onValueChange={setSelectedEtapa}>
+        <SelectTrigger className="w-[200px]">
+          <SelectValue placeholder="Selecione uma etapa..." />
+        </SelectTrigger>
+        <SelectContent className="w-full">
+          {etapas.map((etapa) => (
+            <SelectItem className="w-full" key={etapa.id} value={etapa.id}>
+              {etapa.nome}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useApiBase } from './useApiBase';
 import { 
   SocietarioData, 
@@ -83,6 +84,8 @@ export function getProcessosByEtapas() {
 // Funções de Ações Societárias
 export function useSocietarioActions() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Criar novo registro
   const novoRegistro = async (
@@ -91,27 +94,37 @@ export function useSocietarioActions() {
     tipo_processo_id: string,
     etapa_id: string
   ) => {
-    const response = await fetch(`${API_URL}/societario/create-processo/`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nome,
-        contabilidade_id,
-        tipo_processo_id,
-        etapa_id,
-      }),
-    });
-  
-    if (!response.ok) {
-      throw new Error("Erro ao criar novo registro");
+    setError(null);
+    setIsLoading(true);  // Definido aqui para iniciar o carregamento
+
+    try {
+      const response = await fetch(`${API_URL}/societario/create-processo/`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome,
+          contabilidade_id,
+          tipo_processo_id,
+          etapa_id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao criar novo registro");
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error: any) {
+      setError(error.message);  // Captura e define o erro com a mensagem correta
+    } finally {
+      setIsLoading(false);  // Definido para garantir que o estado de carregamento seja desativado
     }
-  
-    const data = await response.json();
-    return data;
   };
+
 
   // Obter Etapa por ID
   const getEtapaById = (id: string) => {
@@ -138,6 +151,7 @@ export function useSocietarioActions() {
   };
 
   return {
+    isLoading,
     novoRegistro,
     getEtapaById,
     remove,
