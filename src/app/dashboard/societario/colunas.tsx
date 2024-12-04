@@ -28,7 +28,7 @@ export default function Coluna({
           <ChevronDown className="h-4 w-4 text-gray-400" />
           <span>{title}</span>
         </div>
-        <span className="text-lg text-gray-500">{count}</span>
+        <span className="text-sm text-gray-500">{count}</span>
       </div>
       <div className="overflow-hidden">
         <div className="p-2 space-y-2 min-h-0">{children}</div>
