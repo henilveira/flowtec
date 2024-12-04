@@ -39,7 +39,10 @@ export default function KanbanColumns({
     <div className="flex gap-6 px-6 overflow-x-auto h-full">
       {processosCard.map((etapa) => (
         <div key={etapa.ordem} className="flex-shrink-0 min-w-[300px] max-w-[1fr]">
-          <Coluna title={etapa.nome}>
+          <Coluna 
+            title={etapa.nome} 
+            count={etapa.processos.length} // Passa a contagem separadamente
+          >
             <div className="space-y-4">
               {etapa.processos.map((processo) => (
                 <Card
