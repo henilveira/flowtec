@@ -1,67 +1,86 @@
-'use client'
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Sheet, SheetContent, SheetFooter } from "@/components/ui/sheet"
-import { Clock, CalendarIcon, Copy, FileText } from 'lucide-react'
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent, SheetFooter } from "@/components/ui/sheet";
+import { Clock, CalendarIcon, Copy, FileText } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
+} from "@/components/ui/accordion";
 
 // Enhanced type definitions with optional chaining and more robust typing
 interface Processo {
-  id: string
-  nome: string
+  id: string;
+  nome: string;
   contabilidade: {
-    id: string
-    cnpj: number
-    nome: string
-  }
+    id: string;
+    cnpj: number;
+    nome: string;
+  };
   tipo_processo: {
-    id: string
-    descricao: string
-  }
-  etapa_atual?: {
-    id: string
-    nome: string
-    ordem: number
-  }
-  etapa_inicial?: {
-    id: string
-    nome: string
-    ordem: number
-  }
-  expire_at: string
-  created_at: string
+    id: string;
+    descricao: string;
+  };
+  etapa?: {
+    id: string;
+    nome: string;
+    ordem: number;
+  };
+  expire_at: string;
+  created_at: string;
 }
 
 interface EditSheetProps {
-  processo: Processo
-  onSave: (processo: any) => void
-  onCancel?: () => void
+  processo: Processo;
+  onSave: (processo: any) => void;
+  onCancel?: () => void;
 }
 
 const calcularDiasPassados = (startDate: string): number => {
-  const dataInicio = new Date(startDate)
-  const dataAtual = new Date()
-  const diferencaEmMs = dataAtual.getTime() - dataInicio.getTime()
-  return Math.floor(diferencaEmMs / (1000 * 3600 * 24))
-}
+  const dataInicio = new Date(startDate);
+  const dataAtual = new Date();
+  const diferencaEmMs = dataAtual.getTime() - dataInicio.getTime();
+  return Math.floor(diferencaEmMs / (1000 * 3600 * 24));
+};
 
 const etapas = [
-  { id: '1', nome: 'Proposta', tarefas: ['Enviar proposta', 'Revisar proposta', 'Aprovar proposta'] },
-  { id: '2', nome: 'Documentação', tarefas: ['Coletar documentos', 'Verificar documentos', 'Arquivar documentos'] },
-  { id: '3', nome: 'Análise', tarefas: ['Analisar processo', 'Elaborar parecer', 'Revisar análise'] },
-  { id: '4', nome: 'Conclusão', tarefas: ['Preparar relatório final', 'Obter aprovações', 'Arquivar processo'] },
-]
+  {
+    id: "1",
+    nome: "Proposta",
+    tarefas: ["Enviar proposta", "Revisar proposta", "Aprovar proposta"],
+  },
+  {
+    id: "2",
+    nome: "Documentação",
+    tarefas: [
+      "Coletar documentos",
+      "Verificar documentos",
+      "Arquivar documentos",
+    ],
+  },
+  {
+    id: "3",
+    nome: "Análise",
+    tarefas: ["Analisar processo", "Elaborar parecer", "Revisar análise"],
+  },
+  {
+    id: "4",
+    nome: "Conclusão",
+    tarefas: [
+      "Preparar relatório final",
+      "Obter aprovações",
+      "Arquivar processo",
+    ],
+  },
+];
 
 export default function EditSheet({
   processo,
@@ -69,54 +88,58 @@ export default function EditSheet({
   onCancel,
 }: EditSheetProps) {
   const [tasks, setTasks] = useState(
-    etapas.map(etapa => ({
+    etapas.map((etapa) => ({
       id: etapa.id,
       nome: etapa.nome,
       tarefas: etapa.tarefas.map((tarefa, index) => ({
         id: `${etapa.id}-${index}`,
         label: tarefa,
-        checked: false
-      }))
+        checked: false,
+      })),
     }))
-  )
-  const formLink = "forms.com.br/formulario/939887/bxg93ky4tgj8"
+  );
+  const formLink = "forms.com.br/formulario/939887/bxg93ky4tgj8";
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(formLink)
-  }
+    navigator.clipboard.writeText(formLink);
+  };
 
   const handleSave = () => {
     onSave({
       ...processo,
       tasks,
-    })
-  }
+    });
+  };
 
   const handleCancel = () => {
-    onCancel?.()
-  }
+    onCancel?.();
+  };
 
-  const handleTaskChange = (etapaId: string, tarefaId: string, checked: boolean) => {
-    setTasks(prevTasks => 
-      prevTasks.map(etapa => 
+  const handleTaskChange = (
+    etapaId: string,
+    tarefaId: string,
+    checked: boolean
+  ) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((etapa) =>
         etapa.id === etapaId
           ? {
               ...etapa,
-              tarefas: etapa.tarefas.map(tarefa =>
+              tarefas: etapa.tarefas.map((tarefa) =>
                 tarefa.id === tarefaId ? { ...tarefa, checked } : tarefa
-              )
+              ),
             }
           : etapa
       )
-    )
-  }
+    );
+  };
 
   return (
     <Sheet
       open={true}
       onOpenChange={(open) => {
         if (!open && onCancel) {
-          onCancel()
+          onCancel();
         }
       }}
     >
@@ -127,11 +150,6 @@ export default function EditSheet({
         <div className="flex-grow">
           <div className="flex justify-start items-center mb-6">
             <div className="flex flex-col items-start justify-center gap-2">
-              <div>
-                <Badge variant="secondary" className="text-sm">
-                  {processo.etapa_atual?.nome || 'Etapa não definida'}
-                </Badge>
-              </div>
               <div>
                 <h1 className="text-2xl font-bold">{processo.nome}</h1>
                 <p className="italic text-muted-foreground text-sm">
@@ -204,12 +222,19 @@ export default function EditSheet({
                     <AccordionContent>
                       <div className="space-y-2 pl-4">
                         {etapa.tarefas.map((tarefa) => (
-                          <div key={tarefa.id} className="flex items-center space-x-2">
+                          <div
+                            key={tarefa.id}
+                            className="flex items-center space-x-2"
+                          >
                             <Checkbox
                               id={tarefa.id}
                               checked={tarefa.checked}
-                              onCheckedChange={(checked) => 
-                                handleTaskChange(etapa.id, tarefa.id, checked as boolean)
+                              onCheckedChange={(checked) =>
+                                handleTaskChange(
+                                  etapa.id,
+                                  tarefa.id,
+                                  checked as boolean
+                                )
                               }
                             />
                             <label
@@ -255,5 +280,5 @@ export default function EditSheet({
         </SheetFooter>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

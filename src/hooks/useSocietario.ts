@@ -71,12 +71,13 @@ export function useListTipoProcessos() {
 }
 
 export function getProcessosByEtapas() {
-  const { data, error } = useApiBase<{processos_por_etapa: any[]}>('/societario/list-processos-etapas/');
+  const { data, error, mutate  } = useApiBase<{processos_por_etapa: any[]}>('/societario/list-processos-etapas/');
 
   console.log('Dados do hook:', data);
 
   return {
     processos: data?.processos_por_etapa || [],
+    mutate,
     error
   };
 }

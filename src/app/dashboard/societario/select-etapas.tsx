@@ -50,10 +50,10 @@ export function SelectEtapas() {
   return (
     <div className="w-full">
       <Select value={selectedEtapa || ""} onValueChange={setSelectedEtapa}>
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger className="w-full">
           <SelectValue placeholder="Selecione uma etapa..." />
         </SelectTrigger>
-        <SelectContent className="w-full">
+        <SelectContent>
           {etapas.map((etapa) => (
             <SelectItem className="w-full" key={etapa.id} value={etapa.id}>
               {etapa.nome}

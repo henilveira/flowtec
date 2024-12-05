@@ -30,6 +30,20 @@ export default function Card({
 }: ProcessCardProps) {
   const currentColumn = COLUMNS.find((column) => column.id === etapa);
 
+  // Função para mapear os nomes das badges
+  const mapBadgeName = (descricao: string) => {
+    switch (descricao) {
+      case "Abertura de empresa":
+        return "Abertura";
+      case "Alteração contratual sem regin/baixa":
+        return "Alteração sem regin/baixa";
+      case "Alteração contratual com regin":
+        return "Alteração com regin";
+      default:
+        return descricao; // Retorna o valor original se não houver mapeamento
+    }
+  };
+
   // Determina as cores com base nos dias
   const getColor = () => {
     if (diaAtual <= 30) return "green-500";
@@ -47,8 +61,8 @@ export default function Card({
   // Mapeamento de cores para classes Tailwind completas
   const colorMap = {
     "green-500": "bg-green-500",
-    "yellow-500": "bg-yellow-500", 
-    "red-500": "bg-red-500"
+    "yellow-500": "bg-yellow-500",
+    "red-500": "bg-red-500",
   };
 
   return (
@@ -71,7 +85,7 @@ export default function Card({
             colorMap[getColor()]
           )}
         >
-          {tipoProcesso.descricao}
+          {mapBadgeName(tipoProcesso.descricao)}
         </Badge>
       </div>
 
@@ -80,19 +94,16 @@ export default function Card({
           <span>{diaAtual} dia(s)</span>
           <span>90 dias</span>
         </div>
-        <div 
+        <div
           className={cn(
             "h-2 rounded-full overflow-hidden",
             getProgressBarBackground()
           )}
         >
-          <div 
-            className={cn(
-              "h-full", 
-              colorMap[getColor()]
-            )} 
-            style={{ 
-              width: `${Math.min((diaAtual / 90) * 100, 100)}%` 
+          <div
+            className={cn("h-full", colorMap[getColor()])}
+            style={{
+              width: `${Math.min((diaAtual / 90) * 100, 100)}%`,
             }}
           />
         </div>

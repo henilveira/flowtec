@@ -1,22 +1,21 @@
-import useSWR from 'swr';
+import { useApiBase } from './useApiBase'; // Ajuste o caminho de importação conforme necessário
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// Função para buscar dados da API
-const fetcher = (url: string) => fetch(url, {
-  credentials: 'include',
-}).then((res) => {
-  if (!res.ok) {
-    if (res.status === 401) {
-      throw new Error('Unauthorized');
-    }
-    throw new Error('An error occurred while fetching the data.');
-  }
-  return res.json();
-});
+// Interface para tipar a resposta da API
+interface UserResponse {
+  user: {
+    id: string | null;
+    first_name: string | null;
+    last_name: string | null;
+    email: string | null;
+    is_admin_contabilidade: boolean | null;
+    profile_picture: string | null;
+  };
+}
 
 export const useUser = () => {
-  const { data, error } = useSWR(`${API_URL}/accounts/get-user/`, fetcher);
+  const { data, error, isLoading } = useApiBase<UserResponse>('/accounts/get-user/');
 
   return {
     id: data?.user.id ?? null,
@@ -25,7 +24,7 @@ export const useUser = () => {
     email: data?.user?.email || null,
     isAdminContabilidade: data?.user?.is_admin_contabilidade || null,
     profilePicture: data?.user?.profile_picture || null,
-    isLoading: !error && !data,
+    isLoading,
     isError: error,
   };
 };

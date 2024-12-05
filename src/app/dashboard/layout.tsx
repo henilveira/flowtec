@@ -25,6 +25,7 @@ import Profile from "@/components/profile";
 import Title from "./page-title";
 import { Toaster } from "@/components/ui/sonner";
 import { ContabilidadeProvider } from "./societario/select-contabilidade";
+import { EtapaProvider } from "./societario/select-etapas";
 
 export default function DashboardLayout({
   children,
@@ -33,6 +34,7 @@ export default function DashboardLayout({
 }) {
   return (
     <ContabilidadeProvider>
+      <EtapaProvider>
       <ThemeProvider attribute="class" defaultTheme="system">
         <div className="flex flex-col h-screen w-full bg-muted/40 overflow-hidden">
           {" "}
@@ -60,6 +62,8 @@ export default function DashboardLayout({
           </div>
         </div>
       </ThemeProvider>
+
+      </EtapaProvider>
     </ContabilidadeProvider>
   );
 }
@@ -72,7 +76,7 @@ function DesktopNavbar() {
           <FlowTechLogo />
         </Link>
         <div className="flex items-center gap-4">
-          <SearchInput />
+          {/* <SearchInput /> */}
           <ThemeSwitcher />
           {/* <Bell className="h-5 w-5 text-muted-foreground" /> */}
           <NotificationIcon />
@@ -160,6 +164,13 @@ function MobileNav() {
           </div>
           <NavItem href="/dashboard" label="Dashboard" text="Dashboard">
             <LayoutGrid className="h-5 w-5" />
+          </NavItem>
+          <NavItem
+            href="/dashboard/gerenciamento"
+            label="Gerenciamento"
+            text="Gerenciamento"
+          >
+            <Building2 className="h-5 w-5" />
           </NavItem>
           <NavItem
             href="/dashboard/societario"
