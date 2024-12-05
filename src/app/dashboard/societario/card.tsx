@@ -44,6 +44,13 @@ export default function Card({
     return "bg-red-500/30";
   };
 
+  // Mapeamento de cores para classes Tailwind completas
+  const colorMap = {
+    "green-500": "bg-green-500",
+    "yellow-500": "bg-yellow-500", 
+    "red-500": "bg-red-500"
+  };
+
   return (
     <div
       onClick={disabled ? undefined : onClick}
@@ -61,7 +68,7 @@ export default function Card({
         <Badge
           className={cn(
             "text-xs font-medium px-3 py-1 rounded-full text-white border-none text-center",
-            `bg-${getColor()}`
+            colorMap[getColor()]
           )}
         >
           {tipoProcesso.descricao}
@@ -80,7 +87,10 @@ export default function Card({
           )}
         >
           <div 
-            className={`h-full bg-${getColor()}`} 
+            className={cn(
+              "h-full", 
+              colorMap[getColor()]
+            )} 
             style={{ 
               width: `${Math.min((diaAtual / 90) * 100, 100)}%` 
             }}
