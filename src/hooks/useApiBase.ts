@@ -42,11 +42,20 @@ export function useApiBase<T>(
       dedupingInterval: 60000,
       refreshInterval: 0,
       
-      onErrorRetry: (err, key, config, revalidate, { retryCount }) => {
+      onErrorRetry: async (err, key, config, revalidate, { retryCount }) => {
         if ((err as ApiError).status === 401) {
+          // Se o erro for 401, tenta renovar o token
           if (retryCount < 1) {
-            revalidate();
+            try {
+              await refreshToken(); // Tenta renovar o token
+              revalidate(); // Revalida a requisição original
+            } catch (refreshError) {
+              // Caso a renovação do token falhe, redireciona para o login
+              console.error('Token refresh failed:', refreshError);
+              router.push('/login');
+            }
           } else {
+            // Se a renovação falhar, redireciona para o login
             router.push('/login');
           }
           return;
