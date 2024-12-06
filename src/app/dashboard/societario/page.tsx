@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, RefreshCw, RotateCcw } from "lucide-react";
 import {
   getProcessosByEtapas,
   getProcessosById,
@@ -16,15 +16,16 @@ import FilterDropdown from "./filter";
 import { Requisicao } from "./requisicao";
 
 export default function Societario() {
-  const { processos: processosCard } = getProcessosByEtapas();
+  const { processos: processosCard, refetch: refetchProcessos } = getProcessosByEtapas(); // Use a função refetch se disponível
   const { etapas } = useListEtapas();
   const [selectedProcesso, setSelectedProcesso] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const processoId = selectedProcesso?.id ?? null;
   const {
     processo: detailedProcesso,
     tarefas,
-    isLoading,
+    isLoading: isProcessoLoading,
     isError,
   } = getProcessosById(processoId);
 
@@ -35,11 +36,33 @@ export default function Societario() {
     setSelectedProcesso(null);
   };
 
+  // Função para atualizar os processos
+  const atualizarProcessos = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      // Atualiza os dados dos processos
+      await refetchProcessos(); // Se o hook de processos fornecer um refetch, utilize-o
+    } catch (error) {
+      console.error("Erro ao atualizar processos:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [refetchProcessos]);
+
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <div className="flex-none">
         <Title titulo="Societário">
           <div className="flex flex-wrap gap-2">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={atualizarProcessos} disabled={isLoading}>
+              {isLoading ? (
+                <span>Atualizando...</span>
+              ) : (
+                <>
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
             <Button variant="outline" className="w-full sm:w-auto">
               <FilterDropdown>
                 <span className="flex items-center justify-center">
@@ -63,6 +86,7 @@ export default function Societario() {
         </div>
         <ScrollBar orientation="vertical" />
       </ScrollArea>
+
       {detailedProcesso && (
         <EditSheet
           tarefas={tarefas || []}

@@ -2,12 +2,15 @@
 import { useLogout } from "@/hooks/useLogout";
 import { Button } from "./button";
 import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const Logout = () => {
   const { logout } = useLogout();
+  const router = useRouter()
 
   const handleLogout = async () => {
     try {
+      router.push('/login')
       await logout();
       console.log("logout realizado com sucesso");
     } catch (error: any) {

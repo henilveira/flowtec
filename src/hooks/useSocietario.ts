@@ -72,16 +72,24 @@ export function useListTipoProcessos() {
 }
 
 export function getProcessosByEtapas() {
-  const { data, error, mutate  } = useApiBase<{processos_por_etapa: any[]}>('/societario/list-processos-etapas/');
+  const { data, error, mutate } = useApiBase<{ processos_por_etapa: any[] }>('/societario/list-processos-etapas/');
 
   console.log('Dados do hook:', data);
+
+  const refetch = () => {
+    // Chama mutate para forçar uma atualização dos dados
+    mutate();
+  };
 
   return {
     processos: data?.processos_por_etapa || [],
     mutate,
+    refetch, // Retorna a função refetch
     error
   };
 }
+
+
 
 // Funções de Ações Societárias
 export function useSocietarioActions() {
@@ -127,8 +135,46 @@ export function useSocietarioActions() {
     }
   };
 
+  const updateProcesso = async ({
+    processo_id,
+    tarefas,
+  }: {
+    processo_id: string;
+    tarefas: { tarefa_id: string; status: string }[];
+  }) => {
+    setError(null);
+    setIsLoading(true);
   
-
+    try {
+      const response = await fetch(`${API_URL}/societario/update-processo/`, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          processo_id,
+          tarefas,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Erro ao atualizar o processo");
+      }
+  
+      const data = await response.json();
+      return data;
+    } catch (error: any) {
+      setError(error.message); // Armazena o erro no estado, se necessário
+      throw error; // Re-throws the error to be caught in handleSave
+    } finally {
+      setIsLoading(false);  // Garante que o carregamento será desativado
+    }
+  };
+  
+  
+  
+  
 
   // Obter Etapa por ID
   const getEtapaById = (id: string) => {
@@ -155,6 +201,7 @@ export function useSocietarioActions() {
   };
 
   return {
+    updateProcesso,
     isLoading,
     novoRegistro,
     getEtapaById,
