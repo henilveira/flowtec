@@ -25,6 +25,8 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { SelectContabilidade } from "./select-contabilidade";
 import { SelectEtapas } from "./select-etapas";
+import { SelectTipoProcessos } from "./select-tipo-processos";
+
 
 export default function FilterDropdown({
   children,
@@ -35,6 +37,8 @@ export default function FilterDropdown({
   const [endDate, setEndDate] = React.useState<Date>();
   const [contabilidade, setContabilidade] = React.useState("");
   const [etapa, setEtapa] = React.useState("");
+  const [processo, setTipoProcesso] = React.useState("");
+
 
   const handleReset = () => {
     setStartDate(undefined);
@@ -136,7 +140,7 @@ export default function FilterDropdown({
             </Button>
           </div>
 
-          {/* Etapa */}
+          {/* Etapa
           <div className="space-y-2">
             <Label>Etapa</Label>
             <SelectEtapas />
@@ -147,7 +151,21 @@ export default function FilterDropdown({
             >
               Limpar
             </Button>
+          </div> */}
+
+          {/* Tipo de Processo */}
+          <div className="space-y-2">
+            <Label>Tipo de Processo</Label>
+            <SelectTipoProcessos />
+            <Button
+              variant="ghost"
+              className="h-auto p-0 text-xs text-blue-500"
+              onClick={() => setTipoProcesso("")}
+            >
+              Limpar
+            </Button>
           </div>
+
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4">
