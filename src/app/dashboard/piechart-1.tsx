@@ -27,43 +27,22 @@ import {
 } from "@/components/ui/select"
 
 const desktopData = [
-  { month: "january", desktop: 186, fill: "url(#flowtech-gradient)" },
-  { month: "february", desktop: 305, fill: "url(#flowtech-gradient)" },
-  { month: "march", desktop: 237, fill: "url(#flowtech-gradient)" },
-  { month: "april", desktop: 173, fill: "url(#flowtech-gradient)" },
-  { month: "may", desktop: 209, fill: "url(#flowtech-gradient)" },
+  { month: "january", desktop: 186, fill: "url(#january-gradient)" },
+  { month: "february", desktop: 305, fill: "url(#february-gradient)" },
+  { month: "march", desktop: 237, fill: "url(#march-gradient)" },
+  { month: "april", desktop: 173, fill: "url(#april-gradient)" },
+  { month: "may", desktop: 209, fill: "url(#may-gradient)" },
 ]
 
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  desktop: {
-    label: "Desktop",
-  },
-  mobile: {
-    label: "Mobile",
-  },
-  january: {
-    label: "January",
-    color: "url(#flowtech-gradient)",
-  },
-  february: {
-    label: "February",
-    color: "url(#flowtech-gradient)",
-  },
-  march: {
-    label: "March",
-    color: "url(#flowtech-gradient)",
-  },
-  april: {
-    label: "April",
-    color: "url(#flowtech-gradient)",
-  },
-  may: {
-    label: "May",
-    color: "url(#flowtech-gradient)",
-  },
+  visitors: { label: "Visitors" },
+  desktop: { label: "Desktop" },
+  mobile: { label: "Mobile" },
+  january: { label: "Janeiro", color: "url(#january-gradient)" },
+  february: { label: "Fevereiro", color: "url(#february-gradient)" },
+  march: { label: "Março", color: "url(#march-gradient)" },
+  april: { label: "Abril", color: "url(#april-gradient)" },
+  may: { label: "Maio", color: "url(#may-gradient)" },
 } satisfies ChartConfig
 
 export function Piechart1() {
@@ -81,8 +60,8 @@ export function Piechart1() {
       <ChartStyle id={id} config={chartConfig} />
       <CardHeader className="flex-row items-start space-y-0 pb-0">
         <div className="grid gap-1">
-          <CardTitle>Pie Chart - Interactive</CardTitle>
-          <CardDescription>January - June 2024</CardDescription>
+          <CardTitle>Processos por Etapa</CardTitle>
+          <CardDescription>Mensal</CardDescription>
         </div>
         <Select value={activeMonth} onValueChange={setActiveMonth}>
           <SelectTrigger
@@ -128,9 +107,25 @@ export function Piechart1() {
         >
           <PieChart>
             <defs>
-              <linearGradient id="flowtech-gradient" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#007bff" />
-                <stop offset="100%" stopColor="#00d084" />
+              <linearGradient id="january-gradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#2196f3" />
+                <stop offset="100%" stopColor="#03a9f4" />
+              </linearGradient>
+              <linearGradient id="february-gradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#e91e63" />
+                <stop offset="100%" stopColor="#f06292" />
+              </linearGradient>
+              <linearGradient id="march-gradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#4caf50" />
+                <stop offset="100%" stopColor="#8bc34a" />
+              </linearGradient>
+              <linearGradient id="april-gradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#ffc107" />
+                <stop offset="100%" stopColor="#ffeb3b" />
+              </linearGradient>
+              <linearGradient id="may-gradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#ff5722" />
+                <stop offset="100%" stopColor="#ff9800" />
               </linearGradient>
             </defs>
             <ChartTooltip
@@ -180,7 +175,7 @@ export function Piechart1() {
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Visitors
+                          Processos
                         </tspan>
                       </text>
                     )

@@ -19,17 +19,15 @@ export default function Painel() {
       </Title>
       <div className=" w-full p-4 space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <MetricCard title="Requisições totais" value="217" change="+20.1%" />
+          <MetricCard title="Requisições totais" value="217" />
+          <MetricCard
+            title="Contabilidades cadastradas"
+            value="20"
+          />
+          <MetricCard title="Total de Usuários" value="45" />
           <MetricCard
             title="Empresas cadastradas"
-            value="+20"
-            change="+180.1%"
-          />
-          <MetricCard title="Vendas" value="+12,234" change="+19%" />
-          <MetricCard
-            title="Ativas agora"
-            value="+185"
-            change="desde o mês passado"
+            value="185"
           />
         </div>
         <div className="grid gap-6 md:grid-cols-2">
@@ -48,11 +46,11 @@ export default function Painel() {
 function MetricCard({
   title,
   value,
-  change,
+
 }: {
   title: string;
   value: string;
-  change: string;
+
 }) {
   return (
     <Card>
@@ -61,7 +59,7 @@ function MetricCard({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        <p className="text-xs text-muted-foreground">{change}</p>
+
       </CardContent>
     </Card>
   );

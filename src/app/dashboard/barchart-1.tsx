@@ -30,23 +30,23 @@ const chartConfig = {
     label: "Visitors",
   },
   chrome: {
-    label: "Chrome",
+    label: "Contabilidade 1",
     color: "hsl(var(--chart-1))",
   },
   safari: {
-    label: "Safari",
+    label: "Contabilidade 2 ",
     color: "hsl(var(--chart-2))",
   },
   firefox: {
-    label: "Firefox",
+    label: "Contabilidade 3",
     color: "hsl(var(--chart-3))",
   },
   edge: {
-    label: "Edge",
+    label: "Contabilidade 4",
     color: "hsl(var(--chart-4))",
   },
   other: {
-    label: "Other",
+    label: "Contabilidade 5",
     color: "hsl(var(--chart-5))",
   },
 } satisfies ChartConfig
@@ -55,8 +55,8 @@ export function Barchart1() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Bar Chart - Active</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Contabilidades com mais processos</CardTitle>
+        <CardDescription>Janeiro - Abril</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -97,10 +97,10 @@ export function Barchart1() {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+         
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          Mostrando o total de processos no período de 90 dias
         </div>
       </CardFooter>
     </Card>

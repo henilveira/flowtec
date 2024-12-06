@@ -20,36 +20,21 @@ import {
 } from "@/components/ui/chart"
 
 const chartData = [
-  { browser: "chrome", visitors: 275, fill: "url(#flowtech-gradient)" },
-  { browser: "safari", visitors: 200, fill: "url(#flowtech-gradient)" },
-  { browser: "firefox", visitors: 287, fill: "url(#flowtech-gradient)" },
-  { browser: "edge", visitors: 173, fill: "url(#flowtech-gradient)" },
-  { browser: "other", visitors: 190, fill: "url(#flowtech-gradient)" },
+  { browser: "Pausados", visitors: 10, fill: "url(#paused-gradient)" },
+  { browser: "Suspensos", visitors: 20, fill: "url(#suspended-gradient)" },
 ]
 
 const chartConfig = {
   visitors: {
     label: "Visitors",
   },
-  chrome: {
-    label: "Chrome",
-    color: "url(#flowtech-gradient)",
+  pausados: {
+    label: "Pausados",
+    color: "url(#paused-gradient)",
   },
-  safari: {
-    label: "Safari",
-    color: "url(#flowtech-gradient)",
-  },
-  firefox: {
-    label: "Firefox",
-    color: "url(#flowtech-gradient)",
-  },
-  edge: {
-    label: "Edge",
-    color: "url(#flowtech-gradient)",
-  },
-  other: {
-    label: "Other",
-    color: "url(#flowtech-gradient)",
+  suspensos: {
+    label: "Suspensos",
+    color: "url(#suspended-gradient)",
   },
 } satisfies ChartConfig
 
@@ -61,8 +46,8 @@ export function Piechart2() {
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Pie Chart - Donut with Text</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Processos Inativos</CardTitle>
+        <CardDescription>Este mês</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -71,9 +56,15 @@ export function Piechart2() {
         >
           <PieChart>
             <defs>
-              <linearGradient id="flowtech-gradient" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#007bff" />
-                <stop offset="100%" stopColor="#00d084" />
+              {/* Gradiente para "Pausados" */}
+              <linearGradient id="paused-gradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#ff5722" /> {/* Laranja */}
+                <stop offset="100%" stopColor="#ff9800" /> {/* Amarelo */}
+              </linearGradient>
+              {/* Gradiente para "Suspensos" */}
+              <linearGradient id="suspended-gradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#4caf50" /> {/* Verde */}
+                <stop offset="100%" stopColor="#8bc34a" /> {/* Verde Claro */}
               </linearGradient>
             </defs>
             <ChartTooltip
@@ -109,7 +100,7 @@ export function Piechart2() {
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Visitors
+                          Processos
                         </tspan>
                       </text>
                     )
@@ -122,10 +113,10 @@ export function Piechart2() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+          Aumento total de 5.2% esse mês <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          {/* Espaço para qualquer descrição adicional */}
         </div>
       </CardFooter>
     </Card>

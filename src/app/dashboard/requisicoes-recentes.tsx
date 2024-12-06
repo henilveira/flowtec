@@ -10,25 +10,19 @@ interface Request {
 export default function RecentRequests() {
   const requests: Request[] = [
     {
-      name: "Olivia Martin",
-      email: "olivia.martin@email.com",
+      name: "Luz Contadores",
+      email: "Alteração Contratual",
     },
     {
-      name: "Jackson Lee",
-      email: "jackson.lee@email.com",
+      name: "Empresa de Márcio",
+      email: "Abertura de Empresa",
     },
     {
-      name: "Isabella Nguyen",
-      email: "isabella.nguyen@email.com",
+      name: "EcoWave",
+      email: "Baixa",
     },
-    {
-      name: "William Kim",
-      email: "will@email.com",
-    },
-    {
-      name: "Sofia Davis",
-      email: "sofia.davis@email.com",
-    },
+
+
   ]
 
   return (
@@ -36,7 +30,7 @@ export default function RecentRequests() {
       <CardHeader>
         <CardTitle className="text-lg font-medium">Requisições recentes</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Você abriu 9 requisições nos últimos 7 dias
+          Você abriu 3 requisições hoje
         </p>
       </CardHeader>
       <CardContent className="grid gap-6">
