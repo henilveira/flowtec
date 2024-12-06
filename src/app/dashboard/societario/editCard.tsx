@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetFooter } from "@/components/ui/sheet";
-import { Clock, CalendarIcon, Copy, FileText } from "lucide-react";
+import { Clock, CalendarIcon, Copy, FileText } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -16,31 +16,49 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-// Enhanced type definitions with optional chaining and more robust typing
+interface Tarefa {
+  id: string;
+  tarefa: {
+    descricao: string;
+  };
+  concluida: boolean;
+  sequencia: number;
+  etapa: {
+    id: string;
+    nome: string;
+  };
+}
+
+interface Etapa {
+  id: string;
+  nome: string;
+  ordem: number;
+}
+
 interface Processo {
   id: string;
   nome: string;
-  contabilidade: {
-    id: string;
-    cnpj: number;
-    nome: string;
-  };
   tipo_processo: {
-    id: string;
     descricao: string;
+  };
+  contabilidade: {
+    nome: string;
+    cnpj: string;
   };
   etapa?: {
     id: string;
     nome: string;
-    ordem: number;
   };
+  tarefas: Tarefa[];
   expire_at: string;
   created_at: string;
 }
 
 interface EditSheetProps {
   processo: Processo;
-  onSave: (processo: any) => void;
+  etapas: Etapa[];
+  tarefas: Tarefa[];
+  onSave: (updatedProcesso: Processo) => void;
   onCancel?: () => void;
 }
 
@@ -51,102 +69,41 @@ const calcularDiasPassados = (startDate: string): number => {
   return Math.floor(diferencaEmMs / (1000 * 3600 * 24));
 };
 
-const etapas = [
-  {
-    id: "1",
-    nome: "Proposta",
-    tarefas: ["Enviar proposta", "Revisar proposta", "Aprovar proposta"],
-  },
-  {
-    id: "2",
-    nome: "Documentação",
-    tarefas: [
-      "Coletar documentos",
-      "Verificar documentos",
-      "Arquivar documentos",
-    ],
-  },
-  {
-    id: "3",
-    nome: "Análise",
-    tarefas: ["Analisar processo", "Elaborar parecer", "Revisar análise"],
-  },
-  {
-    id: "4",
-    nome: "Conclusão",
-    tarefas: [
-      "Preparar relatório final",
-      "Obter aprovações",
-      "Arquivar processo",
-    ],
-  },
-];
-
 export default function EditSheet({
   processo,
+  etapas,
+  tarefas,
   onSave,
   onCancel,
 }: EditSheetProps) {
-  const [tasks, setTasks] = useState(
-    etapas.map((etapa) => ({
-      id: etapa.id,
-      nome: etapa.nome,
-      tarefas: etapa.tarefas.map((tarefa, index) => ({
-        id: `${etapa.id}-${index}`,
-        label: tarefa,
-        checked: false,
-      })),
-    }))
-  );
+  const [tarefasAtualizadas, setTarefasAtualizadas] = useState<Tarefa[]>(tarefas);
   const formLink = "forms.com.br/formulario/939887/bxg93ky4tgj8";
+
+  const handleTaskToggle = (id: string, concluida: boolean) => {
+    setTarefasAtualizadas((prevTarefas) =>
+      prevTarefas.map((tarefa) =>
+        tarefa.id === id ? { ...tarefa, concluida } : tarefa
+      )
+    );
+  };
+
+  const handleSave = () => {
+    const updatedProcesso = { ...processo, tarefas: tarefasAtualizadas };
+    onSave(updatedProcesso);
+  };
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(formLink);
   };
 
-  const handleSave = () => {
-    onSave({
-      ...processo,
-      tasks,
-    });
-  };
-
-  const handleCancel = () => {
-    onCancel?.();
-  };
-
-  const handleTaskChange = (
-    etapaId: string,
-    tarefaId: string,
-    checked: boolean
-  ) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((etapa) =>
-        etapa.id === etapaId
-          ? {
-              ...etapa,
-              tarefas: etapa.tarefas.map((tarefa) =>
-                tarefa.id === tarefaId ? { ...tarefa, checked } : tarefa
-              ),
-            }
-          : etapa
-      )
-    );
-  };
+  useEffect(() => {
+    console.log("Tarefas:", tarefas);
+    console.log("Etapas:", etapas);
+  }, [tarefas, etapas]);
 
   return (
-    <Sheet
-      open={true}
-      onOpenChange={(open) => {
-        if (!open && onCancel) {
-          onCancel();
-        }
-      }}
-    >
-      <SheetContent
-        side="right"
-        className="w-[800px] sm:w-[740px] flex flex-col h-full overflow-y-auto"
-      >
+    <Sheet open onOpenChange={() => onCancel?.()}>
+      <SheetContent side="right" className="w-[800px] sm:w-[740px] flex flex-col h-full overflow-y-auto">
         <div className="flex-grow">
           <div className="flex justify-start items-center mb-6">
             <div className="flex flex-col items-start justify-center gap-2">
@@ -216,39 +173,34 @@ export default function EditSheet({
 
             <div className="space-y-4">
               <Accordion type="single" collapsible className="w-full">
-                {tasks.map((etapa) => (
-                  <AccordionItem value={etapa.id} key={etapa.id}>
+                {etapas.map((etapa) => (
+                  <AccordionItem key={etapa.id} value={etapa.id}>
                     <AccordionTrigger>{etapa.nome}</AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-2 pl-4">
-                        {etapa.tarefas.map((tarefa) => (
-                          <div
-                            key={tarefa.id}
-                            className="flex items-center space-x-2"
-                          >
-                            <Checkbox
-                              id={tarefa.id}
-                              checked={tarefa.checked}
-                              onCheckedChange={(checked) =>
-                                handleTaskChange(
-                                  etapa.id,
-                                  tarefa.id,
-                                  checked as boolean
-                                )
-                              }
-                            />
-                            <label
-                              htmlFor={tarefa.id}
-                              className={`text-sm leading-none ${
-                                tarefa.checked
-                                  ? "line-through text-muted-foreground"
-                                  : ""
-                              }`}
-                            >
-                              {tarefa.label}
-                            </label>
-                          </div>
-                        ))}
+                        {tarefasAtualizadas
+                          .filter((tarefa) => tarefa.etapa.id === etapa.id)
+                          .map((tarefa) => (
+                            <div key={tarefa.id} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={tarefa.id}
+                                checked={tarefa.concluida}
+                                onCheckedChange={(checked) =>
+                                  handleTaskToggle(tarefa.id, Boolean(checked))
+                                }
+                              />
+                              <label
+                                htmlFor={tarefa.id}
+                                className={`text-sm leading-none ${
+                                  tarefa.concluida
+                                    ? "line-through text-muted-foreground"
+                                    : ""
+                                }`}
+                              >
+                                {tarefa.tarefa.descricao}
+                              </label>
+                            </div>
+                          ))}
                       </div>
                     </AccordionContent>
                   </AccordionItem>
@@ -271,7 +223,7 @@ export default function EditSheet({
         </div>
 
         <SheetFooter className="mt-6 flex justify-end sm:justify-end">
-          <Button variant="outline" onClick={handleCancel}>
+          <Button variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
           <Button onClick={handleSave} variant="default" type="submit">
@@ -282,3 +234,4 @@ export default function EditSheet({
     </Sheet>
   );
 }
+

@@ -77,3 +77,44 @@ export interface TipoProcesso {
     processos_por_etapa: ProcessoPorEtapa[];
   }
   
+  export interface Etapa {
+    id: string;
+    nome: string;
+    ordem: number;
+}
+
+export interface Tarefa {
+    id: string;
+    descricao: string;
+    obrigatoria: boolean;
+}
+
+export interface TarefaDetalhada {
+    id: string;
+    etapa: Etapa;
+    tarefa: Tarefa;
+    concluida: boolean;
+    sequencia: number;
+}
+
+export interface Contabilidade {
+    id: string;
+    cnpj: string;
+    nome: string;
+}
+
+export interface TipoProcesso {
+    id: string;
+    descricao: string;
+}
+
+export interface Processo {
+    id: string;
+    nome: string;
+    contabilidade: Contabilidade;
+    tipo_processo: TipoProcesso;
+    etapa: Etapa;
+    tarefas: TarefaDetalhada[];
+    created_at: string;
+    expire_at: string;
+}

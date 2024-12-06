@@ -47,6 +47,7 @@ export function getProcessosById(id: string) {
   );
 
   return {
+    tarefas: data?.processo.tarefas,
     processo: data?.processo,  // Extract nested processo
     isLoading,
     isError: error,
@@ -125,6 +126,8 @@ export function useSocietarioActions() {
       setIsLoading(false);  // Definido para garantir que o estado de carregamento seja desativado
     }
   };
+
+  
 
 
   // Obter Etapa por ID

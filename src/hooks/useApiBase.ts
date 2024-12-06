@@ -26,36 +26,32 @@ export function useApiBase<T>(
 ) {
   const router = useRouter();
 
+  // Use uma chave estável que só muda quando o endpoint realmente muda
+  const key = endpoint ? `${API_URL}${endpoint}` : null;
+
   const { data, error, mutate, isValidating } = useSWR<T>(
-    endpoint ? `${API_URL}${endpoint}` : null, // Só faz requisição se endpoint não for null
-    fetcher,
+    key, 
+    key ? fetcher : null,  // Passa null como fetcher se key for null
     {
       ...options,
       
-      // Configurações para otimização de performance
-      revalidateOnFocus: false, // Desativa revalidação quando a janela ganha foco
-      revalidateOnReconnect: false, // Desativa revalidação quando reconecta internet
-      shouldRetryOnError: false, // Desativa retry automático em erros
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      shouldRetryOnError: false,
       
-      // Configuração de cache e tempo de revalidação
-      dedupingInterval: 60000, // 1 minuto de cache para requisições idênticas
-      refreshInterval: 0, // Desativa polling automático
+      dedupingInterval: 60000,
+      refreshInterval: 0,
       
-      // Estratégia de erro e retry personalizada
       onErrorRetry: (err, key, config, revalidate, { retryCount }) => {
-        // Verifica se o erro é 401 (não autorizado)
         if ((err as ApiError).status === 401) {
-          // Tenta novamente até 1 vez
           if (retryCount < 1) {
             revalidate();
           } else {
-            // Redireciona para login após falhas consecutivas
             router.push('/login');
           }
           return;
         }
 
-        // Não retentar para outros tipos de erro
         return;
       },
     }

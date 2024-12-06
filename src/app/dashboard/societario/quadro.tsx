@@ -6,8 +6,7 @@ import Coluna from './colunas';
 const calcularDiasPassados = (startDate: string) => {
   const dataInicio = new Date(startDate);
   const dataAtual = new Date();
-  const diferencaEmMs = dataAtual.getTime() - dataInicio.getTime();
-  return Math.floor(diferencaEmMs / (1000 * 3600 * 24));
+  return Math.floor((dataAtual.getTime() - dataInicio.getTime()) / (1000 * 3600 * 24));
 };
 
 interface Processo {
@@ -30,19 +29,16 @@ interface KanbanColumnsProps {
   selectedProcessoId?: string;
 }
 
-export default function KanbanColumns({ 
-  processosCard, 
-  handleCardEdit, 
-  selectedProcessoId 
+export default function KanbanColumns({
+  processosCard,
+  handleCardEdit,
+  selectedProcessoId,
 }: KanbanColumnsProps) {
   return (
     <div className="flex gap-6 px-6 overflow-x-auto h-full">
       {processosCard.map((etapa) => (
-        <div key={etapa.ordem} className="flex-shrink-0 min-w-[300px] max-w-[1fr]">
-          <Coluna 
-            title={etapa.nome} 
-            count={etapa.processos.length} // Passa a contagem separadamente
-          >
+        <div key={etapa.ordem} className="flex-shrink-0 min-w-[300px]">
+          <Coluna title={etapa.nome} count={etapa.processos.length}>
             <div className="space-y-4">
               {etapa.processos.map((processo) => (
                 <Card
