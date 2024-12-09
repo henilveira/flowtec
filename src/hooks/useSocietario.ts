@@ -42,14 +42,17 @@ export function useListEtapas() {
 }
 
 // Hook para buscar processos por ID
-export function useProcessosById(id: string) {
+export function useProcessosById(id: string | null) {
   const { data, error, mutate, isLoading, isValidating } = useApiBase<{ processo: Processo }>(
-    `/societario/get-processo/?processo_id=${id}`
+    id ? `/societario/get-processo/?processo_id=${id}` : null, // Não faz a requisição se o id for null
+    {
+      revalidateOnMount: true, // Revalida ao montar
+    }
   );
 
   return {
     tarefas: data?.processo.tarefas,
-    processo: data?.processo,  // Extract nested processo
+    processo: data?.processo, // Extract nested processo
     isLoading,
     isError: error,
     mutate,

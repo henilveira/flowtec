@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetFooter } from "@/components/ui/sheet";
-import { Clock, CalendarIcon, Copy, FileText, Loader2 } from 'lucide-react';
+import { Clock, CalendarIcon, Copy, FileText, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -16,7 +16,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useSocietarioActions } from "@/hooks/useSocietario";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface Tarefa {
   id: string;
@@ -80,14 +80,41 @@ export default function EditSheet({
   onCancel,
   isLoading,
 }: EditSheetProps) {
-  const [tarefasAtualizadas, setTarefasAtualizadas] = useState<Tarefa[]>(tarefas);
+  const [tarefasAtualizadas, setTarefasAtualizadas] = useState<Tarefa[]>(
+    tarefas.sort((a, b) => a.sequencia - b.sequencia)
+  );
   const [isSaving, setIsSaving] = useState(false);
   const formLink = "forms.com.br/formulario/939887/bxg93ky4tgj8";
 
   const { updateProcesso } = useSocietarioActions();
-  const { toast } = useToast();
 
   const handleTaskToggle = (id: string, concluida: boolean) => {
+    const taskToToggle = tarefasAtualizadas.find((tarefa) => tarefa.id === id);
+  
+    if (!taskToToggle) return;
+  
+    if (!concluida) {
+      const completedTasks = tarefasAtualizadas.filter(
+        (tarefa) => tarefa.concluida
+      );
+  
+      if (completedTasks.length === 0) {
+        setTarefasAtualizadas((prevTarefas) =>
+          prevTarefas.map((tarefa) =>
+            tarefa.id === id ? { ...tarefa, concluida: false } : tarefa
+          )
+        );
+        return;
+      }
+  
+      const lastCompletedTask = completedTasks[completedTasks.length - 1];
+  
+      if (lastCompletedTask.id !== id) {
+        toast("Você só pode desmarcar a última tarefa concluída.");
+        return;
+      }
+    }
+  
     setTarefasAtualizadas((prevTarefas) =>
       prevTarefas.map((tarefa) =>
         tarefa.id === id ? { ...tarefa, concluida: concluida } : tarefa
@@ -95,25 +122,22 @@ export default function EditSheet({
     );
   };
   
-
   const handleSave = async () => {
     setIsSaving(true);
   
-    // Filtra tarefas para enviar apenas as que tiveram a alteração
     const tarefasAlteradas = tarefasAtualizadas
-      .filter(tarefa => tarefa.concluida !== tarefas.find(t => t.id === tarefa.id)?.concluida)
-      .map(tarefa => ({
+      .filter(
+        (tarefa) =>
+          tarefa.concluida !==
+          tarefas.find((t) => t.id === tarefa.id)?.concluida
+      )
+      .map((tarefa) => ({
         tarefa_id: tarefa.id,
         status: tarefa.concluida.toString(),
       }));
   
     if (tarefasAlteradas.length === 0) {
-      // Caso nenhuma tarefa tenha sido alterada, apenas retorna
-      toast({
-        title: "Nenhuma alteração",
-        description: "Não houve alterações nas tarefas.",
-        duration: 3000,
-      });
+      toast("Não houve alterações nas tarefas.");
       setIsSaving(false);
       return;
     }
@@ -124,26 +148,12 @@ export default function EditSheet({
     };
   
     try {
-      // Chama a API para atualizar o processo
       await updateProcesso(dataToSend);
-  
-      // Recarrega as tarefas com as alterações aplicadas
       onSave({ ...processo, tarefas: tarefasAtualizadas });
-  
-      // Exibe mensagem de sucesso
-      toast({
-        title: "Sucesso",
-        description: "As alterações foram salvas com sucesso.",
-        duration: 3000,
-      });
+      toast("As alterações foram salvas com sucesso.");
     } catch (error) {
       console.error("Erro ao salvar as alterações", error);
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao salvar as alterações.",
-        variant: "destructive",
-        duration: 3000,
-      });
+      toast("Ocorreu um erro ao salvar as alterações.");
     } finally {
       setIsSaving(false);
     }
@@ -161,7 +171,10 @@ export default function EditSheet({
 
   return (
     <Sheet open onOpenChange={() => onCancel?.()}>
-      <SheetContent side="right" className="flex flex-col h-full overflow-y-auto">
+      <SheetContent
+        side="right"
+        className="flex flex-col h-full overflow-y-auto"
+      >
         <div className="flex-grow">
           <div className="flex justify-start items-center mb-6">
             <div className="flex flex-col items-start justify-center gap-2">
@@ -195,9 +208,7 @@ export default function EditSheet({
                 </Label>
                 <div className="flex items-center space-x-2">
                   <FileText className="h-5 w-5 text-muted-foreground" />
-                  <span className="">
-                    {processo.tipo_processo.descricao}
-                  </span>
+                  <span className="">{processo.tipo_processo.descricao}</span>
                 </div>
               </div>
             </div>
@@ -239,7 +250,10 @@ export default function EditSheet({
                         {tarefasAtualizadas
                           .filter((tarefa) => tarefa.etapa.id === etapa.id)
                           .map((tarefa) => (
-                            <div key={tarefa.id} className="flex items-center space-x-2">
+                            <div
+                              key={tarefa.id}
+                              className="flex items-center space-x-2"
+                            >
                               <Checkbox
                                 id={tarefa.id}
                                 checked={tarefa.concluida}
@@ -284,14 +298,19 @@ export default function EditSheet({
           <Button variant="outline" onClick={onCancel} disabled={isSaving}>
             Cancelar
           </Button>
-          <Button onClick={handleSave} variant="default" type="submit" disabled={isSaving}>
+          <Button
+            onClick={handleSave}
+            variant="default"
+            type="submit"
+            disabled={isSaving}
+          >
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Salvando...
               </>
             ) : (
-              'Salvar alterações'
+              "Salvar alterações"
             )}
           </Button>
         </SheetFooter>
@@ -299,4 +318,3 @@ export default function EditSheet({
     </Sheet>
   );
 }
-
