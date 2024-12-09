@@ -115,7 +115,7 @@ const FormularioAbertura = () => {
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await login(email, senha);
+      // await login(email, senha);
       toast({
         title: "Login efetuado com sucesso!",
         description: "Redirecionando para o painel...",

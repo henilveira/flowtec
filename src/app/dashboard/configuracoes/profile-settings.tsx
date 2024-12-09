@@ -117,7 +117,7 @@ export default function ProfileSettings() {
               <Label htmlFor="first_name">Primeiro nome</Label>
               <Input
                 id="first_name"
-                placeholder={primeiroNome}
+                placeholder={primeiroNome || ""} // Substitui `null` por uma string vazia
                 {...form.register("first_name", {
                   required: true,
                   minLength: 2,
@@ -129,7 +129,7 @@ export default function ProfileSettings() {
               <Label htmlFor="last_name">Último nome</Label>
               <Input
                 id="last_name"
-                placeholder={ultimoNome}
+                placeholder={ultimoNome || ""} // Substitui `null` por uma string vazia
                 {...form.register("last_name", {
                   required: true,
                   minLength: 2,
@@ -138,34 +138,30 @@ export default function ProfileSettings() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"
-                placeholder={email}
+                placeholder={email || ""} // Substitui `null` por uma string vazia
                 {...form.register("email")}
                 disabled
               />
             </div>
-          <Button
-            variant='outline'
-            type="submit"
-            disabled={isLoading} // Desabilita o botão enquanto carrega
+            <Button
+              variant="outline"
+              type="submit"
+              disabled={isLoading} // Desabilita o botão enquanto carrega
             >
-                {isLoading ? (
-                    <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Salvando...
-                    </>
-                ) : (
-                    'Salvar alterações'
-                )}
-          </Button>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                "Salvar alterações"
+              )}
+            </Button>
 
-          
-
-          {error && <p className="text-red-500">{error}</p>}
+            {error && <p className="text-red-500">{error}</p>}
           </div>
-
         </form>
       </CardContent>
     </Card>

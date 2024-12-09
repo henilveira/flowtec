@@ -41,8 +41,9 @@ export function useListEtapas() {
   };
 }
 
-export function getProcessosById(id: string) {
-  const { data, error, mutate, isLoading, isValidating } = useApiBase<{processo: Processo}>(
+// Hook para buscar processos por ID
+export function useProcessosById(id: string) {
+  const { data, error, mutate, isLoading, isValidating } = useApiBase<{ processo: Processo }>(
     `/societario/get-processo/?processo_id=${id}`
   );
 
@@ -71,25 +72,26 @@ export function useListTipoProcessos() {
   };
 }
 
-export function getProcessosByEtapas() {
-  const { data, error, mutate } = useApiBase<{ processos_por_etapa: any[] }>('/societario/list-processos-etapas/');
-
-  console.log('Dados do hook:', data);
-
-  const refetch = () => {
-    // Chama mutate para forçar uma atualização dos dados
-    mutate();
-  };
+// Hook para buscar processos por etapas
+export function useProcessosByEtapas() {
+  const { data, error, mutate, isLoading } = useApiBase<{ processos_por_etapa: any[] }>('/societario/list-processos-etapas/');
 
   return {
     processos: data?.processos_por_etapa || [],
     mutate,
-    refetch, // Retorna a função refetch
+    isLoading,
     error
   };
 }
 
+// Hook para obter Etapa por ID
+export function useEtapaById(id: string) {
+  const { data, error, isLoading } = useApiBase<SocietarioData>(
+    `/societario/get-etapa/?id=${id}`
+  );
 
+  return { data, error, isLoading };
+}
 
 // Funções de Ações Societárias
 export function useSocietarioActions() {
@@ -171,19 +173,6 @@ export function useSocietarioActions() {
       setIsLoading(false);  // Garante que o carregamento será desativado
     }
   };
-  
-  
-  
-  
-
-  // Obter Etapa por ID
-  const getEtapaById = (id: string) => {
-    const { data, error, isLoading } = useApiBase<SocietarioData>(
-      `/societario/get-etapa/?id=${id}` // Verifique o endpoint, removendo a barra extra após o ID
-    );
-
-    return { data, error, isLoading };
-  };
 
   // Remover registro
   const remove = async (id: string) => {
@@ -204,7 +193,6 @@ export function useSocietarioActions() {
     updateProcesso,
     isLoading,
     novoRegistro,
-    getEtapaById,
     remove,
   };
 }
