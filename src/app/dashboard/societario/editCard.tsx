@@ -62,6 +62,7 @@ interface EditSheetProps {
   tarefas: Tarefa[];
   onSave: (updatedProcesso: Processo) => void;
   onCancel?: () => void;
+  isLoading?: boolean;
 }
 
 const calcularDiasPassados = (startDate: string): number => {
@@ -77,6 +78,7 @@ export default function EditSheet({
   tarefas,
   onSave,
   onCancel,
+  isLoading,
 }: EditSheetProps) {
   const [tarefasAtualizadas, setTarefasAtualizadas] = useState<Tarefa[]>(tarefas);
   const [isSaving, setIsSaving] = useState(false);
@@ -159,7 +161,7 @@ export default function EditSheet({
 
   return (
     <Sheet open onOpenChange={() => onCancel?.()}>
-      <SheetContent side="right" className="w-[800px] sm:w-[740px] flex flex-col h-full overflow-y-auto">
+      <SheetContent side="right" className="flex flex-col h-full overflow-y-auto">
         <div className="flex-grow">
           <div className="flex justify-start items-center mb-6">
             <div className="flex flex-col items-start justify-center gap-2">
