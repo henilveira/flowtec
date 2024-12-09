@@ -97,7 +97,7 @@ export default function Societario() {
         <div className="min-h-[500px] flex-1 relative py-5 px-2 sm:px-5">
           {isProcessosLoading || isRefreshing ? (
             <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10">
-              {/* {renderSkeletonColumns()} */}
+              {renderSkeletonColumns()}
             </div>
           ) : (
             <KanbanColumns
