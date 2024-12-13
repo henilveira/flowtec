@@ -77,7 +77,7 @@ export default function Card({
         className
       )}
     >
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start flex-col gap-3">
         <h3 className="text-xl font-bold tracking-tight">{nome}</h3>
         <Badge
           className={cn(

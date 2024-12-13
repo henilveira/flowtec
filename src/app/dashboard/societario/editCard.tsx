@@ -89,38 +89,46 @@ export default function EditSheet({
   const { updateProcesso } = useSocietarioActions();
 
   const handleTaskToggle = (id: string, concluida: boolean) => {
-    const taskToToggle = tarefasAtualizadas.find((tarefa) => tarefa.id === id);
-  
-    if (!taskToToggle) return;
-  
-    if (!concluida) {
-      const completedTasks = tarefasAtualizadas.filter(
-        (tarefa) => tarefa.concluida
-      );
-  
-      if (completedTasks.length === 0) {
-        setTarefasAtualizadas((prevTarefas) =>
-          prevTarefas.map((tarefa) =>
-            tarefa.id === id ? { ...tarefa, concluida: false } : tarefa
-          )
-        );
-        return;
-      }
-  
-      const lastCompletedTask = completedTasks[completedTasks.length - 1];
-  
-      if (lastCompletedTask.id !== id) {
-        toast("Você só pode desmarcar a última tarefa concluída.");
-        return;
-      }
+  // Encontra a tarefa a ser alterada
+  const taskToToggle = tarefasAtualizadas.find((tarefa) => tarefa.id === id);
+
+  if (!taskToToggle) return;
+
+  // Ordena as tarefas pela sequência
+  const sortedTarefas = [...tarefasAtualizadas].sort((a, b) => a.sequencia - b.sequencia);
+
+  // Encontra o índice da tarefa atual
+  const currentTaskIndex = sortedTarefas.findIndex((tarefa) => tarefa.id === id);
+
+  // Se está tentando marcar como concluída
+  if (concluida) {
+    const ultimaTarefaConcluida = sortedTarefas.findLastIndex((tarefa) => tarefa.concluida);
+
+    // Permitir marcar apenas a próxima tarefa na sequência
+    if (currentTaskIndex !== ultimaTarefaConcluida + 1) {
+      toast("Você só pode marcar a próxima tarefa na sequência.");
+      return;
     }
-  
-    setTarefasAtualizadas((prevTarefas) =>
-      prevTarefas.map((tarefa) =>
-        tarefa.id === id ? { ...tarefa, concluida: concluida } : tarefa
-      )
-    );
-  };
+  }
+
+  // Se está tentando desmarcar
+  if (!concluida) {
+    const ultimaTarefaConcluida = sortedTarefas.findLastIndex((tarefa) => tarefa.concluida);
+
+    // Permitir desmarcar apenas a última tarefa concluída
+    if (currentTaskIndex !== ultimaTarefaConcluida) {
+      toast("Você só pode desmarcar a última tarefa concluída.");
+      return;
+    }
+  }
+
+  // Atualiza o status da tarefa
+  setTarefasAtualizadas((prevTarefas) =>
+    prevTarefas.map((tarefa) =>
+      tarefa.id === id ? { ...tarefa, concluida: concluida } : tarefa
+    )
+  );
+};
   
   const handleSave = async () => {
     setIsSaving(true);

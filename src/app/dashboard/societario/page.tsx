@@ -55,12 +55,12 @@ export default function Societario() {
 
   const renderSkeletonColumns = () => (
     <div className="p-3 flex space-x-6 w-max">
-      <SkeletonColumn title="Proposta/Formulário" count={7} />
-      <SkeletonColumn title="Viabilidade" count={8} />
-      <SkeletonColumn title="Registro" count={6} />
-      <SkeletonColumn title="Alvarás" count={5} />
-      <SkeletonColumn title="Simples/NF" count={5} />
-      <SkeletonColumn title="Concluído" count={5} />
+      <SkeletonColumn title="Proposta/Formulário" count={0} />
+      <SkeletonColumn title="Viabilidade" count={0} />
+      <SkeletonColumn title="Registro" count={0} />
+      <SkeletonColumn title="Alvarás" count={0} />
+      <SkeletonColumn title="Simples/NF" count={0} />
+      <SkeletonColumn title="Concluído" count={0} />
     </div>
   );
 
@@ -76,7 +76,7 @@ export default function Societario() {
               disabled={isRefreshing || isProcessosLoading}
             >
               <RotateCcw
-                className={`mr-2 h-4 w-4 transition-transform ${
+                className={`h-4 w-4 transition-transform ${
                   isRefreshing ? "animate-spin" : ""
                 }`}
               />
@@ -93,35 +93,36 @@ export default function Societario() {
           </div>
         </Title>
       </div>
+      <div className="overflow-hidden">
 
       <ScrollArea className="flex-1 w-full h-[calc(100vh-100px)] sm:h-[calc(100vh-120px)]">
-        <div className="min-h-[500px] flex-1 relative py-5 px-2 sm:px-5 overflow-x-hidden">
+        <div className="min-h-screen flex-1 relative py-5 px-2 sm:px-5 overflow-x-hidden">
           {isProcessosLoading || isRefreshing ? (
             <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 overflow-x-hidden">
               {renderSkeletonColumns()}
             </div>
           ) : (
             <KanbanColumns
-              processosCard={processosCard}
-              handleCardEdit={handleCardEdit}
-              selectedProcessoId={selectedProcesso?.id}
+            processosCard={processosCard}
+            handleCardEdit={handleCardEdit}
+            selectedProcessoId={selectedProcesso?.id}
             />
           )}
         </div>
-        <ScrollBar orientation="horizontal" />
       </ScrollArea>
+      </div>
 
       {selectedProcesso ? (
         isProcessoLoading ? (
           <SkeletonSheet />
         ) : detailedProcesso ? (
           <EditSheet
-            tarefas={tarefas || []}
-            processo={detailedProcesso}
-            etapas={etapas}
-            onSave={handleSaveEdit}
-            onCancel={() => setSelectedProcesso(null)}
-            isLoading={isProcessoLoading}
+          tarefas={tarefas || []}
+          processo={detailedProcesso}
+          etapas={etapas}
+          onSave={handleSaveEdit}
+          onCancel={() => setSelectedProcesso(null)}
+          isLoading={isProcessoLoading}
           />
         ) : null
       ) : null}
