@@ -100,6 +100,15 @@ export function useEtapaById(id: string) {
   return { data, error, isLoading };
 }
 
+interface UpdateProcessoRequest {
+  processo_id: string;
+  etapa_id: string;
+  tarefas: {
+    tarefa_id: string;
+    concluida: string;
+  }[];
+}
+
 // Funções de Ações Societárias
 export function useSocietarioActions() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -141,25 +150,16 @@ export function useSocietarioActions() {
     }
   };
 
-  const updateProcesso = async ({
-    processo_id,
-    tarefas,
-  }: {
-    processo_id: string;
-    tarefas: { tarefa_id: string; status: string }[];
-  }) => {
+  const updateProcesso = async (data: UpdateProcessoRequest) => {
     setError(null);
     setIsLoading(true);
 
     try {
       const response = await axios.put(
         `${API_URL}/societario/update-processo/`,
+        data,
         {
-          processo_id,
-          tarefas,
-        },
-        {
-          withCredentials: true, // Inclui os cookies de autenticação
+          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
           },
@@ -168,10 +168,10 @@ export function useSocietarioActions() {
 
       return response.data;
     } catch (error: any) {
-      setError(error.message); // Armazena o erro no estado, se necessário
-      throw error; // Re-throws the error to be caught in handleSave
+      setError(error.message);
+      throw error;
     } finally {
-      setIsLoading(false); // Garante que o carregamento será desativado
+      setIsLoading(false);
     }
   };
 
