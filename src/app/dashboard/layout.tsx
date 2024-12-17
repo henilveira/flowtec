@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import {
   HeartHandshake,
@@ -9,23 +10,22 @@ import {
   HelpCircle,
   PanelLeft,
   Building2,
-  Bell,
 } from "lucide-react";
-
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { SearchInput } from "./search";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import Logo from "@/components/logo";
 import { ThemeProvider } from "next-themes";
 import { ThemeSwitcher } from "@/components/ui/theme-switcher";
-import { NavItem } from "./nav-item";
-import FlowTechLogo from "@/components/logo";
-import NotificationIcon from "@/components/notificacoes";
-import Profile from "@/components/profile";
-import Title from "./page-title";
 import { Toaster } from "@/components/ui/sonner";
 import { ContabilidadeProvider } from "./societario/select-contabilidade";
 import { EtapaProvider } from "./societario/select-etapas";
+import { Separator } from "@/components/ui/separator";
+import { usePathname } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { NavUser } from "@/components/nav-user";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function DashboardLayout({
   children,
@@ -35,184 +35,133 @@ export default function DashboardLayout({
   return (
     <ContabilidadeProvider>
       <EtapaProvider>
-      <ThemeProvider attribute="class" defaultTheme="system">
-        <div className="flex flex-col h-screen w-full bg-muted/40 overflow-hidden">
-          {" "}
-          {/* Adicionado overflow-hidden */}
-          <DesktopNavbar />
-          <div className="flex flex-1 overflow-hidden">
+        <ThemeProvider attribute="class" defaultTheme="system">
+          <SidebarProvider>
             {" "}
-            {/* Adicionado overflow-hidden */}
-            <DesktopAside />
-            <main className="flex-1 flex flex-col overflow-hidden">
-              {" "}
-              {/* Adicionado overflow-hidden */}
-              <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b justify-between px-4 sm:px-6 lg:hidden">
-                <div className="w-full">
-                  <MobileNav />
+            {/* Adicione o SidebarProvider aqui */}
+            <div className="flex h-screen w-screen overflow-hidden">
+              <nav className="hidden lg:flex w-64 flex-shrink-0 flex-col border-r bg-background">
+                <div className="p-6">
+                  <Logo />
                 </div>
-              </header>
-              <div className="flex-1 overflow-auto">
-                {" "}
-                {/* Mudado para overflow-auto */}
-                {children}
+                <div className="flex-1">
+                  <Sidebar />
+                </div>
+                <Separator />
+                <div className="p-4">
+                  <NavUser />
+                </div>
+              </nav>
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <header className="lg:hidden flex h-14 items-center border-b bg-background px-6 flex-shrink-0">
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" size="icon">
+                        <PanelLeft className="h-5 w-5" />
+                        <span className="sr-only">Toggle menu</span>
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent
+                      side="left"
+                      className="w-[80%] sm:w-[350px] p-0"
+                    >
+                      <div className="p-6">
+                        <Logo />
+                      </div>
+                      <div className="h-[calc(100vh-8rem)]">
+                        <Sidebar />
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0">
+                        <Separator />
+                        <div className="p-4">
+                          <NavUser />
+                        </div>
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                </header>
+                <main className="flex-1 overflow-auto">
+                  {children}
+                  <Toaster />
+                </main>
               </div>
-              <Toaster />
-            </main>
-          </div>
-        </div>
-      </ThemeProvider>
-
+            </div>
+          </SidebarProvider>
+        </ThemeProvider>
       </EtapaProvider>
     </ContabilidadeProvider>
   );
 }
 
-function DesktopNavbar() {
+function NavItem({ href, children, ...props }: any) {
+  const pathname = usePathname();
+  const isActive = pathname === href;
+
   return (
-    <nav className="sticky top-0 z-40 w-full border-b bg-background lg:flex h-16">
-      <div className="w-full flex items-center justify-between px-4 h-full">
-        <Link href="/" className="flex items-center">
-          <FlowTechLogo />
-        </Link>
-        <div className="flex items-center gap-4">
-          {/* <SearchInput /> */}
-          <ThemeSwitcher />
-          {/* <Bell className="h-5 w-5 text-muted-foreground" /> */}
-          <NotificationIcon />
-          <Profile />
-        </div>
-      </div>
-    </nav>
+    <Link
+      href={href}
+      className={cn(
+        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+        "hover:bg-accent hover:text-accent-foreground",
+        isActive && "bg-flowtech-gradient-transparent text-accent-foreground",
+      )}
+      {...props}
+    >
+      {children}
+    </Link>
   );
 }
 
-function DesktopAside() {
+function Sidebar() {
   return (
-    <aside className="hidden lg:flex flex-col w-64 border-r bg-background">
-      <nav className="flex flex-col gap-4 p-4">
-        <div className="flex flex-col gap-1">
-          <div className="mb-2">
-            <span className="text-muted-foreground">Geral</span>
-          </div>
-          <NavItem href="/dashboard" label="Dashboard" text="Dashboard">
-            <LayoutGrid className="h-5 w-5" />
+    <div className="flex flex-col gap-4 py-2 px-4">
+      <div className="flex flex-col gap-1">
+        <h2 className="mb-2 px-2 text-lg font-semibold tracking-tight">
+          Geral
+        </h2>
+        <nav className="grid gap-1">
+          <NavItem href="/dashboard">
+            <LayoutGrid className="h-4 w-4" />
+            Dashboard
           </NavItem>
-          <NavItem
-            href="/dashboard/gerenciamento"
-            label="Gerenciamento"
-            text="Gerenciamento"
-          >
-            <Building2 className="h-5 w-5" />
+          <NavItem href="/dashboard/gerenciamento">
+            <Building2 className="h-4 w-4" />
+            Gerenciamento
           </NavItem>
-          <NavItem
-            href="/dashboard/societario"
-            label="Societário"
-            text="Societário"
-          >
-            <HeartHandshake className="h-5 w-5" />
+          <NavItem href="/dashboard/societario">
+            <HeartHandshake className="h-4 w-4" />
+            Societário
           </NavItem>
-          <NavItem href="/dashboard/alvaras" label="Alvarás" text="Alvarás">
-            <ClipboardPenLine className="h-5 w-5" />
+          <NavItem href="/dashboard/alvaras">
+            <ClipboardPenLine className="h-4 w-4" />
+            Alvarás
           </NavItem>
-          <NavItem
-            href="/dashboard/certificados-digitais"
-            label="Certificados digitais"
-            text="Certificados digitais"
-          >
-            <FileCheck className="h-5 w-5" />
+          <NavItem href="/dashboard/certificados-digitais">
+            <FileCheck className="h-4 w-4" />
+            Certificados Digitais
           </NavItem>
-          <NavItem
-            href="/dashboard/contratos"
-            label="Contratos"
-            text="Contratos"
-          >
-            <Newspaper className="h-5 w-5" />
+          <NavItem href="/dashboard/contratos">
+            <Newspaper className="h-4 w-4" />
+            Contratos
           </NavItem>
-        </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-muted-foreground">Suporte</span>
-          <NavItem
-            href="/dashboard/configuracoes"
-            label="Configurações"
-            text="Configurações"
-          >
-            <Settings className="h-5 w-5" />
-          </NavItem>
-          <NavItem href="/dashboard/ajuda" label="Ajuda" text="Ajuda">
-            <HelpCircle className="h-5 w-5" />
-          </NavItem>
-        </div>
-      </nav>
-    </aside>
-  );
-}
-
-function MobileNav() {
-  return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button size="icon" variant="outline" className="lg:hidden">
-          <PanelLeft className="h-5 w-5" />
-          <span className="sr-only">Toggle Menu</span>
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-64">
-        <nav className="grid gap-2 text-lg font-medium">
-          <div className="mb-2">
-            <span className="text-muted-foreground">Geral</span>
-          </div>
-          <NavItem href="/dashboard" label="Dashboard" text="Dashboard">
-            <LayoutGrid className="h-5 w-5" />
-          </NavItem>
-          <NavItem
-            href="/dashboard/gerenciamento"
-            label="Gerenciamento"
-            text="Gerenciamento"
-          >
-            <Building2 className="h-5 w-5" />
-          </NavItem>
-          <NavItem
-            href="/dashboard/societario"
-            label="Societário"
-            text="Societário"
-          >
-            <HeartHandshake className="h-5 w-5" />
-          </NavItem>
-          <NavItem href="/dashboard/alvaras" label="Alvarás" text="Alvarás">
-            <ClipboardPenLine className="h-5 w-5" />
-          </NavItem>
-          <NavItem
-            href="/dashboard/certificados-digitais"
-            label="Certificados digitais"
-            text="Certificados digitais"
-          >
-            <FileCheck className="h-5 w-5" />
-          </NavItem>
-          <NavItem
-            href="/dashboard/contratos"
-            label="Contratos"
-            text="Contratos"
-          >
-            <Newspaper className="h-5 w-5" />
-          </NavItem>
-          <div className="flex flex-col gap-1">
-            <div className="mb-2">
-              <span className="text-muted-foreground">Suporte</span>
-            </div>
-            <NavItem
-              href="/dashboard/configuracoes"
-              label="Configurações"
-              text="Configurações"
-            >
-              <Settings className="h-5 w-5" />
-            </NavItem>
-            <NavItem href="/dashboard/ajuda" label="Ajuda" text="Ajuda">
-              <HelpCircle className="h-5 w-5" />
-            </NavItem>
-          </div>
         </nav>
-      </SheetContent>
-    </Sheet>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <h2 className="mb-2 px-2 text-lg font-semibold tracking-tight">
+          Suporte
+        </h2>
+        <nav className="grid gap-1">
+          <NavItem href="/dashboard/configuracoes">
+            <Settings className="h-4 w-4" />
+            Configurações
+          </NavItem>
+          <NavItem href="/dashboard/ajuda">
+            <HelpCircle className="h-4 w-4" />
+            Ajuda
+          </NavItem>
+        </nav>
+      </div>
+    </div>
   );
 }

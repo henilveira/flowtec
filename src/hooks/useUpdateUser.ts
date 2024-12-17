@@ -1,65 +1,34 @@
-import { useState } from 'react';
-import { useUser } from './useUser';
-import { mutate } from 'swr';
-import { UpdateUser } from '@/@types/User';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { useState } from "react";
+import axiosInstance from "@/lib/axios";
+import { mutate } from "swr";
 
 export function useUpdateUser() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Obtém as informações do usuário
-  const { id } = useUser();
-
-  // Função para atualizar todas as informações do usuário
-  const updateUser = async (userData: Partial<UpdateUser>) => {
+  const updateUser = async (userData: Partial<Record<string, any>>) => {
     setIsLoading(true);
     setError(null);
 
     const formData = new FormData();
 
-    // Adiciona os dados do usuário ao formData
-    if (userData.first_name) { // Corrigido para "first_name" para corresponder ao backend
-      formData.append('first_name', userData.first_name);
-    }
-    if (userData.last_name) { // Corrigido para "last_name" para corresponder ao backend
-      formData.append('last_name', userData.last_name);
-    }
-    if (userData.profile_picture) { // Corrigido para "profile_picture" para corresponder ao backend
-      formData.append('profile_picture', userData.profile_picture);
-    }
+    Object.entries(userData).forEach(([key, value]) => {
+      if (value) formData.append(key, value as string | Blob);
+    });
 
     try {
-      const response = await fetch(`${API_URL}/accounts/update-user/?id=${id}`, {
-        method: 'PATCH',
-        body: formData, // Envia o FormData no corpo da requisição
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorResponse = await response.json();
-        console.error("Erro do backend:", errorResponse);
-        throw new Error('Failed to update user information');
-      }
-
-      const updatedUser = await response.json();
-      
-      // Atualiza os dados localmente após sucesso
-      mutate(`/api/accounts/${id}`); // Use a chave correta
-
-      console.log("Usuário atualizado:", updatedUser); // Para depuração
-    } catch (err) {
-      console.error(err);
-      setError('Failed to update user information. Please try again.');
+      const response = await axiosInstance.patch(
+        "/accounts/update-user/",
+        formData,
+      );
+      mutate("/accounts/current-user/");
+      console.log("Usuário atualizado:", response.data);
+    } catch (err: any) {
+      setError(err.response?.data?.detail || "Erro ao atualizar usuário");
     } finally {
       setIsLoading(false);
     }
   };
 
-  return {
-    updateUser, // Função para atualizar o usuário
-    isLoading, // Status de carregamento
-    error, // Possíveis erros
-  };
+  return { updateUser, isLoading, error };
 }

@@ -21,7 +21,7 @@ export default function GerenciamentoAtividades() {
   const [activeTab, setActiveTab] = useState("contabilidades");
 
   return (
-    <div className=" mx-auto">
+    <div className="p-6 mx-auto">
       <Title titulo="Gerenciamento">
         <RefreshButton />
         <Button variant="outline">

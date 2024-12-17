@@ -1,6 +1,5 @@
-import { useState } from 'react';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { useState } from "react";
+import axiosInstance from "@/lib/axios";
 
 export function useCreateContabilidade() {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,22 +10,13 @@ export function useCreateContabilidade() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/contabilidades/create-contabilidade/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cnpj }),
-        credentials: 'include',
-      });
-      
-      
-      if (!response.ok) {
-          throw new Error('Login failed');
-        }
-        
-        const data = await response.json();
-        console.log(data)
-    } catch (error: any) {
-      setError(error);
+      const response = await axiosInstance.post(
+        "/contabilidades/create-contabilidade/",
+        { cnpj },
+      );
+      console.log(response.data);
+    } catch (err: any) {
+      setError(err.response?.data?.detail || "Erro ao criar contabilidade");
     } finally {
       setIsLoading(false);
     }

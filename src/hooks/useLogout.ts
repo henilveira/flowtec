@@ -1,6 +1,5 @@
-import { useState } from 'react';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { useState } from "react";
+import axiosInstance from "@/lib/axios";
 
 export function useLogout() {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,17 +10,9 @@ export function useLogout() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/accounts/token/logout/`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Logout failed');
-      }
-
-    } catch (error: any) {
-      setError(error);
+      await axiosInstance.post("/accounts/token/logout/");
+    } catch (err: any) {
+      setError(err.response?.data?.detail || "Erro ao realizar logout");
     } finally {
       setIsLoading(false);
     }

@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { SlidersHorizontal, RotateCcw } from 'lucide-react';
+import { SlidersHorizontal, RotateCcw } from "lucide-react";
 import {
   useProcessosByEtapas,
   useProcessosById,
@@ -16,6 +16,7 @@ import FilterDropdown from "./filter";
 import { Requisicao } from "./requisicao";
 import { SkeletonColumn } from "@/components/skeleton-column";
 import { SkeletonSheet } from "@/components/skeleton-sheet";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Societario() {
   const {
@@ -54,7 +55,7 @@ export default function Societario() {
   }, [refetchProcessos]);
 
   const renderSkeletonColumns = () => (
-    <div className="p-3 flex space-x-6 w-max">
+    <div className="px-5 flex space-x-6 w-max">
       <SkeletonColumn title="Proposta/Formulário" count={0} />
       <SkeletonColumn title="Viabilidade" count={0} />
       <SkeletonColumn title="Registro" count={0} />
@@ -65,8 +66,9 @@ export default function Societario() {
   );
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      <div className="flex-none">
+    <div className="h-full flex flex-col">
+      {/* Cabeçalho fixo */}
+      <div className="flex-none p-6">
         <Title titulo="Societário">
           <div className="flex flex-wrap gap-2">
             <Button
@@ -93,40 +95,46 @@ export default function Societario() {
           </div>
         </Title>
       </div>
-      <div className="overflow-hidden">
 
-      <ScrollArea className="flex-1 w-full h-[calc(100vh-100px)] sm:h-[calc(100vh-120px)]">
-        <div className="min-h-screen flex-1 relative py-5 px-2 sm:px-5 overflow-x-hidden">
-          {isProcessosLoading || isRefreshing ? (
-            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 overflow-x-hidden">
-              {renderSkeletonColumns()}
-            </div>
-          ) : (
-            <KanbanColumns
-            processosCard={processosCard}
-            handleCardEdit={handleCardEdit}
-            selectedProcessoId={selectedProcesso?.id}
-            />
-          )}
-        </div>
-      </ScrollArea>
+      {/* Área do Kanban com scroll horizontal */}
+      <div className="flex-1 min-h-0">
+        {" "}
+        {/* min-h-0 é importante para o flex funcionar corretamente */}
+        <ScrollArea className="h-full">
+          <div className="p-6">
+            {isProcessosLoading || isRefreshing ? (
+              <div className="relative">
+                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10">
+                  {renderSkeletonColumns()}
+                </div>
+              </div>
+            ) : (
+              <KanbanColumns
+                processosCard={processosCard}
+                handleCardEdit={handleCardEdit}
+                selectedProcessoId={selectedProcesso?.id}
+              />
+            )}
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </div>
 
+      {/* Sheet para edição - permanece no final */}
       {selectedProcesso ? (
         isProcessoLoading ? (
           <SkeletonSheet />
         ) : detailedProcesso ? (
           <EditSheet
-          tarefas={tarefas || []}
-          processo={detailedProcesso}
-          etapas={etapas}
-          onSave={handleSaveEdit}
-          onCancel={() => setSelectedProcesso(null)}
-          isLoading={isProcessoLoading}
+            tarefas={tarefas || []}
+            processo={detailedProcesso}
+            etapas={etapas}
+            onSave={handleSaveEdit}
+            onCancel={() => setSelectedProcesso(null)}
+            isLoading={isProcessoLoading}
           />
         ) : null
       ) : null}
     </div>
   );
 }
-

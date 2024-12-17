@@ -1,76 +1,70 @@
-import useSWR, { SWRConfiguration } from 'swr';
-import { useRouter } from 'next/navigation';
-import { ApiError } from '@/@types/ApiBase';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-async function fetcher(url: string) {
-  const res = await fetch(url, {
-    credentials: 'include',
-  });
-
-  if (!res.ok) {
-    const error: ApiError = new Error('An error occurred while fetching the data.');
-    error.info = await res.json();
-    error.status = res.status;
-    throw error;
-  }
-
-  const data = await res.json();
-  return data;
-}
+import useSWR, { SWRConfiguration } from "swr";
+import { useRouter } from "next/navigation";
+import { ApiError } from "@/@types/ApiBase";
+import api from "./api";
 
 export function useApiBase<T>(
-  endpoint: string | null, // Permite passar null para não fazer requisição
-  options: SWRConfiguration<T> = {}
+  endpoint: string | null,
+  options: SWRConfiguration<T> = {},
 ) {
   const router = useRouter();
 
-  // Use uma chave estável que só muda quando o endpoint realmente muda
-  const key = endpoint ? `${API_URL}${endpoint}` : null;
+  const key = endpoint ? endpoint : null;
+
+  const fetcher = async (url: string) => {
+    try {
+      const response = await api.get(url);
+      return response.data;
+    } catch (error: any) {
+      const apiError: ApiError = new Error(
+        "An error occurred while fetching the data.",
+      );
+      apiError.info = error.response?.data;
+      apiError.status = error.response?.status;
+      throw apiError;
+    }
+  };
 
   const { data, error, mutate, isValidating } = useSWR<T>(
-    key, 
-    key ? fetcher : null,  // Passa null como fetcher se key for null
+    key,
+    key ? fetcher : null,
     {
       ...options,
-      
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       shouldRetryOnError: false,
-      
       dedupingInterval: 60000,
       refreshInterval: 0,
-      
+
       onErrorRetry: async (err, key, config, revalidate, { retryCount }) => {
-        if ((err as ApiError).status === 401) {
-          // Se o erro for 401, tenta renovar o token
+        const apiError = err as ApiError;
+
+        // Verifica erros de autorização (401 ou 400)
+        if (apiError.status === 401 || apiError.status === 400) {
+          // Limita para uma única tentativa
           if (retryCount < 1) {
             try {
-              await refreshToken(); // Tenta renovar o token
-              revalidate(); // Revalida a requisição original
+              console.log("Revalidating after token refresh");
+              await revalidate();
             } catch (refreshError) {
-              // Caso a renovação do token falhe, redireciona para o login
-              console.error('Token refresh failed:', refreshError);
-              router.push('/login');
+              console.error("Token refresh failed:", refreshError);
+              router.push("/login");
             }
           } else {
-            // Se a renovação falhar, redireciona para o login
-            router.push('/login');
+            console.log("Max retry count reached, redirecting to login");
+            router.push("/login");
           }
           return;
         }
-
-        return;
       },
-    }
+    },
   );
 
-  return { 
-    data, 
-    error, 
-    mutate, 
-    isLoading: !error && !data, 
-    isValidating 
+  return {
+    data,
+    error,
+    mutate,
+    isLoading: !error && !data,
+    isValidating,
   };
 }

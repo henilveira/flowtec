@@ -21,7 +21,10 @@ const config = {
   	},
   	extend: {
   		fontFamily: {
-  			'inter-tight': ['Inter Tight"', "sans-serif"]
+  			'inter-tight': [
+  				'Inter Tight"',
+  				'sans-serif'
+  			]
   		},
   		backgroundImage: {
   			'flowtech-gradient-transparent': 'linear-gradient(135deg, rgba(0, 123, 255, 0.3), rgba(0, 208, 132, 0.3))',

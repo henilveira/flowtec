@@ -1,10 +1,16 @@
-import { useApiBase } from './useApiBase';
-import { ContabilidadeResponse, useListContabilidadesReturn } from '@/@types/Contabilidades';
+import { useApiBase } from "./useApiBase";
+import {
+  ContabilidadeResponse,
+  useListContabilidadesReturn,
+} from "@/@types/Contabilidades";
 
-export function useListContabilidades(page: number = 1): useListContabilidadesReturn {
-  const { data, error, mutate, isLoading, isValidating } = useApiBase<ContabilidadeResponse>(
-    `/contabilidades/list-contabilidades/?page=${page}`
-  );
+export function useListContabilidades(
+  page: number = 1,
+): useListContabilidadesReturn {
+  const { data, error, mutate, isLoading, isValidating } =
+    useApiBase<ContabilidadeResponse>(
+      `/contabilidades/list-contabilidades/?page=${page}`,
+    );
 
   return {
     companies: data?.results.empresas || [],
@@ -12,6 +18,6 @@ export function useListContabilidades(page: number = 1): useListContabilidadesRe
     isLoading,
     isError: error,
     mutate,
-    isValidating
+    isValidating,
   };
 }

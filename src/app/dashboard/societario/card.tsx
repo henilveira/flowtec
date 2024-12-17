@@ -69,12 +69,12 @@ export default function Card({
     <div
       onClick={disabled ? undefined : onClick}
       className={cn(
-        "flex flex-col bg-flowtech-blue gap-4 text-white rounded-xl p-6 w-full min-w-[280px] shadow-lg transition-all duration-300 ease-in-out",
+        "flex flex-col bg-white border gap-4 text-black rounded-xl p-6 w-full min-w-[280px] shadow-sm transition-all duration-300 ease-in-out",
         disabled
           ? "opacity-50 cursor-not-allowed"
-          : "cursor-pointer hover:shadow-xl hover:translate-y-[-4px]",
+          : "cursor-pointer hover:translate-y-[-4px]",
         currentColumn?.color,
-        className
+        className,
       )}
     >
       <div className="flex justify-between items-start flex-col gap-3">
@@ -82,7 +82,7 @@ export default function Card({
         <Badge
           className={cn(
             "text-xs font-medium px-3 py-1 rounded-full text-white border-none text-center",
-            colorMap[getColor()]
+            colorMap[getColor()],
           )}
         >
           {mapBadgeName(tipoProcesso.descricao)}
@@ -97,7 +97,7 @@ export default function Card({
         <div
           className={cn(
             "h-2 rounded-full overflow-hidden",
-            getProgressBarBackground()
+            getProgressBarBackground(),
           )}
         >
           <div

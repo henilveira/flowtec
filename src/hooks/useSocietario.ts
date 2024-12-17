@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { useApiBase } from './useApiBase';
-import { 
-  SocietarioData, 
-  CreateSocietarioParams,  
+import { useState } from "react";
+import axios from "axios";
+import { useApiBase } from "./useApiBase";
+import {
+  SocietarioData,
+  CreateSocietarioParams,
   ProcessosResponse,
   Processo,
-} from '@/@types/Societario'; // Certifique-se de criar este tipo em `@/@types/Societario`
+} from "@/@types/Societario"; // Certifique-se de criar este tipo em `@/@types/Societario`
 
 // Types para diferentes respostas de listagem
 interface EtapasResponse {
@@ -18,19 +19,17 @@ interface TipoProcessosResponse {
 }
 
 interface EtapasResponse {
-  etapas: { 
-    id: string; 
-    nome: string; 
-    ordem: number; 
+  etapas: {
+    id: string;
+    nome: string;
+    ordem: number;
   }[]; // Define o formato correto da propriedade etapas
 }
 
-
 // Hook para listar Etapas
 export function useListEtapas() {
-  const { data, error, mutate, isLoading, isValidating } = useApiBase<EtapasResponse>(
-    `/societario/list-etapas/`
-  );
+  const { data, error, mutate, isLoading, isValidating } =
+    useApiBase<EtapasResponse>(`/societario/list-etapas/`);
 
   return {
     etapas: data?.etapas || [], // Agora corretamente acessando `etapas`
@@ -43,11 +42,13 @@ export function useListEtapas() {
 
 // Hook para buscar processos por ID
 export function useProcessosById(id: string | null) {
-  const { data, error, mutate, isLoading, isValidating } = useApiBase<{ processo: Processo }>(
+  const { data, error, mutate, isLoading, isValidating } = useApiBase<{
+    processo: Processo;
+  }>(
     id ? `/societario/get-processo/?processo_id=${id}` : null, // Não faz a requisição se o id for null
     {
       revalidateOnMount: true, // Revalida ao montar
-    }
+    },
   );
 
   return {
@@ -62,9 +63,10 @@ export function useProcessosById(id: string | null) {
 
 // Hook para listar Tipo de Processos
 export function useListTipoProcessos() {
-  const { data, error, mutate, isLoading, isValidating } = useApiBase<TipoProcessosResponse>(
-    `/societario/list-tipo-processo/` // Certifique-se de que este endpoint está correto
-  );
+  const { data, error, mutate, isLoading, isValidating } =
+    useApiBase<TipoProcessosResponse>(
+      `/societario/list-tipo-processo/`, // Certifique-se de que este endpoint está correto
+    );
 
   return {
     tipoProcessos: data?.tipo_processo || [], // Atualize para refletir a estrutura correta
@@ -77,20 +79,22 @@ export function useListTipoProcessos() {
 
 // Hook para buscar processos por etapas
 export function useProcessosByEtapas() {
-  const { data, error, mutate, isLoading } = useApiBase<{ processos_por_etapa: any[] }>('/societario/list-processos-etapas/');
+  const { data, error, mutate, isLoading } = useApiBase<{
+    processos_por_etapa: any[];
+  }>("/societario/list-processos-etapas/");
 
   return {
     processos: data?.processos_por_etapa || [],
     mutate,
     isLoading,
-    error
+    error,
   };
 }
 
 // Hook para obter Etapa por ID
 export function useEtapaById(id: string) {
   const { data, error, isLoading } = useApiBase<SocietarioData>(
-    `/societario/get-etapa/?id=${id}`
+    `/societario/get-etapa/?id=${id}`,
   );
 
   return { data, error, isLoading };
@@ -107,36 +111,33 @@ export function useSocietarioActions() {
     nome: string,
     contabilidade_id: any,
     tipo_processo_id: string,
-    etapa_id: string
+    etapa_id: string,
   ) => {
     setError(null);
-    setIsLoading(true);  // Definido aqui para iniciar o carregamento
+    setIsLoading(true); // Definido aqui para iniciar o carregamento
 
     try {
-      const response = await fetch(`${API_URL}/societario/create-processo/`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const response = await axios.post(
+        `${API_URL}/societario/create-processo/`,
+        {
           nome,
           contabilidade_id,
           tipo_processo_id,
           etapa_id,
-        }),
-      });
+        },
+        {
+          withCredentials: true, // Inclui os cookies de autenticação
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
 
-      if (!response.ok) {
-        throw new Error("Erro ao criar novo registro");
-      }
-
-      const data = await response.json();
-      return data;
+      return response.data;
     } catch (error: any) {
-      setError(error.message);  // Captura e define o erro com a mensagem correta
+      setError(error.message); // Captura e define o erro com a mensagem correta
     } finally {
-      setIsLoading(false);  // Definido para garantir que o estado de carregamento seja desativado
+      setIsLoading(false); // Definido para garantir que o estado de carregamento seja desativado
     }
   };
 
@@ -149,47 +150,45 @@ export function useSocietarioActions() {
   }) => {
     setError(null);
     setIsLoading(true);
-  
+
     try {
-      const response = await fetch(`${API_URL}/societario/update-processo/`, {
-        method: "PUT",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const response = await axios.put(
+        `${API_URL}/societario/update-processo/`,
+        {
           processo_id,
           tarefas,
-        }),
-      });
-  
-      if (!response.ok) {
-        throw new Error("Erro ao atualizar o processo");
-      }
-  
-      const data = await response.json();
-      return data;
+        },
+        {
+          withCredentials: true, // Inclui os cookies de autenticação
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      return response.data;
     } catch (error: any) {
       setError(error.message); // Armazena o erro no estado, se necessário
       throw error; // Re-throws the error to be caught in handleSave
     } finally {
-      setIsLoading(false);  // Garante que o carregamento será desativado
+      setIsLoading(false); // Garante que o carregamento será desativado
     }
   };
 
   // Remover registro
   const remove = async (id: string) => {
-    const response = await fetch(`${API_URL}/societario/${id}/`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.message || `Request failed with status ${response.status}`);
+    try {
+      await axios.delete(`${API_URL}/societario/${id}/`, {
+        withCredentials: true, // Inclui os cookies de autenticação
+      });
+      return true;
+    } catch (error: any) {
+      const errorData = error.response?.data;
+      throw new Error(
+        errorData?.message ||
+          `Request failed with status ${error.response?.status}`,
+      );
     }
-
-    return true;
   };
 
   return {

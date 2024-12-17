@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { ChevronDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CollapsibleColumnProps {
   title: string; // O nome da coluna
@@ -10,21 +10,21 @@ interface CollapsibleColumnProps {
   className?: string;
 }
 
-export default function Coluna({ 
-  title, 
-  count, 
+export default function Coluna({
+  title,
+  count,
   children,
-  className 
+  className,
 }: CollapsibleColumnProps) {
   return (
     <div
       className={cn(
-        "grid grid-rows-[auto,1fr] h-full w-full max-w-xs rounded-xl border bg-background",
-        className
+        "grid grid-rows-[auto,1fr] h-full w-full max-w-xs rounded-xl border bg-zinc-50",
+        className,
       )}
     >
       <div className="flex justify-between items-center p-4">
-        <div className="flex items-center gap-2 text-2xl font-bold">
+        <div className="flex items-center gap-2 text-xl font-bold">
           <ChevronDown className="h-4 w-4 text-gray-400" />
           <span>{title}</span>
         </div>

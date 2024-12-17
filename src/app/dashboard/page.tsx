@@ -11,7 +11,7 @@ import { Barchart1 } from "./barchart-1";
 
 export default function Painel() {
   return (
-    <div>
+    <div className="p-6">
       <Title titulo="Dashboard">
         <Button variant="outline">
           <FilterIcon className="mr-2 h-4 w-4" /> Filtrar
@@ -20,15 +20,9 @@ export default function Painel() {
       <div className=" w-full p-4 space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard title="Requisições totais" value="217" />
-          <MetricCard
-            title="Contabilidades cadastradas"
-            value="20"
-          />
+          <MetricCard title="Contabilidades cadastradas" value="20" />
           <MetricCard title="Total de Usuários" value="45" />
-          <MetricCard
-            title="Empresas cadastradas"
-            value="185"
-          />
+          <MetricCard title="Empresas cadastradas" value="185" />
         </div>
         <div className="grid gap-6 md:grid-cols-2">
           <Piechart1 />
@@ -43,15 +37,7 @@ export default function Painel() {
   );
 }
 
-function MetricCard({
-  title,
-  value,
-
-}: {
-  title: string;
-  value: string;
-
-}) {
+function MetricCard({ title, value }: { title: string; value: string }) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -59,7 +45,6 @@ function MetricCard({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-
       </CardContent>
     </Card>
   );
