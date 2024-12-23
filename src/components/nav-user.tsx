@@ -49,18 +49,10 @@ export function NavUser() {
 
   const handleLogout = async () => {
     try {
-      await logout();
-      toast.success("Você foi desconectado!", {
-        description: "Redirecionando para a página de login...",
-        duration: 3000,
-      });
-    } catch (err) {
       router.push("/login");
-      toast.error("Falha ao desconectar!", {
-        description:
-          "Ocorreu um erro ao desconectá-lo, tente novamente mais tarde.",
-        duration: 3000,
-      });
+      await logout();
+    } catch (err) {
+      console.log(err);
     }
   };
 

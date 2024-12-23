@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-const LoginForm = () => {
+export default function LoginForm() {
   const { login, isLoading, error } = useLogin();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -82,6 +82,4 @@ const LoginForm = () => {
       </Button>
     </form>
   );
-};
-
-export default LoginForm;
+}

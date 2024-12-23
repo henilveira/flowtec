@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/themeProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 // Adicionando a fonte Inter
 const inter = Inter({
@@ -25,11 +26,10 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="system"
           > */}
-        <body
-          className={`${inter.variable} antialiased`}
-        >
-          {children}
-        </body>
+      <body className={`${inter.variable} antialiased`}>
+        {children}
+        <Toaster />
+      </body>
       {/* </ThemeProvider> */}
     </html>
   );

@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { FaGoogle } from "react-icons/fa"
-import { AuroraBackground } from "@/components/ui/aurora-background"
-import LoginForm from "./form"
-import Logo from "@/components/logo"
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { FaGoogle } from "react-icons/fa";
+import { AuroraBackground } from "@/components/ui/aurora-background";
+import LoginForm from "./form";
+import Logo from "@/components/logo";
 
 export default function Login() {
   return (
@@ -29,7 +29,9 @@ export default function Login() {
           {/* Title and subtitle */}
           <div className="text-center">
             <h2 className="text-3xl font-bold">Entrar</h2>
-            <p className="mt-2 text-sm text-gray-600">Insira seus dados para iniciar sessão</p>
+            <p className="mt-2 text-sm text-gray-600">
+              Insira seus dados para iniciar sessão
+            </p>
           </div>
 
           {/* Form */}
@@ -40,8 +42,7 @@ export default function Login() {
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300" />
             </div>
-            <div className="relative flex justify-center text-sm">
-            </div>
+            <div className="relative flex justify-center text-sm"></div>
           </div>
 
           {/* Google login button */}
@@ -52,5 +53,5 @@ export default function Login() {
         </motion.div>
       </div>
     </AuroraBackground>
-  )
+  );
 }
