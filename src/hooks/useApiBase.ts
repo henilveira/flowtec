@@ -46,8 +46,9 @@ export function useApiBase<T>(
             try {
               console.log("Revalidating after token refresh");
               await revalidate();
-            } catch (refreshError) {
-              console.error("Token refresh failed:", refreshError);
+            } catch (error: any) {
+              console.log(retryCount);
+              console.log("Token refresh failed:", error);
               router.push("/login");
             }
           } else {

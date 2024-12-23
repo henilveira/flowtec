@@ -27,12 +27,11 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Verifica se é um erro de autorização e se já não está tentando renovar
     if (
       (error.response?.status === 401 || error.response?.status === 400) &&
-      !originalRequest._retry
+      !originalRequest._retry &&
+      !originalRequest.url.includes("/accounts/token/refresh/") // Evita loop infinito
     ) {
-      // Se já está refreshing, coloca na fila
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -45,28 +44,18 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Tenta renovar o token
-        await api.post("/accounts/token/refresh/");
+        const retry = await api.post("/accounts/token/refresh/");
 
         processQueue(null);
         isRefreshing = false;
-
-        // Refaz a requisição original
         return api(originalRequest);
-      } catch (refreshError) {
+      } catch (refreshError: any) {
         console.error("Erro ao renovar o token:", refreshError);
-
         processQueue(refreshError);
         isRefreshing = false;
 
-        // Redireciona para login apenas uma vez
-        if (
-          typeof window !== "undefined" &&
-          !window.location.pathname.includes("/login")
-        ) {
-          window.location.href = "/login";
-        }
-
+        // Redireciona para login quando o refresh token falha
+        window.location.href = "/login";
         return Promise.reject(refreshError);
       }
     }
