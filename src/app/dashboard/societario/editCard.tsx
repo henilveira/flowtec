@@ -86,9 +86,9 @@ export default function EditSheet({
     tarefas.sort((a, b) => a.sequencia - b.sequencia),
   );
   const [isSaving, setIsSaving] = useState(false);
-  const formLink = "forms.com.br/formulario/939887/bxg93ky4tgj8";
 
   const { updateProcesso } = useSocietarioActions();
+  const formLink = "forms.com.br/formulario/939887/bxg93ky4tgj8";
 
   const handleTaskToggle = (id: string, concluida: boolean) => {
     // Encontra a tarefa a ser alterada
@@ -162,15 +162,12 @@ export default function EditSheet({
       return;
     }
 
-    const ultimaTarefaAlterada = tarefasAtualizadas
-      .filter((t) => t.concluida)
-      .pop();
+    // Pega o ID da etapa atual (primeira tarefa alterada)
+    const etapaAtualId = tarefasAtualizadas[0].etapa.id;
 
-    // Criar o objeto na ordem específica
     const dataToSend = {
       processo_id: processo.id,
-      etapa_id:
-        ultimaTarefaAlterada?.etapa.id || tarefasAtualizadas[0].etapa.id,
+      etapa_id: etapaAtualId,
       tarefas: tarefasAlteradas.map(({ tarefa_id, concluida }) => ({
         tarefa_id,
         concluida,

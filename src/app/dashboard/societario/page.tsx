@@ -30,6 +30,7 @@ export default function Societario() {
 
   const processoId = selectedProcesso?.id ?? null;
   const {
+    mutate,
     processo: detailedProcesso,
     tarefas,
     isLoading: isProcessoLoading,
@@ -38,9 +39,22 @@ export default function Societario() {
 
   const handleCardEdit = (processo: any) => setSelectedProcesso(processo);
 
-  const handleSaveEdit = (updatedProcesso: any) => {
-    console.log("Saving updated processo:", updatedProcesso);
-    setSelectedProcesso(null);
+  const handleSaveEdit = async (updatedProcesso: any) => {
+    try {
+      console.log("Saving updated processo:", updatedProcesso);
+      setSelectedProcesso(null);
+
+      // Atualiza os dados localmente
+      await Promise.all([mutate(), refetchProcessos()]);
+
+      // Adicione aqui uma notificação de sucesso se desejar
+    } catch (error) {
+      console.error("Erro ao salvar alterações:", error);
+      // Adicione aqui uma notificação de erro se desejar
+
+      // Opcionalmente, você pode reabrir o modal de edição
+      setSelectedProcesso(updatedProcesso);
+    }
   };
 
   const atualizarProcessos = useCallback(async () => {
