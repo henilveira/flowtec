@@ -91,48 +91,7 @@ export default function EditSheet({
   const formLink = "forms.com.br/formulario/939887/bxg93ky4tgj8";
 
   const handleTaskToggle = (id: string, concluida: boolean) => {
-    // Encontra a tarefa a ser alterada
-    const taskToToggle = tarefasAtualizadas.find((tarefa) => tarefa.id === id);
-
-    if (!taskToToggle) return;
-
-    // Ordena as tarefas pela sequência
-    const sortedTarefas = [...tarefasAtualizadas].sort(
-      (a, b) => a.sequencia - b.sequencia,
-    );
-
-    // Encontra o índice da tarefa atual
-    const currentTaskIndex = sortedTarefas.findIndex(
-      (tarefa) => tarefa.id === id,
-    );
-
-    // Se está tentando marcar como concluída
-    if (concluida) {
-      const ultimaTarefaConcluida = sortedTarefas.findLastIndex(
-        (tarefa) => tarefa.concluida,
-      );
-
-      // Permitir marcar apenas a próxima tarefa na sequência
-      if (currentTaskIndex !== ultimaTarefaConcluida + 1) {
-        toast("Você só pode marcar a próxima tarefa na sequência.");
-        return;
-      }
-    }
-
-    // Se está tentando desmarcar
-    if (!concluida) {
-      const ultimaTarefaConcluida = sortedTarefas.findLastIndex(
-        (tarefa) => tarefa.concluida,
-      );
-
-      // Permitir desmarcar apenas a última tarefa concluída
-      if (currentTaskIndex !== ultimaTarefaConcluida) {
-        toast("Você só pode desmarcar a última tarefa concluída.");
-        return;
-      }
-    }
-
-    // Atualiza o status da tarefa
+    // Atualiza o status da tarefa diretamente
     setTarefasAtualizadas((prevTarefas) =>
       prevTarefas.map((tarefa) =>
         tarefa.id === id ? { ...tarefa, concluida: concluida } : tarefa,
@@ -143,41 +102,100 @@ export default function EditSheet({
   const handleSave = async () => {
     setIsSaving(true);
 
-    const tarefasAlteradas: UpdateTarefaRequest[] = tarefasAtualizadas
-      .filter(
-        (tarefa) =>
-          tarefa.concluida !==
-          tarefas.find((t) => t.id === tarefa.id)?.concluida,
-      )
-      .map((tarefa) => ({
-        tarefa_id: tarefa.id,
-        concluida:
-          tarefa.concluida.toString().charAt(0).toUpperCase() +
-          tarefa.concluida.toString().slice(1),
-      }));
-
-    if (tarefasAlteradas.length === 0) {
-      toast("Não houve alterações nas tarefas.");
-      setIsSaving(false);
-      return;
-    }
-
-    // Pega o ID da etapa atual (primeira tarefa alterada)
-    const etapaAtualId = tarefasAtualizadas[0].etapa.id;
-
-    const dataToSend = {
-      processo_id: processo.id,
-      etapa_id: etapaAtualId,
-      tarefas: tarefasAlteradas.map(({ tarefa_id, concluida }) => ({
-        tarefa_id,
-        concluida,
-      })),
-    } as const;
-
     try {
+      const tarefasAlteradas: UpdateTarefaRequest[] = tarefasAtualizadas
+        .filter(
+          (tarefa) =>
+            tarefa.concluida !==
+            tarefas.find((t) => t.id === tarefa.id)?.concluida,
+        )
+        .map((tarefa) => ({
+          tarefa_id: tarefa.id,
+          concluida:
+            tarefa.concluida.toString().charAt(0).toUpperCase() +
+            tarefa.concluida.toString().slice(1),
+        }));
+
+      if (tarefasAlteradas.length === 0) {
+        toast("Não houve alterações nas tarefas.");
+        setIsSaving(false);
+        return;
+      }
+
+      // Verifica se alguma tarefa foi desmarcada
+      const tarefaDesmarcada = tarefasAtualizadas.find((tarefaAtual) => {
+        const tarefaOriginal = tarefas.find((t) => t.id === tarefaAtual.id);
+        return tarefaOriginal?.concluida && !tarefaAtual.concluida;
+      });
+
+      // Se uma tarefa foi desmarcada, encontra a etapa correspondente
+      let etapaIdToSend: string;
+      if (tarefaDesmarcada) {
+        // Encontra a etapa da tarefa desmarcada
+        etapaIdToSend = tarefaDesmarcada.etapa.id;
+      } else {
+        // Verifica se todas as tarefas da etapa atual foram concluídas
+        const etapaAtual = etapas.find(
+          (etapa) => etapa.id === processo.etapa?.id,
+        );
+        const tarefasDaEtapaAtual = tarefasAtualizadas.filter(
+          (tarefa) => tarefa.etapa.id === processo.etapa?.id,
+        );
+        const todasTarefasConcluidas = tarefasDaEtapaAtual.every(
+          (tarefa) => tarefa.concluida,
+        );
+
+        // Encontra a próxima etapa apenas se todas as tarefas foram concluídas
+        const proximaEtapa =
+          etapaAtual && todasTarefasConcluidas
+            ? etapas.find((etapa) => etapa.ordem === etapaAtual.ordem + 1)
+            : null;
+
+        etapaIdToSend = proximaEtapa?.id || processo.etapa?.id || "";
+      }
+
+      if (!etapaIdToSend) {
+        toast("Erro: Não foi possível identificar a etapa do processo.");
+        setIsSaving(false);
+        return;
+      }
+
+      const dataToSend: UpdateProcessoRequest = {
+        processo_id: processo.id,
+        etapa_id: etapaIdToSend,
+        tarefas: tarefasAlteradas.map(({ tarefa_id, concluida }) => ({
+          tarefa_id,
+          concluida,
+        })),
+      };
+
       await updateProcesso(dataToSend);
-      onSave({ ...processo, tarefas: tarefasAtualizadas });
-      toast("As alterações foram salvas com sucesso.");
+
+      // Encontra a etapa para atualização local
+      const novaEtapa = etapas.find((etapa) => etapa.id === etapaIdToSend);
+
+      // Atualiza o processo local
+      const updatedProcesso = {
+        ...processo,
+        tarefas: tarefasAtualizadas,
+        etapa: novaEtapa || processo.etapa,
+      };
+
+      onSave(updatedProcesso);
+
+      // Mostra mensagem adequada
+      if (tarefaDesmarcada) {
+        toast(`Processo retornou para a etapa: ${tarefaDesmarcada.etapa.nome}`);
+      } else {
+        const etapaAtual = etapas.find((e) => e.id === processo.etapa?.id);
+        const novaEtapa = etapas.find((e) => e.id === etapaIdToSend);
+
+        if (etapaAtual?.id !== novaEtapa?.id) {
+          toast(`Processo movido para a etapa: ${novaEtapa?.nome}`);
+        } else {
+          toast("As alterações foram salvas com sucesso.");
+        }
+      }
     } catch (error) {
       console.error("Erro ao salvar as alterações", error);
       toast("Ocorreu um erro ao salvar as alterações.");
