@@ -10,6 +10,7 @@ import {
   HelpCircle,
   PanelLeft,
   Building2,
+  Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -132,17 +133,39 @@ function Sidebar() {
             <HeartHandshake className="h-4 w-4" />
             Societário
           </NavItem>
-          <NavItem href="/dashboard/alvaras">
-            <ClipboardPenLine className="h-4 w-4" />
-            Alvarás
+          <NavItem href="">
+            <div className="flex justify-between align-items w-full cursor-not-allowed">
+              <div className="flex justify-center align-items text-muted-foreground">
+                <ClipboardPenLine className="h-4 w-4 mr-3" />
+                Alvarás
+              </div>
+              <div className="items-center flex">
+                <Lock className="h-3 w-3" />
+              </div>
+            </div>
           </NavItem>
-          <NavItem href="/dashboard/certificados-digitais">
-            <FileCheck className="h-4 w-4" />
-            Certificados Digitais
+          <NavItem href="">
+            <div className="flex justify-between align-items w-full cursor-not-allowed">
+              <div className="flex justify-center align-items text-muted-foreground">
+                <FileCheck className="h-4 w-4 mr-3" />
+                Certificados Digitais
+              </div>
+              <div className="items-center flex">
+                <Lock className="h-3 w-3" />
+              </div>
+            </div>
           </NavItem>
-          <NavItem href="/dashboard/contratos">
-            <Newspaper className="h-4 w-4" />
-            Contratos
+
+          <NavItem href="">
+            <div className="flex justify-between align-items w-full cursor-not-allowed">
+              <div className="flex justify-center align-items text-muted-foreground">
+                <Newspaper className="h-4 w-4 mr-3" />
+                Contratos
+              </div>
+              <div className="items-center flex">
+                <Lock className="h-3 w-3" />
+              </div>
+            </div>
           </NavItem>
         </nav>
       </div>
