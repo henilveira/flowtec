@@ -91,11 +91,93 @@ export default function EditSheet({
   const formLink = "forms.com.br/formulario/939887/bxg93ky4tgj8";
 
   const handleTaskToggle = (id: string, concluida: boolean) => {
-    // Atualiza o status da tarefa diretamente
+    // Group tasks by stage, ensuring task.etapa and task.etapa.id are defined
+    const stageTaskMap = tarefasAtualizadas.reduce(
+      (acc, task) => {
+        if (task.etapa && task.etapa.id) {
+          if (!acc[task.etapa.id]) {
+            acc[task.etapa.id] = [];
+          }
+          acc[task.etapa.id].push(task);
+        }
+        return acc;
+      },
+      {} as { [stageId: string]: Tarefa[] },
+    );
+
+    // Sort stages by ordem, including only stages with tasks
+    const sortedStages = etapas
+      .filter((stage) => stageTaskMap[stage.id] !== undefined)
+      .sort((a, b) => a.ordem - b.ordem);
+
+    // Sort tasks within each stage by sequencia
+    sortedStages.forEach((stage) => {
+      stageTaskMap[stage.id] = stageTaskMap[stage.id].sort(
+        (a, b) => a.sequencia - b.sequencia,
+      );
+    });
+
+    // Create a flat list of tasks in the sorted order
+    const sortedTasks = sortedStages
+      .map((stage) => stageTaskMap[stage.id])
+      .flat();
+
+    // Find the current task and its index
+    const currentTask = sortedTasks.find((t) => t.id === id);
+    if (!currentTask) return; // Task not found
+
+    if (!currentTask.etapa || !currentTask.etapa.id) {
+      toast("Tarefa sem etapa definida.");
+      return;
+    }
+
+    const taskIndex = sortedTasks.indexOf(currentTask);
+
+    if (concluida) {
+      // Check if all previous tasks are checked
+      for (let i = 0; i < taskIndex; i++) {
+        if (!sortedTasks[i].concluida) {
+          toast("Você precisa concluir as tarefas anteriores primeiro.");
+          return;
+        }
+      }
+    } else {
+      // Uncheck only if it's the last checked task in its stage and no tasks in later stages are checked
+      // Find all tasks in stages after the current stage
+      const stagesAfterIndex = sortedStages.findIndex(
+        (s) => s.id === currentTask.etapa.id,
+      );
+      const stagesAfter = sortedStages.slice(stagesAfterIndex + 1);
+      const tasksAfterStage = stagesAfter.flatMap(
+        (stage) => stageTaskMap[stage.id] ?? [],
+      );
+      if (tasksAfterStage.some((t) => t.concluida)) {
+        toast(
+          "Você não pode desmarcar esta tarefa enquanto houver tarefas concluídas em etapas posteriores.",
+        );
+        return;
+      }
+      // Within the same stage, ensure no tasks after this one are checked
+      const tasksInStage = stageTaskMap[currentTask.etapa.id];
+      if (!tasksInStage) {
+        toast("Etapa da tarefa não encontrada.");
+        return;
+      }
+      const taskStageIndex = tasksInStage.indexOf(currentTask);
+      if (
+        taskStageIndex !== tasksInStage.length - 1 &&
+        tasksInStage.slice(taskStageIndex + 1).some((t) => t.concluida)
+      ) {
+        toast(
+          "Você não pode desmarcar esta tarefa enquanto houver tarefas concluídas posteriores na mesma etapa.",
+        );
+        return;
+      }
+    }
+
+    // Update the task status
     setTarefasAtualizadas((prevTarefas) =>
-      prevTarefas.map((tarefa) =>
-        tarefa.id === id ? { ...tarefa, concluida: concluida } : tarefa,
-      ),
+      prevTarefas.map((t) => (t.id === id ? { ...t, concluida } : t)),
     );
   };
 
