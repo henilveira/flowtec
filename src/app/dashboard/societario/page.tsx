@@ -109,6 +109,7 @@ export default function Societario() {
           </div>
         </Title>
       </div>
+      
 
       {/* Área do Kanban com scroll horizontal */}
       <div className="flex-1 min-h-0">

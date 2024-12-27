@@ -24,7 +24,6 @@ import { ContabilidadeProvider } from "./societario/select-contabilidade";
 import { EtapaProvider } from "./societario/select-etapas";
 import { Separator } from "@/components/ui/separator";
 import { usePathname } from "next/navigation";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NavUser } from "@/components/nav-user";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
