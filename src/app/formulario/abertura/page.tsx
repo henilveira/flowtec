@@ -7,7 +7,7 @@ import { AuroraBackground } from "@/components/ui/aurora-background";
 import FormularioAbertura from "./form";
 import Logo from "@/components/logo";
 
-export default function Login() {
+export default function Abertura() {
   return (
     <div className="flex min-h-screen w-full items-center justify-center p-4 sm:p-8">
       <motion.div

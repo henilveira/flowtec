@@ -11,7 +11,7 @@ import { FormularioDados } from "@/@types/Formulario";
 import { useFormActions } from "@/hooks/useForm";
 import InputMask from "react-input-mask";
 import { NumericFormat } from "react-number-format";
-import FieldWithTooltip from "./tooltip";
+import FieldWithTooltip from "../tooltip";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,9 +30,11 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { useCep } from "@/hooks/viacep";
+import { useRouter } from "next/navigation";
 
 const FormularioAbertura = () => {
-  const { criarFormulario1, isLoading, error } = useFormActions();
+  const router = useRouter();
+  const { criarAbertura, isLoading, error } = useFormActions();
 
   // Estado para controlar o AlertDialog
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -101,7 +103,7 @@ const FormularioAbertura = () => {
   };
 
   const dadosFormulario: FormularioDados = {
-    processo_id: "0da36b26-f4f1-4580-9bc5-298693bad724",
+    processo_id: "623ac598-dfe2-49e2-a773-ebb52873b78c",
     opcoes_nome_empresa: [nome1, nome2, nome3],
     nome_fantasia: nomeFantasia,
     endereco: {
@@ -121,20 +123,22 @@ const FormularioAbertura = () => {
     empresa_anexa_resid: empresaAnexadaResidencia,
     endereco_apenas_contato: enderecoContato,
     area_empresa: areaEmpresa,
-    info_adicionais: {
-      resp_tecnica: atividadeRespTecnica,
-      nome_responsavel: nomeRespTecnico,
-      nmr_carteira_profissional: carteiraProfissional,
-      uf: ufProfissional,
-      area_resp: areaResp,
-    },
+    info_adicionais: atividadeRespTecnica
+      ? {
+          resp_tecnica: atividadeRespTecnica,
+          nome_responsavel: nomeRespTecnico,
+          nmr_carteira_profissional: carteiraProfissional,
+          uf: ufProfissional,
+          area_resp: areaResp,
+        }
+      : {
+          resp_tecnica: false,
+        },
   };
 
-  // Função para validar e mostrar o dialog
   const handleForm = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Validação básica
     if (!nome1 || !nome2 || !nome3 || !nomeFantasia) {
       toast.error("Erro de validação", {
         description: "Preencha todos os campos obrigatórios",
@@ -142,7 +146,19 @@ const FormularioAbertura = () => {
       return;
     }
 
-    // Armazena os dados e mostra o dialog
+    if (
+      atividadeRespTecnica &&
+      (!nomeRespTecnico ||
+        !carteiraProfissional ||
+        !ufProfissional ||
+        !areaResp)
+    ) {
+      toast.error("Erro de validação", {
+        description: "Preencha todos os campos de responsabilidade técnica",
+      });
+      return;
+    }
+
     setFormData(dadosFormulario);
     setShowConfirmDialog(true);
   };
@@ -153,13 +169,14 @@ const FormularioAbertura = () => {
 
     try {
       console.log("Iniciando envio...");
-      const response = await criarFormulario1(formData);
+      const response = await criarAbertura(formData);
       console.log("Resposta:", response);
 
       toast.success("Dados enviados com sucesso!", {
         description: "Redirecionando para próxima etapa...",
         duration: 3000,
       });
+      router.push("/formulario/socios");
 
       setShowConfirmDialog(false);
     } catch (err) {
@@ -190,7 +207,7 @@ const FormularioAbertura = () => {
               disabled={isLoading}
               required
               className={cn(
-                error && "border-red-500 focus-visible:ring-red-500",
+                error && "border-red-500 focus-visible:ring-red-500"
               )}
             />
             <Input
@@ -202,7 +219,7 @@ const FormularioAbertura = () => {
               disabled={isLoading}
               required
               className={cn(
-                error && "border-red-500 focus-visible:ring-red-500",
+                error && "border-red-500 focus-visible:ring-red-500"
               )}
             />
             <Input
@@ -214,7 +231,7 @@ const FormularioAbertura = () => {
               disabled={isLoading}
               required
               className={cn(
-                error && "border-red-500 focus-visible:ring-red-500",
+                error && "border-red-500 focus-visible:ring-red-500"
               )}
             />
           </div>
@@ -237,7 +254,7 @@ const FormularioAbertura = () => {
               disabled={isLoading}
               required
               className={cn(
-                error && "border-red-500 focus-visible:ring-red-500",
+                error && "border-red-500 focus-visible:ring-red-500"
               )}
             />
           </FieldWithTooltip>
@@ -256,7 +273,7 @@ const FormularioAbertura = () => {
                 {...inputProps}
                 id="cepempresa"
                 className={cn(
-                  error && "border-red-500 focus-visible:ring-red-500",
+                  error && "border-red-500 focus-visible:ring-red-500"
                 )}
               />
             )}
@@ -383,7 +400,7 @@ const FormularioAbertura = () => {
                 {...inputProps}
                 id="inscricaoimobiliaria"
                 className={cn(
-                  error && "border-red-500 focus-visible:ring-red-500",
+                  error && "border-red-500 focus-visible:ring-red-500"
                 )}
               />
             )}
@@ -446,17 +463,17 @@ const FormularioAbertura = () => {
                 {...inputProps}
                 id="telefoneEmpresa"
                 className={cn(
-                  error && "border-red-500 focus-visible:ring-red-500",
+                  error && "border-red-500 focus-visible:ring-red-500"
                 )}
               />
             )}
           </InputMask>
         </div>
         <div>
-          <Label htmlFor="emailEmpresa">E-mail da empresa</Label>
+          <Label htmlFor="email">E-mail da empresa</Label>
           <Input
             id="emailEmpresa"
-            type="email"
+            type="e-mail"
             placeholder="empresa@exemplo.com"
             value={emailEmpresa}
             onChange={(e) => setEmailEmpresa(e.target.value)}
@@ -502,7 +519,7 @@ const FormularioAbertura = () => {
               disabled={isLoading}
               required
               className={cn(
-                error && "border-red-500 focus-visible:ring-red-500",
+                error && "border-red-500 focus-visible:ring-red-500"
               )}
             />
           </div>
@@ -601,7 +618,7 @@ const FormularioAbertura = () => {
                   disabled={isLoading}
                   required
                   className={cn(
-                    error && "border-red-500 focus-visible:ring-red-500",
+                    error && "border-red-500 focus-visible:ring-red-500"
                   )}
                 />
               </div>
@@ -618,7 +635,7 @@ const FormularioAbertura = () => {
                   disabled={isLoading}
                   required
                   className={cn(
-                    error && "border-red-500 focus-visible:ring-red-500",
+                    error && "border-red-500 focus-visible:ring-red-500"
                   )}
                 />
               </div>
@@ -687,7 +704,7 @@ const FormularioAbertura = () => {
                   disabled={isLoading}
                   required
                   className={cn(
-                    error && "border-red-500 focus-visible:ring-red-500",
+                    error && "border-red-500 focus-visible:ring-red-500"
                   )}
                 />
               </div>
@@ -695,10 +712,6 @@ const FormularioAbertura = () => {
           </div>
         )}
       </div>
-
-      {/* Mensagem de erro */}
-      {error && <div className="text-sm text-red-500 text-center">{error}</div>}
-
       {/* Botão de envio */}
       <div className="mt-8">
         <Button
@@ -725,7 +738,8 @@ const FormularioAbertura = () => {
             <AlertDialogTitle>Confirmar envio do formulário</AlertDialogTitle>
             <AlertDialogDescription>
               Tem certeza que deseja enviar o formulário? Verifique se todos os
-              dados estão corretos.
+              dados estão corretos, somente seu contador poderá alterar os dados
+              posteriormente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
