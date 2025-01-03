@@ -1,12 +1,12 @@
 import useSWR from "swr";
 
 // Interface para tipar a resposta da API
-interface CepResponse {
-  cep: string;
-  logradouro: string;
-  uf: string;
-  localidade: string;
-  bairro: string;
+export interface CepResponse {
+  cep: string | undefined;
+  logradouro: string | undefined;
+  uf: string | undefined;
+  localidade: string | undefined;
+  bairro: string | undefined;
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());

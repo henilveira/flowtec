@@ -1,13 +1,15 @@
 import { useState } from "react";
 import axios from "axios";
-import { EmpresaForm, FormularioDados } from "@/@types/Formulario";
+import { Socios, FormularioDados } from "@/@types/Formulario";
+import { useFormContext } from "@/contexts/form-context";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export function useFormActions() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const { setFormId } = useFormContext();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Criar novo registro
   const criarAbertura = async (data: FormularioDados) => {
     setError(null);
     setIsLoading(true);
@@ -15,26 +17,27 @@ export function useFormActions() {
     try {
       const response = await axios.post(
         `${API_URL}/societario/create-form-abertura/`,
-        data, // Removido o { data } e enviando os dados diretamente
+        data,
         {
           withCredentials: true,
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
-      return response.data;
+      const id = response.data.formulario.id;
+      setFormId(id); // Atualiza o contexto com o ID
+      return id;
     } catch (error: any) {
-      // Melhorando o tratamento de erro
       const errorMessage = error.response?.data?.detail || error.message;
       setError(errorMessage);
-      throw error; // Importante re-throw do erro para o componente tratar
+      throw error;
     } finally {
       setIsLoading(false);
     }
   };
-  const criarSocios = async (data: EmpresaForm) => {
+  const criarSocios = async (data: Socios) => {
     setError(null);
     setIsLoading(true);
 
@@ -47,7 +50,7 @@ export function useFormActions() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       return response.data;

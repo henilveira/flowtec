@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/select";
 import { useCep } from "@/hooks/viacep";
 import { useRouter } from "next/navigation";
-
+import { useSearchParams } from "next/navigation";
 const FormularioAbertura = () => {
   const router = useRouter();
   const { criarAbertura, isLoading, error } = useFormActions();
@@ -69,12 +69,8 @@ const FormularioAbertura = () => {
   const [ufProfissional, setUfProfissional] = useState("");
   const [areaResp, setAreaResp] = useState("");
 
-  const [id, setId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setId(params.get("id"));
-  }, []);
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id"); //
 
   const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const cep = e.target.value.replace(/\D/g, "");
@@ -103,7 +99,7 @@ const FormularioAbertura = () => {
   };
 
   const dadosFormulario: FormularioDados = {
-    processo_id: "623ac598-dfe2-49e2-a773-ebb52873b78c",
+    processo_id: id,
     opcoes_nome_empresa: [nome1, nome2, nome3],
     nome_fantasia: nomeFantasia,
     endereco: {
@@ -207,7 +203,7 @@ const FormularioAbertura = () => {
               disabled={isLoading}
               required
               className={cn(
-                error && "border-red-500 focus-visible:ring-red-500"
+                error && "border-red-500 focus-visible:ring-red-500",
               )}
             />
             <Input
@@ -219,7 +215,7 @@ const FormularioAbertura = () => {
               disabled={isLoading}
               required
               className={cn(
-                error && "border-red-500 focus-visible:ring-red-500"
+                error && "border-red-500 focus-visible:ring-red-500",
               )}
             />
             <Input
@@ -231,7 +227,7 @@ const FormularioAbertura = () => {
               disabled={isLoading}
               required
               className={cn(
-                error && "border-red-500 focus-visible:ring-red-500"
+                error && "border-red-500 focus-visible:ring-red-500",
               )}
             />
           </div>
@@ -254,7 +250,7 @@ const FormularioAbertura = () => {
               disabled={isLoading}
               required
               className={cn(
-                error && "border-red-500 focus-visible:ring-red-500"
+                error && "border-red-500 focus-visible:ring-red-500",
               )}
             />
           </FieldWithTooltip>
@@ -273,7 +269,7 @@ const FormularioAbertura = () => {
                 {...inputProps}
                 id="cepempresa"
                 className={cn(
-                  error && "border-red-500 focus-visible:ring-red-500"
+                  error && "border-red-500 focus-visible:ring-red-500",
                 )}
               />
             )}
@@ -400,7 +396,7 @@ const FormularioAbertura = () => {
                 {...inputProps}
                 id="inscricaoimobiliaria"
                 className={cn(
-                  error && "border-red-500 focus-visible:ring-red-500"
+                  error && "border-red-500 focus-visible:ring-red-500",
                 )}
               />
             )}
@@ -463,7 +459,7 @@ const FormularioAbertura = () => {
                 {...inputProps}
                 id="telefoneEmpresa"
                 className={cn(
-                  error && "border-red-500 focus-visible:ring-red-500"
+                  error && "border-red-500 focus-visible:ring-red-500",
                 )}
               />
             )}
@@ -519,7 +515,7 @@ const FormularioAbertura = () => {
               disabled={isLoading}
               required
               className={cn(
-                error && "border-red-500 focus-visible:ring-red-500"
+                error && "border-red-500 focus-visible:ring-red-500",
               )}
             />
           </div>
@@ -618,7 +614,7 @@ const FormularioAbertura = () => {
                   disabled={isLoading}
                   required
                   className={cn(
-                    error && "border-red-500 focus-visible:ring-red-500"
+                    error && "border-red-500 focus-visible:ring-red-500",
                   )}
                 />
               </div>
@@ -635,7 +631,7 @@ const FormularioAbertura = () => {
                   disabled={isLoading}
                   required
                   className={cn(
-                    error && "border-red-500 focus-visible:ring-red-500"
+                    error && "border-red-500 focus-visible:ring-red-500",
                   )}
                 />
               </div>
@@ -704,7 +700,7 @@ const FormularioAbertura = () => {
                   disabled={isLoading}
                   required
                   className={cn(
-                    error && "border-red-500 focus-visible:ring-red-500"
+                    error && "border-red-500 focus-visible:ring-red-500",
                   )}
                 />
               </div>

@@ -12,21 +12,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { SelectContabilidade } from "./select-contabilidade";
 import { SelectEtapas } from "./select-etapas";
 import { SelectTipoProcessos } from "./select-tipo-processos";
-
 
 export default function FilterDropdown({
   children,
@@ -38,7 +29,6 @@ export default function FilterDropdown({
   const [contabilidade, setContabilidade] = React.useState("");
   const [etapa, setEtapa] = React.useState("");
   const [processo, setTipoProcesso] = React.useState("");
-
 
   const handleReset = () => {
     setStartDate(undefined);
@@ -70,7 +60,7 @@ export default function FilterDropdown({
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !startDate && "text-muted-foreground"
+                      !startDate && "text-muted-foreground",
                     )}
                   >
                     {startDate ? (
@@ -97,7 +87,7 @@ export default function FilterDropdown({
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !endDate && "text-muted-foreground"
+                      !endDate && "text-muted-foreground",
                     )}
                   >
                     {endDate ? format(endDate, "dd/MM/yyyy") : <span>Até</span>}
@@ -165,7 +155,6 @@ export default function FilterDropdown({
               Limpar
             </Button>
           </div>
-
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4">

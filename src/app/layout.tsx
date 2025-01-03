@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/themeProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { FormProvider } from "@/contexts/form-context";
 
 // Adicionando a fonte Inter
 const inter = Inter({
@@ -26,10 +27,10 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="system"
           > */}
-      <body className={`${inter.variable} antialiased`}>
-        {children}
-        <Toaster />
-      </body>
+      <FormProvider>
+        <body className={`${inter.variable} antialiased`}>{children}</body>
+      </FormProvider>
+      <Toaster />
       {/* </ThemeProvider> */}
     </html>
   );

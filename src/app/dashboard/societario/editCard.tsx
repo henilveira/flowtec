@@ -88,7 +88,16 @@ export default function EditSheet({
   const [isSaving, setIsSaving] = useState(false);
 
   const { updateProcesso } = useSocietarioActions();
-  const formLink = "forms.com.br/formulario/939887/bxg93ky4tgj8";
+  const formLink = `http://localhost:3000/formulario/abertura?id=${processo.id}`;
+
+  const copyToClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    navigator.clipboard.writeText(formLink).then(() => {
+      toast.success("Link copiado para a área de transferência!", {
+        description: "Envie para o seu cliente preencher",
+      });
+    });
+  };
 
   const handleTaskToggle = (id: string, concluida: boolean) => {
     // Group tasks by stage, ensuring task.etapa and task.etapa.id are defined
@@ -284,10 +293,6 @@ export default function EditSheet({
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(formLink);
   };
 
   useEffect(() => {

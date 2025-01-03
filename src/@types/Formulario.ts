@@ -37,29 +37,29 @@ interface InfoAdicionaisFalse {
 type InfoAdicionais = InfoAdicionaisTrue | InfoAdicionaisFalse;
 
 export interface Socios {
-  empresa_form_id: string;
-  socios: {
+  empresa_id: string | null;
+  socios: Array<{
     nome: string;
     nacionalidade: string;
-    data_nascimento: string; // Formato: "YYYY-MM-DD"
+    data_nascimento: string;
     estado_civil: string;
-    regime_casamento?: string; // Obrigatório se estado_civil === "casado"
+    regime_casamento?: string;
     profissao: string;
-    cpf: string; // Máx. 11 dígitos, com ou sem pontuação
-    rg: string; // Máx. 14 dígitos, com ou sem pontuação
-    orgao_expedidor: string; // Máx. 8 letras
+    cpf: string;
+    rg: string;
+    orgao_expedidor: string;
     uf: string;
     administrador: boolean;
-    tipo_administrador?: string; // Obrigatório se administrador === true
+    tipo_administrador?: string;
     qtd_cotas: number;
     endereco: {
       rua: string;
       numero: number;
       bairro: string;
-      cep: string; // Máx. 9 dígitos, com ou sem hífen
+      cep: string;
       municipio: string;
       complemento: string;
       uf: string;
     };
-  };
+  }>;
 }

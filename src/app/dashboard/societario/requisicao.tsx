@@ -36,26 +36,53 @@ import {
 import { SelectContabilidade, useContabilidade } from "./select-contabilidade";
 
 export function Requisicao() {
-  const { novoRegistro, isLoading } = useSocietarioActions();
+  const { novoRegistro, isLoading, processId } = useSocietarioActions();
   const { etapas } = useListEtapas();
   const { selectedCompany } = useContabilidade();
   const { tipoProcessos } = useListTipoProcessos();
 
+  const [showFormLink, setShowFormLink] = useState(false);
   const [selectedTipoProcesso, setSelectedTipoProcesso] = useState("");
   const [nomeCard, setNomeCard] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [currentFormLink, setCurrentFormLink] = useState<string>("");
+
+  const resetForm = () => {
+    setShowFormLink(false);
+    setSelectedTipoProcesso("");
+    setNomeCard("");
+    setCurrentFormLink("");
+  };
+
+  useEffect(() => {
+    if (processId) {
+      setCurrentFormLink(
+        `http://localhost:3000/formulario/abertura?id=${processId}`,
+      );
+    }
+  }, [processId]);
+
+  const copyToClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    navigator.clipboard.writeText(currentFormLink).then(() => {
+      toast.success("Link copiado para a área de transferência!", {
+        description: "Este link ficará salvo no card, não se preocupe.",
+      });
+    });
+  };
 
   const handleRequest = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      // Supondo que a função de criação de processo seja chamada aqui
       await novoRegistro(
         nomeCard,
         selectedCompany,
         selectedTipoProcesso,
-        "6688867c-667f-43e7-833b-e027a9e0eb69"
+        "6688867c-667f-43e7-833b-e027a9e0eb69",
       );
-      toast("Processo criado com sucesso!", {
+      setShowFormLink(true);
+      toast.success("Processo criado com sucesso!", {
         description:
           "Envie o link de formulário para seu cliente preencher os dados!",
       });
@@ -68,9 +95,17 @@ export function Requisicao() {
   };
 
   return (
-    <Dialog>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) {
+          resetForm();
+        }
+      }}
+    >
       <DialogTrigger asChild>
-        <Button variant="flowtec">
+        <Button variant="flowtec" onClick={() => setIsOpen(true)}>
           <Plus className="mr-2 h-5 w-5" /> Abrir requisição
         </Button>
       </DialogTrigger>
@@ -90,14 +125,13 @@ export function Requisicao() {
           >
             <TabsList className="w-full">
               {tipoProcessos.map((processo) => {
-                // Função para simplificar as descrições
                 const getDescricaoSimplificada = (descricao: string) => {
                   if (descricao === "Abertura de empresa") return "Abertura";
                   if (descricao === "Alteração contratual com regin")
                     return "Alteração";
                   if (descricao === "Alteração contratual sem regin/baixa")
                     return "Baixa";
-                  return descricao; // Padrão para qualquer descrição não mapeada
+                  return descricao;
                 };
 
                 return (
@@ -147,7 +181,6 @@ export function Requisicao() {
 
           <div className="grid gap-4 py-2">
             <div className="w-full md:w-auto flex gap-4">
-              {/* SelectContabilidade ao lado do Select de Regin */}
               {selectedTipoProcesso === "Abertura de empresa" ? (
                 <div className="flex flex-col gap-2 w-full md:w-auto">
                   <Label htmlFor="Contabilidade" className="text-right">
@@ -164,6 +197,7 @@ export function Requisicao() {
                 </div>
               )}
             </div>
+
             <div className="flex flex-col justify-center items-start gap-2">
               <Label htmlFor="name" className="text-right">
                 Nome
@@ -171,15 +205,45 @@ export function Requisicao() {
               <Input
                 id="name"
                 placeholder="Empresa de Pedro"
+                value={nomeCard}
                 onChange={(e) => setNomeCard(e.target.value)}
-                className="col-span-3"
+                className="w-full"
               />
+            </div>
+
+            {/* Form Link Section */}
+            <div
+              className={`
+                transition-all duration-500 ease-in-out
+                ${
+                  showFormLink
+                    ? "mb-4 opacity-100 h-[50px]"
+                    : "h-0 opacity-0 overflow-hidden pointer-events-none"
+                }
+              `}
+            >
+              <div className="flex flex-col gap-2">
+                <Label className="text-left">Link para formulário</Label>
+                <div className="flex gap-2">
+                  <Input readOnly value={currentFormLink} className="flex-1" />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={copyToClipboard}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <DialogClose asChild>
-              <Button variant="outline">Cancelar</Button>
+              <Button onClick={resetForm} variant="outline">
+                Cancelar
+              </Button>
             </DialogClose>
             <Button type="submit" variant="flowtec" disabled={isLoading}>
               {isLoading ? (

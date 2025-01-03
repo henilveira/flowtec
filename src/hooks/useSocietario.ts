@@ -114,6 +114,7 @@ export function useSocietarioActions() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [processId, setProcessId] = useState<string | null>(null);
 
   // Criar novo registro
   const novoRegistro = async (
@@ -141,6 +142,8 @@ export function useSocietarioActions() {
           },
         },
       );
+
+      setProcessId(response.data.processo.id);
 
       return response.data;
     } catch (error: any) {
@@ -196,5 +199,6 @@ export function useSocietarioActions() {
     isLoading,
     novoRegistro,
     remove,
+    processId,
   };
 }
