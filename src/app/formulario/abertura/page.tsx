@@ -1,9 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { FaGoogle } from "react-icons/fa";
-import { AuroraBackground } from "@/components/ui/aurora-background";
 import FormularioAbertura from "./form";
 import Logo from "@/components/logo";
 
@@ -18,7 +15,7 @@ export default function Abertura() {
           duration: 0.8,
           ease: "easeInOut",
         }}
-        className="w-full max-w-2xl space-y-8 rounded-xl border backdrop-blur-sm sm:p-8"
+        className="w-full max-w-2xl space-y-8 sm:p-8"
       >
         {/* Logo */}
         <div className="flex justify-center">
