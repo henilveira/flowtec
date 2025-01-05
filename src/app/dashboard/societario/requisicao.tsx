@@ -31,13 +31,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   useListEtapas,
   useListTipoProcessos,
+  useProcessosByEtapas,
   useSocietarioActions,
 } from "@/hooks/useSocietario";
 import { SelectContabilidade, useContabilidade } from "./select-contabilidade";
 
 export function Requisicao() {
   const { novoRegistro, isLoading, processId } = useSocietarioActions();
-  const { etapas } = useListEtapas();
+  const { mutate } = useProcessosByEtapas();
   const { selectedCompany } = useContabilidade();
   const { tipoProcessos } = useListTipoProcessos();
 
@@ -83,9 +84,11 @@ export function Requisicao() {
       );
       setShowFormLink(true);
       toast.success("Processo criado com sucesso!", {
-        description:
-          "Envie o link de formulário para seu cliente preencher os dados!",
+        description: "Espere alguns segundos para carregar seu novo card...",
       });
+      setTimeout(() => {
+        mutate();
+      }, 2000);
     } catch (error) {
       console.error(error);
       toast.error("Erro ao criar processo", {

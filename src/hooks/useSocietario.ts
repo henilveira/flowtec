@@ -65,7 +65,10 @@ export function useProcessosById(id: string | null) {
 export function useListTipoProcessos() {
   const { data, error, mutate, isLoading, isValidating } =
     useApiBase<TipoProcessosResponse>(
-      `/societario/list-tipo-processo/`, // Certifique-se de que este endpoint está correto
+      `/societario/list-tipo-processo/`,
+      {
+        revalidateOnMount: true, // Revalida ao montar
+      }, // Certifique-se de que este endpoint está correto
     );
 
   return {

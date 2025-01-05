@@ -19,7 +19,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { NumericFormat } from "react-number-format";
 import { Button } from "@/components/ui/button";
-import { Pencil, PencilIcon } from "lucide-react";
+import { Pencil } from "lucide-react";
 
 const FormularioAbertura = () => {
   const router = useRouter();
@@ -116,13 +116,6 @@ const FormularioAbertura = () => {
 
   return (
     <form className="mt-8 space-y-8 bg-white p-4 rounded-lg max-w-2xl mx-auto">
-      <div className="w-full flex-1 items-end text-right">
-        <Button type="button" variant="outline" onClick={handleEditing}>
-          <div className="space-x-2 flex items-center gap-2">
-            Editar <Pencil className="h-3 w-3" />
-          </div>
-        </Button>
-      </div>
       {/* Seção de nomes da empresa */}
       <div className="space-y-4">
         <FieldWithTooltip
@@ -581,6 +574,16 @@ const FormularioAbertura = () => {
             </div>
           </div>
         )}
+      </div>
+      <div className="w-full flex-1 items-end text-right space-x-3">
+        <Button type="button" variant="outline" onClick={handleEditing}>
+          <div className="space-x-2 flex items-center gap-2">
+            Editar <Pencil className="h-3 w-3" />
+          </div>
+        </Button>
+        <Button type="button" variant="flowtec" onClick={handleEditing}>
+          Salvar alterações
+        </Button>
       </div>
     </form>
   );
