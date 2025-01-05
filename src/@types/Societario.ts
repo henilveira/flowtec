@@ -62,6 +62,7 @@ export interface Processo {
   etapa_inicial: Etapa;
   expire_at: string;
   created_at: string;
+  formulario_abertura_id: string | null;
 }
 
 export interface ProcessoPorEtapa {

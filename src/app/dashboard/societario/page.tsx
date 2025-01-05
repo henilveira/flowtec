@@ -140,7 +140,9 @@ export default function Societario() {
           <SkeletonSheet />
         ) : detailedProcesso ? (
           <EditSheet
-            viewFormLink={detailedProcesso.id}
+            viewFormLink={
+              detailedProcesso.formulario_abertura_id || detailedProcesso.id
+            }
             tarefas={tarefas || []}
             processo={detailedProcesso}
             etapas={etapas}

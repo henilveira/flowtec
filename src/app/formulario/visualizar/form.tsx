@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import FieldWithTooltip from "../tooltip";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -19,7 +18,8 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { NumericFormat } from "react-number-format";
-import { Form } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Pencil, PencilIcon } from "lucide-react";
 
 const FormularioAbertura = () => {
   const router = useRouter();
@@ -57,6 +57,18 @@ const FormularioAbertura = () => {
   const id = searchParams.get("id"); //
   const { formulario, isError: error } = useFormById(id); // Hook retornando dados diretamente
 
+  const [isEditing, setIsEditing] = useState(true);
+
+  const handleEditing = () => {
+    if (isEditing) {
+      setIsEditing(false);
+      toast.success("Agora você pode editar os dados!");
+    } else {
+      setIsEditing(true);
+      toast.error("Você desativou a edição.");
+    }
+  };
+
   useEffect(() => {
     if (formulario) {
       // Essenciais
@@ -83,16 +95,17 @@ const FormularioAbertura = () => {
       setUFEmpresa(formulario?.endereco?.uf || "");
 
       // Infos adicionais
+      setAtividadeRespTecnica(formulario.info_adicionais?.resp_tecnica);
       setAreaResp(formulario.info_adicionais?.area_resp || "");
       setNomeRespTecnico(formulario.info_adicionais?.nome_responsavel || "");
       setCarteiraProfissional(
         formulario.info_adicionais?.nome_responsavel || "",
       );
-      setAtividadeRespTecnica(formulario.info_adicionais?.resp_tecnica);
       setAtividadeRespTecnica(
         formulario.info_adicionais?.resp_tecnica || false,
       );
     }
+    setUfProfissional(formulario?.info_adicionais?.uf || "");
 
     if (error) {
       toast.error("Erro ao carregar dados", {
@@ -103,6 +116,13 @@ const FormularioAbertura = () => {
 
   return (
     <form className="mt-8 space-y-8 bg-white p-4 rounded-lg max-w-2xl mx-auto">
+      <div className="w-full flex-1 items-end text-right">
+        <Button type="button" variant="outline" onClick={handleEditing}>
+          <div className="space-x-2 flex items-center gap-2">
+            Editar <Pencil className="h-3 w-3" />
+          </div>
+        </Button>
+      </div>
       {/* Seção de nomes da empresa */}
       <div className="space-y-4">
         <FieldWithTooltip
@@ -116,7 +136,7 @@ const FormularioAbertura = () => {
               placeholder="Ex: Tech Solutions LTDA"
               value={nome1}
               onChange={(e) => setNome1(e.target.value)}
-              readOnly
+              readOnly={isEditing}
             />
             <Input
               id="opcao2nome"
@@ -124,7 +144,7 @@ const FormularioAbertura = () => {
               placeholder="Ex: Solutions Tech LTDA"
               value={nome2}
               onChange={(e) => setNome2(e.target.value)}
-              readOnly
+              readOnly={isEditing}
             />
             <Input
               id="opcao3nome"
@@ -132,7 +152,7 @@ const FormularioAbertura = () => {
               placeholder="Ex: TS Technology LTDA"
               value={nome3}
               onChange={(e) => setNome3(e.target.value)}
-              readOnly
+              readOnly={isEditing}
             />
           </div>
         </FieldWithTooltip>
@@ -151,7 +171,7 @@ const FormularioAbertura = () => {
               placeholder="Ex: Tech Solutions"
               value={nomeFantasia}
               onChange={(e) => setNomeFantasia(e.target.value)}
-              readOnly
+              readOnly={isEditing}
             />
           </FieldWithTooltip>
         </div>
@@ -161,6 +181,7 @@ const FormularioAbertura = () => {
             mask="99999-999"
             value={cepEmpresa}
             placeholder="12345-678"
+            onChange={(e) => setCepEmpresa(e.target.value)}
           >
             {(inputProps) => <Input {...inputProps} id="cepempresa" />}
           </InputMask>
@@ -177,7 +198,7 @@ const FormularioAbertura = () => {
             placeholder="Ex: Rua das Flores"
             value={ruaEmpresa}
             onChange={(e) => setRuaEmpresa(e.target.value)}
-            readOnly
+            readOnly={isEditing}
           />
         </div>
         <div>
@@ -188,7 +209,7 @@ const FormularioAbertura = () => {
             placeholder="Ex: 123"
             value={numeroEmpresa}
             onChange={(e) => setNumeroEmpresa(e.target.value)}
-            readOnly
+            readOnly={isEditing}
           />
         </div>
       </div>
@@ -202,7 +223,7 @@ const FormularioAbertura = () => {
             placeholder="Ex: Centro"
             value={bairroEmpresa}
             onChange={(e) => setBairroEmpresa(e.target.value)}
-            readOnly
+            readOnly={isEditing}
           />
         </div>
         <div>
@@ -213,7 +234,7 @@ const FormularioAbertura = () => {
             placeholder="Ex: São Paulo"
             value={municipioEmpresa}
             onChange={(e) => setMunicipioEmpresa(e.target.value)}
-            readOnly
+            readOnly={isEditing}
           />
         </div>
         <div>
@@ -221,7 +242,7 @@ const FormularioAbertura = () => {
           <Select
             value={UFEmpresa}
             onValueChange={(value) => setUFEmpresa(value)}
-            disabled
+            disabled={isEditing}
           >
             <SelectTrigger>
               <SelectValue placeholder="Ex: SC" />
@@ -296,7 +317,7 @@ const FormularioAbertura = () => {
             decimalSeparator=","
             prefix="R$ "
             placeholder="R$ 10.000,00"
-            readOnly
+            readOnly={isEditing}
           />
         </FieldWithTooltip>
 
@@ -311,7 +332,7 @@ const FormularioAbertura = () => {
             decimalSeparator=","
             suffix=" m²"
             placeholder="100 m²"
-            readOnly
+            readOnly={isEditing}
           />
         </FieldWithTooltip>
       </div>
@@ -336,7 +357,7 @@ const FormularioAbertura = () => {
             placeholder="empresa@exemplo.com"
             value={emailEmpresa}
             onChange={(e) => setEmailEmpresa(e.target.value)}
-            readOnly
+            readOnly={isEditing}
           />
         </div>
       </div>
@@ -348,9 +369,12 @@ const FormularioAbertura = () => {
           tooltip="Indica se todo o capital social será investido de imediato na empresa"
         >
           <RadioGroup
-            defaultValue={capitalIntegralizado.toString()}
+            value={capitalIntegralizado.toString()}
             className="flex space-x-4"
-            onValueChange={(value) => setCapitalIntegralizado(value === "true")}
+            disabled={isEditing}
+            onValueChange={(value) => {
+              setCapitalIntegralizado(value === "true");
+            }}
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="true" id="true" />
@@ -372,8 +396,7 @@ const FormularioAbertura = () => {
               id="dataIntegralizacao"
               type="date"
               value={dataIntegralizacao}
-              onChange={(e) => setDataIntegralizacao(e.target.value)}
-              readOnly
+              readOnly={isEditing}
             />
           </div>
         </div>
@@ -383,11 +406,12 @@ const FormularioAbertura = () => {
           tooltip="Sua empresa se localiza na sua residência?"
         >
           <RadioGroup
-            defaultValue={empresaAnexadaResidencia.toString()}
+            value={empresaAnexadaResidencia.toString()}
             className="flex space-x-4"
-            onValueChange={(value) =>
-              setEmpresaAnexadaResidencia(value === "true")
-            }
+            disabled={isEditing}
+            onValueChange={(value) => {
+              setEmpresaAnexadaResidencia(value === "true");
+            }}
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="true" id="true" />
@@ -405,9 +429,12 @@ const FormularioAbertura = () => {
             Endereço somente para contato?
           </Label>
           <RadioGroup
-            defaultValue={enderecoContato.toString()}
+            value={enderecoContato.toString()}
             className="flex space-x-4"
-            onValueChange={(value) => setEnderecoContato(value === "true")}
+            disabled={isEditing} // Ensure isEditing is false when you want to edit
+            onValueChange={(value) => {
+              setEnderecoContato(value === "true");
+            }}
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="true" id="true" />
@@ -437,11 +464,12 @@ const FormularioAbertura = () => {
             tooltip="Algumas atividades exigem um responsável técnico habilitado"
           >
             <RadioGroup
-              defaultValue={atividadeRespTecnica.toString()}
+              value={atividadeRespTecnica.toString()}
               className="flex space-x-4 items-center justify-center"
-              onValueChange={(value) =>
-                setAtividadeRespTecnica(value === "true")
-              }
+              disabled={isEditing}
+              onValueChange={(value) => {
+                setAtividadeRespTecnica(value === "true");
+              }}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="true" />
@@ -468,7 +496,7 @@ const FormularioAbertura = () => {
                   placeholder="Nome completo do responsável"
                   value={nomeRespTecnico}
                   onChange={(e) => setNomeRespTecnico(e.target.value)}
-                  readOnly
+                  readOnly={isEditing}
                 />
               </div>
 
@@ -481,7 +509,7 @@ const FormularioAbertura = () => {
                   placeholder="Nº da carteira profissional"
                   value={carteiraProfissional}
                   onChange={(e) => setCarteiraProfissional(e.target.value)}
-                  readOnly
+                  readOnly={isEditing}
                 />
               </div>
             </div>
@@ -491,6 +519,7 @@ const FormularioAbertura = () => {
               <div>
                 <Label htmlFor="ufProfissional">UF do responsável</Label>
                 <Select
+                  disabled={isEditing}
                   value={ufProfissional}
                   onValueChange={(value) => setUfProfissional(value)}
                 >
@@ -546,7 +575,7 @@ const FormularioAbertura = () => {
                   placeholder="Área de responsabilidade"
                   value={areaResp}
                   onChange={(e) => setAreaResp(e.target.value)}
-                  readOnly
+                  readOnly={isEditing}
                 />
               </div>
             </div>
