@@ -1,7 +1,24 @@
 import { useState } from "react";
 import axios from "axios";
-import { Socios, FormularioDados } from "@/@types/Formulario";
+import {
+  Socios,
+  FormularioDados,
+  GetFormularioResponse,
+} from "@/@types/Formulario";
 import { useFormContext } from "@/contexts/form-context";
+import { useApiBase } from "./useApiBase";
+
+export const useFormById = (id: string | null) => {
+  const { data, error, isLoading } = useApiBase<GetFormularioResponse>(
+    `/societario/get-form-abertura/?form_id=${id}`, // Certifique-se de que este endpoint está correto
+  );
+
+  return {
+    formulario: data?.formulario || null, // Atualize para refletir a estrutura correta
+    isLoading,
+    isError: error,
+  };
+};
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -65,6 +82,7 @@ export function useFormActions() {
   };
 
   return {
+    useFormById,
     criarSocios,
     criarAbertura,
     isLoading,

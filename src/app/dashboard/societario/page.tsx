@@ -109,7 +109,6 @@ export default function Societario() {
           </div>
         </Title>
       </div>
-      
 
       {/* Área do Kanban com scroll horizontal */}
       <div className="flex-1 min-h-0">
@@ -141,6 +140,7 @@ export default function Societario() {
           <SkeletonSheet />
         ) : detailedProcesso ? (
           <EditSheet
+            viewFormLink={detailedProcesso.id}
             tarefas={tarefas || []}
             processo={detailedProcesso}
             etapas={etapas}

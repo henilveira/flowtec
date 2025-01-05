@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/accordion";
 import { useSocietarioActions } from "@/hooks/useSocietario";
 import { toast } from "sonner";
+import Link from "next/link";
 
 interface Tarefa {
   id: string;
@@ -62,6 +63,7 @@ interface EditSheetProps {
   processo: Processo;
   etapas: Etapa[];
   tarefas: Tarefa[];
+  viewFormLink: string;
   onSave: (updatedProcesso: Processo) => void;
   onCancel?: () => void;
   isLoading?: boolean;
@@ -80,6 +82,7 @@ export default function EditSheet({
   tarefas,
   onSave,
   onCancel,
+  viewFormLink,
   isLoading,
 }: EditSheetProps) {
   const [tarefasAtualizadas, setTarefasAtualizadas] = useState<Tarefa[]>(
@@ -88,6 +91,7 @@ export default function EditSheet({
   const [isSaving, setIsSaving] = useState(false);
 
   const { updateProcesso } = useSocietarioActions();
+  const linkToForm = `http://localhost:3000/formulario/visualizar?id=${viewFormLink}`;
   const formLink = `http://localhost:3000/formulario/abertura?id=${processo.id}`;
 
   const copyToClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -413,9 +417,16 @@ export default function EditSheet({
           </div>
 
           <div className="space-y-2 my-6">
-            <Label className="text-sm text-muted-foreground">
-              Link para formulário
-            </Label>
+            <div className="space-x-2">
+              <Label className="text-sm text-muted-foreground">
+                Link para formulário
+              </Label>
+              <Link href={linkToForm} target="_blank" rel="noopener noreferrer">
+                <span className="text-sm underline text-blue-600">
+                  Visualizar
+                </span>
+              </Link>
+            </div>
             <div className="flex space-x-2">
               <Input readOnly value={formLink} className="flex-1" />
               <Button variant="outline" size="icon" onClick={copyToClipboard}>

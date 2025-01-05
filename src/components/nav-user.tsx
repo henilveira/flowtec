@@ -67,8 +67,10 @@ export function NavUser() {
             >
               <ProfileAvatar />
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{`${primeiroNome} ${ultimoNome}`}</span>
-                <span className="truncate text-xs">{email}</span>
+                <span className="truncate font-semibold">{`${primeiroNome || "Contador"} ${ultimoNome || ""}`}</span>
+                <span className="truncate text-xs">
+                  {email || "contador@contabilidade.com"}
+                </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -81,9 +83,9 @@ export function NavUser() {
           >
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{`${primeiroNome} ${ultimoNome}`}</p>
+                <p className="text-sm font-medium leading-none">{`${primeiroNome || "Contador"} ${ultimoNome || ""}`}</p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  {email}
+                  {email || "contador@contabilidade.com"}
                 </p>
               </div>
             </DropdownMenuLabel>

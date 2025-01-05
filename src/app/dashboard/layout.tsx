@@ -93,7 +93,13 @@ export default function DashboardLayout({
   );
 }
 
-function NavItem({ href, children, ...props }: any) {
+interface NavItemProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}
+
+function NavItem({ href, children, className, ...props }: NavItemProps) {
   const pathname = usePathname();
   const isActive = pathname === href;
 
@@ -104,6 +110,7 @@ function NavItem({ href, children, ...props }: any) {
         "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
         "hover:bg-accent hover:text-accent-foreground",
         isActive && "bg-flowtech-gradient-transparent text-accent-foreground",
+        className,
       )}
       {...props}
     >
@@ -132,8 +139,8 @@ function Sidebar() {
             <HeartHandshake className="h-4 w-4" />
             Societário
           </NavItem>
-          <NavItem href="">
-            <div className="flex justify-between align-items w-full cursor-not-allowed">
+          <NavItem href="" className="cursor-not-allowed">
+            <div className="flex justify-between align-items w-full">
               <div className="flex justify-center align-items text-muted-foreground">
                 <ClipboardPenLine className="h-4 w-4 mr-3" />
                 Alvarás
@@ -143,8 +150,8 @@ function Sidebar() {
               </div>
             </div>
           </NavItem>
-          <NavItem href="">
-            <div className="flex justify-between align-items w-full cursor-not-allowed">
+          <NavItem href="" className="cursor-not-allowed">
+            <div className="flex justify-between align-items w-full ">
               <div className="flex justify-center align-items text-muted-foreground">
                 <FileCheck className="h-4 w-4 mr-3" />
                 Certificados Digitais
@@ -155,8 +162,8 @@ function Sidebar() {
             </div>
           </NavItem>
 
-          <NavItem href="">
-            <div className="flex justify-between align-items w-full cursor-not-allowed">
+          <NavItem href="" className="cursor-not-allowed">
+            <div className="flex justify-between align-items w-full">
               <div className="flex justify-center align-items text-muted-foreground">
                 <Newspaper className="h-4 w-4 mr-3" />
                 Contratos
