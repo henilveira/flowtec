@@ -63,6 +63,33 @@ export interface Socios {
     };
   }>;
 }
+
+export interface Endereco {
+  rua: string;
+  numero: number;
+  bairro: string | undefined;
+  cep: string;
+  municipio: string | undefined;
+  complemento: string;
+  uf: string | undefined;
+}
+
+export interface Socio {
+  nome: string;
+  nacionalidade: string;
+  data_nascimento: string;
+  estado_civil: string;
+  regime_casamento?: string;
+  profissao: string;
+  cpf: string;
+  rg: string;
+  orgao_expedidor: string;
+  uf: string;
+  administrador: boolean;
+  tipo_administrador?: string;
+  qtd_cotas: number;
+  endereco: Endereco;
+}
 export interface GetFormularioResponse {
   formulario?: {
     id?: string;

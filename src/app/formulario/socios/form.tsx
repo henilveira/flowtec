@@ -1,4 +1,4 @@
-import { Socios } from "@/@types/Formulario";
+import { Socio, Socios } from "@/@types/Formulario";
 import { useFormActions } from "@/hooks/useForm";
 import { useCep } from "@/hooks/viacep";
 import { Input } from "@/components/ui/input";
@@ -31,33 +31,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
-
-interface Endereco {
-  rua: string;
-  numero: number;
-  bairro: string | undefined;
-  cep: string;
-  municipio: string | undefined;
-  complemento: string;
-  uf: string | undefined;
-}
-
-interface Socio {
-  nome: string;
-  nacionalidade: string;
-  data_nascimento: string;
-  estado_civil: string;
-  regime_casamento?: string;
-  profissao: string;
-  cpf: string;
-  rg: string;
-  orgao_expedidor: string;
-  uf: string;
-  administrador: boolean;
-  tipo_administrador?: string;
-  qtd_cotas: number;
-  endereco: Endereco;
-}
 
 const PartnerForm = () => {
   const [socios, setSocios] = useState<Socio[]>([
@@ -287,7 +260,10 @@ const PartnerForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Dados Pessoais */}
             <div className="space-y-2">
-              <Label htmlFor={`nome-${index}`}>Nome Completo</Label>
+              <div className="flex items-center">
+                <Label htmlFor={`nome-${index}`}>Nome Completo</Label>
+                <span className="text-red-600 ml-1">*</span>
+              </div>
               <Input
                 id={`nome-${index}`}
                 value={socio.nome}
@@ -295,12 +271,16 @@ const PartnerForm = () => {
                   handleSocioChange(index, "nome", event.target.value)
                 }
                 placeholder="Nome completo do sócio"
+                required
                 className={cn(error && "border-red-500")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`nacionalidade-${index}`}>Nacionalidade</Label>
+              <div className="flex items-center">
+                <Label htmlFor={`nacionalidade-${index}`}>Nacionalidade</Label>
+                <span className="text-red-600 ml-1">*</span>
+              </div>
               <Input
                 id={`nacionalidade-${index}`}
                 value={socio.nacionalidade}
@@ -308,14 +288,18 @@ const PartnerForm = () => {
                   handleSocioChange(index, "nacionalidade", event.target.value)
                 }
                 placeholder="Ex: Brasileiro"
+                required
                 className={cn(error && "border-red-500")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`data_nascimento-${index}`}>
-                Data de Nascimento
-              </Label>
+              <div className="flex items-center">
+                <Label htmlFor={`data_nascimento-${index}`}>
+                  Data de Nascimento
+                </Label>
+                <span className="text-red-600 ml-1">*</span>
+              </div>
               <Input
                 id={`data_nascimento-${index}`}
                 type="date"
@@ -327,17 +311,22 @@ const PartnerForm = () => {
                     event.target.value,
                   )
                 }
+                required
                 className={cn(error && "border-red-500")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`estado_civil-${index}`}>Estado Civil</Label>
+              <div className="flex items-center">
+                <Label htmlFor={`estado_civil-${index}`}>Estado Civil</Label>
+                <span className="text-red-600 ml-1">*</span>
+              </div>
               <Select
                 value={socio.estado_civil}
                 onValueChange={(value) =>
                   handleSocioChange(index, "estado_civil", value)
                 }
+                required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o estado civil" />
@@ -353,14 +342,18 @@ const PartnerForm = () => {
 
             {socio.estado_civil === "casado" && (
               <div className="space-y-2">
-                <Label htmlFor={`regime_casamento-${index}`}>
-                  Regime de Casamento
-                </Label>
+                <div className="flex items-center">
+                  <Label htmlFor={`regime_casamento-${index}`}>
+                    Regime de Casamento
+                  </Label>
+                  <span className="text-red-600 ml-1">*</span>
+                </div>
                 <Select
                   value={socio.regime_casamento}
                   onValueChange={(value) =>
                     handleSocioChange(index, "regime_casamento", value)
                   }
+                  required
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o regime" />
@@ -384,7 +377,10 @@ const PartnerForm = () => {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor={`profissao-${index}`}>Profissão</Label>
+              <div className="flex items-center">
+                <Label htmlFor={`profissao-${index}`}>Profissão</Label>
+                <span className="text-red-600 ml-1">*</span>
+              </div>
               <Input
                 id={`profissao-${index}`}
                 value={socio.profissao}
@@ -392,12 +388,16 @@ const PartnerForm = () => {
                   handleSocioChange(index, "profissao", event.target.value)
                 }
                 placeholder="Ex: Empresário"
+                required
                 className={cn(error && "border-red-500")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`cpf-${index}`}>CPF</Label>
+              <div className="flex items-center">
+                <Label htmlFor={`cpf-${index}`}>CPF</Label>
+                <span className="text-red-600 ml-1">*</span>
+              </div>
               <InputMask
                 mask="999.999.999-99"
                 value={socio.cpf}
@@ -409,6 +409,7 @@ const PartnerForm = () => {
                   )
                 }
                 placeholder="000.000.000-00"
+                required
               >
                 {(inputProps: any) => (
                   <Input
@@ -421,7 +422,10 @@ const PartnerForm = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`rg-${index}`}>RG</Label>
+              <div className="flex items-center">
+                <Label htmlFor={`rg-${index}`}>RG</Label>
+                <span className="text-red-600 ml-1">*</span>
+              </div>
               <InputMask
                 mask="99.999.999-9"
                 value={socio.rg}
@@ -429,6 +433,7 @@ const PartnerForm = () => {
                   handleSocioChange(index, "rg", event.target.value)
                 }
                 placeholder="00.000.000-0"
+                required
               >
                 {(inputProps: any) => (
                   <Input
@@ -441,14 +446,18 @@ const PartnerForm = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`orgao_expedidor-${index}`}>
-                Órgão Expedidor
-              </Label>
+              <div className="flex items-center">
+                <Label htmlFor={`orgao_expedidor-${index}`}>
+                  Órgão Expedidor
+                </Label>
+                <span className="text-red-600 ml-1">*</span>
+              </div>
               <Select
                 value={socio.orgao_expedidor}
                 onValueChange={(value) =>
                   handleSocioChange(index, "orgao_expedidor", value)
                 }
+                required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o órgão" />
@@ -464,10 +473,14 @@ const PartnerForm = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`uf-${index}`}>Estado de emissão</Label>
+              <div className="flex items-center">
+                <Label htmlFor={`uf-${index}`}>Estado de emissão</Label>
+                <span className="text-red-600 ml-1">*</span>
+              </div>
               <Select
                 value={socio.uf}
                 onValueChange={(value) => handleSocioChange(index, "uf", value)}
+                required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o estado" />
@@ -483,7 +496,12 @@ const PartnerForm = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`qtd_cotas-${index}`}>Quantidade de Cotas</Label>
+              <div className="flex items-center">
+                <Label htmlFor={`qtd_cotas-${index}`}>
+                  Quantidade de Cotas
+                </Label>
+                <span className="text-red-600 ml-1">*</span>
+              </div>
               <Input
                 id={`qtd_cotas-${index}`}
                 type="number"
@@ -496,31 +514,40 @@ const PartnerForm = () => {
                   )
                 }
                 min="0"
+                required
                 className={cn(error && "border-red-500")}
               />
             </div>
 
             <div className="flex items-center space-x-2">
-              <Checkbox
-                id={`administrador-${index}`}
-                checked={socio.administrador}
-                onCheckedChange={(checked) =>
-                  handleSocioChange(index, "administrador", checked)
-                }
-              />
-              <Label htmlFor={`administrador-${index}`}>Administrador</Label>
+              <div className="flex items-center">
+                <Checkbox
+                  id={`administrador-${index}`}
+                  checked={socio.administrador}
+                  onCheckedChange={(checked) =>
+                    handleSocioChange(index, "administrador", checked)
+                  }
+                />
+                <Label className="ml-1" htmlFor={`administrador-${index}`}>
+                  Administrador
+                </Label>
+              </div>
             </div>
 
             {socio.administrador && (
               <div className="space-y-2">
-                <Label htmlFor={`tipo_administrador-${index}`}>
-                  Tipo de Administrador
-                </Label>
+                <div className="flex items-center">
+                  <Label htmlFor={`tipo_administrador-${index}`}>
+                    Tipo de Administrador
+                  </Label>
+                  <span className="text-red-600 ml-1">*</span>
+                </div>
                 <Select
                   value={socio.tipo_administrador}
                   onValueChange={(value) =>
                     handleSocioChange(index, "tipo_administrador", value)
                   }
+                  required
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o tipo" />
@@ -539,7 +566,10 @@ const PartnerForm = () => {
               <h4 className="text-lg font-medium mb-4">Endereço</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor={`cep-${index}`}>CEP</Label>
+                  <div className="flex items-center">
+                    <Label htmlFor={`cep-${index}`}>CEP</Label>
+                    <span className="text-red-600 ml-1">*</span>
+                  </div>
                   <div className="relative">
                     <InputMask
                       mask="99999-999"
@@ -547,6 +577,7 @@ const PartnerForm = () => {
                       onChange={(event) => handleCepChange(index, event)}
                       disabled={isLoading}
                       placeholder="00000-000"
+                      required
                     >
                       {(inputProps: any) => (
                         <Input
@@ -563,7 +594,10 @@ const PartnerForm = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor={`rua-${index}`}>Rua</Label>
+                  <div className="flex items-center">
+                    <Label htmlFor={`rua-${index}`}>Rua</Label>
+                    <span className="text-red-600 ml-1">*</span>
+                  </div>
                   <Input
                     id={`rua-${index}`}
                     value={socio.endereco.rua}
@@ -576,12 +610,16 @@ const PartnerForm = () => {
                     }
                     placeholder="Nome da rua"
                     readOnly={isLoading}
+                    required
                     className={cn(error && "border-red-500")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor={`numero-${index}`}>Número</Label>
+                  <div className="flex items-center">
+                    <Label htmlFor={`numero-${index}`}>Número</Label>
+                    <span className="text-red-600 ml-1">*</span>
+                  </div>
                   <Input
                     id={`numero-${index}`}
                     type="number"
@@ -594,12 +632,16 @@ const PartnerForm = () => {
                       )
                     }
                     placeholder="Nº"
+                    required
                     className={cn(error && "border-red-500")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor={`complemento-${index}`}>Complemento</Label>
+                  <div className="flex items-center">
+                    <Label htmlFor={`complemento-${index}`}>Complemento</Label>
+                    <span className="text-red-600 ml-1">*</span>
+                  </div>
                   <Input
                     id={`complemento-${index}`}
                     value={socio.endereco.complemento}
@@ -611,12 +653,16 @@ const PartnerForm = () => {
                       )
                     }
                     placeholder="Apto, Sala, etc."
+                    required
                     className={cn(error && "border-red-500")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor={`bairro-${index}`}>Bairro</Label>
+                  <div className="flex items-center">
+                    <Label htmlFor={`bairro-${index}`}>Bairro</Label>
+                    <span className="text-red-600 ml-1">*</span>
+                  </div>
                   <Input
                     id={`bairro-${index}`}
                     value={socio.endereco.bairro}
@@ -629,12 +675,16 @@ const PartnerForm = () => {
                     }
                     placeholder="Bairro"
                     readOnly={isLoading}
+                    required
                     className={cn(error && "border-red-500")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor={`municipio-${index}`}>Município</Label>
+                  <div className="flex items-center">
+                    <Label htmlFor={`municipio-${index}`}>Município</Label>
+                    <span className="text-red-600 ml-1">*</span>
+                  </div>
                   <Input
                     id={`municipio-${index}`}
                     value={socio.endereco.municipio}
@@ -647,18 +697,23 @@ const PartnerForm = () => {
                     }
                     placeholder="Cidade"
                     readOnly={isLoading}
+                    required
                     className={cn(error && "border-red-500")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor={`uf_endereco-${index}`}>UF</Label>
+                  <div className="flex items-center">
+                    <Label htmlFor={`uf_endereco-${index}`}>UF</Label>
+                    <span className="text-red-600 ml-1">*</span>
+                  </div>
                   <Select
                     value={socio.endereco.uf}
                     onValueChange={(value) =>
                       handleSocioChange(index, "endereco.uf", value)
                     }
                     disabled={isLoading}
+                    required
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o estado..." />

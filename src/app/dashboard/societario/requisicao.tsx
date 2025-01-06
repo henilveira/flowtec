@@ -37,7 +37,12 @@ import {
 import { SelectContabilidade, useContabilidade } from "./select-contabilidade";
 
 export function Requisicao() {
-  const { novoRegistro, isLoading, processId } = useSocietarioActions();
+  const {
+    novoRegistro,
+    isLoading,
+    processId,
+    error: ErrorRegistro,
+  } = useSocietarioActions();
   const { mutate } = useProcessosByEtapas();
   const { selectedCompany } = useContabilidade();
   const { tipoProcessos } = useListTipoProcessos();
@@ -89,8 +94,7 @@ export function Requisicao() {
       setTimeout(() => {
         mutate();
       }, 2000);
-    } catch (error) {
-      console.error(error);
+    } catch (ErrorRegistro) {
       toast.error("Erro ao criar processo", {
         description: "Por favor, tente novamente mais tarde.",
       });

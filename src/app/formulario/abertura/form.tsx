@@ -189,56 +189,68 @@ const FormularioAbertura = () => {
     >
       {/* Seção de nomes da empresa */}
       <div className="space-y-4">
-        <FieldWithTooltip
-          label="3 Opções de nome para a empresa"
-          tooltip="Sugerimos 3 nomes diferentes para caso algum já esteja registrado"
-        >
-          <div className="grid grid-cols-3 gap-4">
-            <Input
-              id="opcao1nome"
-              type="text"
-              placeholder="Ex: Tech Solutions LTDA"
-              value={nome1}
-              onChange={(e) => setNome1(e.target.value)}
-              disabled={isLoading}
-              required
-              className={cn(
-                error && "border-red-500 focus-visible:ring-red-500",
-              )}
-            />
-            <Input
-              id="opcao2nome"
-              type="text"
-              placeholder="Ex: Solutions Tech LTDA"
-              value={nome2}
-              onChange={(e) => setNome2(e.target.value)}
-              disabled={isLoading}
-              required
-              className={cn(
-                error && "border-red-500 focus-visible:ring-red-500",
-              )}
-            />
-            <Input
-              id="opcao3nome"
-              type="text"
-              placeholder="Ex: TS Technology LTDA"
-              value={nome3}
-              onChange={(e) => setNome3(e.target.value)}
-              disabled={isLoading}
-              required
-              className={cn(
-                error && "border-red-500 focus-visible:ring-red-500",
-              )}
-            />
-          </div>
-        </FieldWithTooltip>
+        <div className="flex space-x-2">
+          <FieldWithTooltip
+            label={
+              <div className="flex items-center">
+                3 Opções de nome para a empresa
+                <span className="text-red-600 ml-1">*</span>
+              </div>
+            }
+            tooltip="Sugerimos 3 nomes diferentes para caso algum já esteja registrado"
+          >
+            <div className="grid grid-cols-3 gap-4">
+              <Input
+                id="opcao1nome"
+                type="text"
+                placeholder="Ex: Tech Solutions LTDA"
+                value={nome1}
+                onChange={(e) => setNome1(e.target.value)}
+                disabled={isLoading}
+                required
+                className={cn(
+                  error && "border-red-500 focus-visible:ring-red-500",
+                )}
+              />
+              <Input
+                id="opcao2nome"
+                type="text"
+                placeholder="Ex: Solutions Tech LTDA"
+                value={nome2}
+                onChange={(e) => setNome2(e.target.value)}
+                disabled={isLoading}
+                required
+                className={cn(
+                  error && "border-red-500 focus-visible:ring-red-500",
+                )}
+              />
+              <Input
+                id="opcao3nome"
+                type="text"
+                placeholder="Ex: TS Technology LTDA"
+                value={nome3}
+                onChange={(e) => setNome3(e.target.value)}
+                disabled={isLoading}
+                required
+                className={cn(
+                  error && "border-red-500 focus-visible:ring-red-500",
+                )}
+              />
+            </div>
+          </FieldWithTooltip>
+        </div>
       </div>
 
       {/* Informações básicas */}
       <div className="grid grid-cols-2 gap-6">
         <div>
           <FieldWithTooltip
-            label="Nome fantasia"
+            label={
+              <div className="flex items-center">
+                Nome fantasia
+                <span className="text-red-600 ml-1">*</span>
+              </div>
+            }
             tooltip="Nome comercial pelo qual sua empresa será conhecida"
           >
             <Input
@@ -280,7 +292,10 @@ const FormularioAbertura = () => {
       {/* Campos de endereço */}
       <div className="grid grid-cols-2 gap-6">
         <div>
-          <Label htmlFor="ruaempresa">Rua</Label>
+          <div className="flex items-center">
+            <Label htmlFor="ruaempresa">Rua</Label>
+            <span className="text-red-600 ml-1">*</span>
+          </div>
           <Input
             id="ruaempresa"
             type="text"
@@ -293,7 +308,10 @@ const FormularioAbertura = () => {
           />
         </div>
         <div>
-          <Label htmlFor="numeroempresa">Número</Label>
+          <div className="flex items-center">
+            <Label htmlFor="numeroempresa">Número</Label>
+            <span className="text-red-600 ml-1">*</span>
+          </div>
           <Input
             id="numeroempresa"
             type="text"
@@ -309,7 +327,10 @@ const FormularioAbertura = () => {
 
       <div className="grid grid-cols-2 gap-6">
         <div>
-          <Label htmlFor="bairroempresa">Bairro</Label>
+          <div className="flex items-center">
+            <Label htmlFor="bairroempresa">Bairro</Label>
+            <span className="text-red-600 ml-1">*</span>
+          </div>
           <Input
             id="bairroempresa"
             type="text"
@@ -322,7 +343,10 @@ const FormularioAbertura = () => {
           />
         </div>
         <div>
-          <Label htmlFor="municipioempresa">Município</Label>
+          <div className="flex items-center">
+            <Label htmlFor="municipioempresa">Município</Label>
+            <span className="text-red-600 ml-1">*</span>
+          </div>
           <Input
             id="municipioempresa"
             type="text"
@@ -335,7 +359,10 @@ const FormularioAbertura = () => {
           />
         </div>
         <div>
-          <Label htmlFor="ufProfissional">UF</Label>
+          <div className="flex items-center">
+            <Label htmlFor="ufProfissional">UF</Label>
+            <span className="text-red-600 ml-1">*</span>
+          </div>
           <Select
             value={uf || UFEmpresa}
             onValueChange={(value) => setUFEmpresa(value)}
@@ -381,7 +408,7 @@ const FormularioAbertura = () => {
           </Select>
         </div>
         <FieldWithTooltip
-          label="Inscrição imboiliária"
+          label="Inscrição imobiliária"
           tooltip="Número de identificação único do imóvel no cadastro municipal, usado para controle e cobrança do IPTU."
         >
           <InputMask
@@ -390,6 +417,7 @@ const FormularioAbertura = () => {
             onChange={(e) => setInscricaoImobiliaria(e.target.value)}
             disabled={isLoading}
             placeholder="99-999-999.999-9"
+            required
           >
             {(inputProps) => (
               <Input
@@ -407,7 +435,12 @@ const FormularioAbertura = () => {
       {/* Campos financeiros e área */}
       <div className="grid grid-cols-2 gap-6">
         <FieldWithTooltip
-          label="Valor capital social"
+          label={
+            <div className="flex items-center">
+              Valor capital social
+              <span className="text-red-600 ml-1">*</span>
+            </div>
+          }
           tooltip="O capital social é o valor investido pelos sócios na empresa. Representa o patrimônio inicial da empresa."
         >
           <NumericFormat
@@ -421,12 +454,18 @@ const FormularioAbertura = () => {
             prefix="R$ "
             placeholder="R$ 10.000,00"
             disabled={isLoading}
+            required
             className={cn(error && "border-red-500 focus-visible:ring-red-500")}
           />
         </FieldWithTooltip>
 
         <FieldWithTooltip
-          label="Área da empresa"
+          label={
+            <div className="flex items-center">
+              Área da empresa
+              <span className="text-red-600 ml-1">*</span>
+            </div>
+          }
           tooltip="Área total do estabelecimento em metros quadrados"
         >
           <NumericFormat
@@ -438,6 +477,7 @@ const FormularioAbertura = () => {
             suffix=" m²"
             placeholder="100 m²"
             disabled={isLoading}
+            required
             className={cn(error && "border-red-500 focus-visible:ring-red-500")}
           />
         </FieldWithTooltip>
@@ -446,13 +486,17 @@ const FormularioAbertura = () => {
       {/* Telefone e Email */}
       <div className="grid grid-cols-2 gap-6">
         <div>
-          <Label htmlFor="telefoneEmpresa">Telefone da empresa</Label>
+          <div className="flex items-center">
+            <Label htmlFor="telefonemepresa">Telefone da empresa</Label>
+            <span className="text-red-600 ml-1">*</span>
+          </div>{" "}
           <InputMask
             mask="(99) 99999-9999"
             value={telefoneEmpresa}
             onChange={handleTelefoneChange}
             disabled={isLoading}
             placeholder="(47) 99999-9999"
+            required
           >
             {(inputProps) => (
               <Input
@@ -466,10 +510,13 @@ const FormularioAbertura = () => {
           </InputMask>
         </div>
         <div>
-          <Label htmlFor="email">E-mail da empresa</Label>
+          <div className="flex items-center">
+            <Label htmlFor="email">E-mail da empresa</Label>
+            <span className="text-red-600 ml-1">*</span>
+          </div>
           <Input
             id="emailEmpresa"
-            type="e-mail"
+            type="email"
             placeholder="empresa@exemplo.com"
             value={emailEmpresa}
             onChange={(e) => setEmailEmpresa(e.target.value)}
@@ -483,7 +530,12 @@ const FormularioAbertura = () => {
       {/* Capital Integralizado */}
       <div className="grid grid-cols-2 gap-6">
         <FieldWithTooltip
-          label="Capital será totalmente integralizado?"
+          label={
+            <div className="flex items-center">
+              Capital será totalmente integralizado?
+              <span className="text-red-600 ml-1">*</span>
+            </div>
+          }
           tooltip="Indica se todo o capital social será investido de imediato na empresa"
         >
           <RadioGroup
@@ -502,9 +554,10 @@ const FormularioAbertura = () => {
           </RadioGroup>
         </FieldWithTooltip>
 
-        <div className="">
-          <div className="mb-2">
+        <div>
+          <div className="flex items-center mb-2">
             <Label htmlFor="dataIntegralizacao">Data de integralização</Label>
+            <span className="text-red-600 ml-1">*</span>
           </div>
           <div>
             <Input
@@ -522,7 +575,12 @@ const FormularioAbertura = () => {
         </div>
 
         <FieldWithTooltip
-          label="Empresa será anexada a residência?"
+          label={
+            <div className="flex items-center">
+              Empresa será anexada a residência?
+              <span className="text-red-600 ml-1">*</span>
+            </div>
+          }
           tooltip="Sua empresa se localiza na sua residência?"
         >
           <RadioGroup
@@ -544,9 +602,12 @@ const FormularioAbertura = () => {
         </FieldWithTooltip>
 
         <div>
-          <Label htmlFor="enderecocontato">
-            Endereço somente para contato?
-          </Label>
+          <div className="flex items-center">
+            <Label htmlFor="enderecocontato">
+              Endereço somente para contato?
+            </Label>
+            <span className="text-red-600 ml-1">*</span>
+          </div>
           <RadioGroup
             defaultValue={enderecoContato.toString()}
             className="flex space-x-4"
@@ -602,9 +663,11 @@ const FormularioAbertura = () => {
         {atividadeRespTecnica && (
           <div className="space-y-4 mt-4">
             <div className="grid grid-cols-2 gap-6">
-              {/* Nome do Responsável */}
               <div>
-                <Label htmlFor="respTecnico">Nome do responsável</Label>
+                <div className="flex items-center">
+                  <Label htmlFor="respTecnico">Nome do responsável</Label>
+                  <span className="text-red-600 ml-1">*</span>
+                </div>
                 <Input
                   id="respTecnico"
                   type="text"
@@ -619,9 +682,11 @@ const FormularioAbertura = () => {
                 />
               </div>
 
-              {/* Carteira Profissional */}
               <div>
-                <Label htmlFor="carteira">Carteira Profissional</Label>
+                <div className="flex items-center">
+                  <Label htmlFor="carteira">Carteira Profissional</Label>
+                  <span className="text-red-600 ml-1">*</span>
+                </div>
                 <Input
                   id="carteira"
                   type="text"
@@ -638,9 +703,11 @@ const FormularioAbertura = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-6">
-              {/* UF do Responsável */}
               <div>
-                <Label htmlFor="ufProfissional">UF do responsável</Label>
+                <div className="flex items-center">
+                  <Label htmlFor="ufProfissional">UF do responsável</Label>
+                  <span className="text-red-600 ml-1">*</span>
+                </div>
                 <Select
                   value={ufProfissional}
                   onValueChange={(value) => setUfProfissional(value)}
@@ -686,11 +753,13 @@ const FormularioAbertura = () => {
                 </Select>
               </div>
 
-              {/* Área de Responsabilidade */}
               <div>
-                <Label htmlFor="areaAtuacaoResp">
-                  Área de responsabilidade
-                </Label>
+                <div className="flex items-center">
+                  <Label htmlFor="areaAtuacaoResp">
+                    Área de responsabilidade
+                  </Label>
+                  <span className="text-red-600 ml-1">*</span>
+                </div>
                 <Input
                   id="areaAtuacaoResp"
                   type="text"
@@ -707,24 +776,6 @@ const FormularioAbertura = () => {
             </div>
           </div>
         )}
-      </div>
-      {/* Botão de envio */}
-      <div className="mt-8">
-        <Button
-          variant="outline"
-          className="w-full mx-auto"
-          disabled={isLoading}
-          type="submit"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Enviando...
-            </>
-          ) : (
-            "Enviar e avançar"
-          )}
-        </Button>
       </div>
 
       {/* AlertDialog */}

@@ -20,6 +20,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { NumericFormat } from "react-number-format";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
+import { estados } from "../estados";
+import { Checkbox } from "@/components/ui/checkbox";
+import { orgaosExpedidores } from "../orgaos-expedidores";
 
 const FormularioAbertura = () => {
   const router = useRouter();
@@ -442,139 +445,351 @@ const FormularioAbertura = () => {
       </div>
 
       {/* Informações adicionais */}
-      <div className="border-t pt-8 mt-8">
-        <div className="text-center mb-6">
-          <h2 className="text-xl font-semibold">Informações adicionais</h2>
-          <p className="text-sm text-gray-600">
-            Apenas responda se necessário para sua empresa
-          </p>
-        </div>
 
-        {/* Responsabilidade Técnica */}
-        <div className="flex flex-col items-center justify-center">
-          <FieldWithTooltip
-            label="Necessita de responsabilidade técnica?"
-            tooltip="Algumas atividades exigem um responsável técnico habilitado"
+      <div className="text-center mb-6">
+        <h2 className="text-xl font-semibold">Informações adicionais</h2>
+        <p className="text-sm text-gray-600">
+          Apenas responda se necessário para sua empresa
+        </p>
+      </div>
+
+      {/* Responsabilidade Técnica */}
+      <div className="flex flex-col items-center justify-center">
+        <FieldWithTooltip
+          label="Necessita de responsabilidade técnica?"
+          tooltip="Algumas atividades exigem um responsável técnico habilitado"
+        >
+          <RadioGroup
+            value={atividadeRespTecnica.toString()}
+            className="flex space-x-4 items-center justify-center"
+            disabled={isEditing}
+            onValueChange={(value) => {
+              setAtividadeRespTecnica(value === "true");
+            }}
           >
-            <RadioGroup
-              value={atividadeRespTecnica.toString()}
-              className="flex space-x-4 items-center justify-center"
-              disabled={isEditing}
-              onValueChange={(value) => {
-                setAtividadeRespTecnica(value === "true");
-              }}
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="true" />
-                <Label>Sim</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="false" />
-                <Label>Não</Label>
-              </div>
-            </RadioGroup>
-          </FieldWithTooltip>
-        </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="true" />
+              <Label>Sim</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="false" />
+              <Label>Não</Label>
+            </div>
+          </RadioGroup>
+        </FieldWithTooltip>
+      </div>
 
-        {/* Dados do Responsável Técnico */}
-        {atividadeRespTecnica && (
-          <div className="space-y-4 mt-4">
-            <div className="grid grid-cols-2 gap-6">
-              {/* Nome do Responsável */}
-              <div>
-                <Label htmlFor="respTecnico">Nome do responsável</Label>
-                <Input
-                  id="respTecnico"
-                  type="text"
-                  placeholder="Nome completo do responsável"
-                  value={nomeRespTecnico}
-                  onChange={(e) => setNomeRespTecnico(e.target.value)}
-                  readOnly={isEditing}
-                />
-              </div>
-
-              {/* Carteira Profissional */}
-              <div>
-                <Label htmlFor="carteira">Carteira Profissional</Label>
-                <Input
-                  id="carteira"
-                  type="text"
-                  placeholder="Nº da carteira profissional"
-                  value={carteiraProfissional}
-                  onChange={(e) => setCarteiraProfissional(e.target.value)}
-                  readOnly={isEditing}
-                />
-              </div>
+      {/* Dados do Responsável Técnico */}
+      {atividadeRespTecnica && (
+        <div className="space-y-4 mt-4">
+          <div className="grid grid-cols-2 gap-6">
+            {/* Nome do Responsável */}
+            <div>
+              <Label htmlFor="respTecnico">Nome do responsável</Label>
+              <Input
+                id="respTecnico"
+                type="text"
+                placeholder="Nome completo do responsável"
+                value={nomeRespTecnico}
+                onChange={(e) => setNomeRespTecnico(e.target.value)}
+                readOnly={isEditing}
+              />
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              {/* UF do Responsável */}
-              <div>
-                <Label htmlFor="ufProfissional">UF do responsável</Label>
-                <Select
-                  disabled={isEditing}
-                  value={ufProfissional}
-                  onValueChange={(value) => setUfProfissional(value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="UF do responsável" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[
-                      "AC",
-                      "AL",
-                      "AP",
-                      "AM",
-                      "BA",
-                      "CE",
-                      "DF",
-                      "ES",
-                      "GO",
-                      "MA",
-                      "MT",
-                      "MS",
-                      "MG",
-                      "PA",
-                      "PB",
-                      "PR",
-                      "PE",
-                      "PI",
-                      "RJ",
-                      "RN",
-                      "RS",
-                      "RO",
-                      "RR",
-                      "SC",
-                      "SP",
-                      "SE",
-                      "TO",
-                    ].map((uf) => (
-                      <SelectItem key={uf} value={uf}>
-                        {uf}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* Carteira Profissional */}
+            <div>
+              <Label htmlFor="carteira">Carteira Profissional</Label>
+              <Input
+                id="carteira"
+                type="text"
+                placeholder="Nº da carteira profissional"
+                value={carteiraProfissional}
+                onChange={(e) => setCarteiraProfissional(e.target.value)}
+                readOnly={isEditing}
+              />
+            </div>
+          </div>
 
-              {/* Área de Responsabilidade */}
-              <div>
-                <Label htmlFor="areaAtuacaoResp">
-                  Área de responsabilidade
+          <div className="grid grid-cols-2 gap-6">
+            {/* UF do Responsável */}
+            <div>
+              <Label htmlFor="ufProfissional">UF do responsável</Label>
+              <Select
+                disabled={isEditing}
+                value={ufProfissional}
+                onValueChange={(value) => setUfProfissional(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="UF do responsável" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[
+                    "AC",
+                    "AL",
+                    "AP",
+                    "AM",
+                    "BA",
+                    "CE",
+                    "DF",
+                    "ES",
+                    "GO",
+                    "MA",
+                    "MT",
+                    "MS",
+                    "MG",
+                    "PA",
+                    "PB",
+                    "PR",
+                    "PE",
+                    "PI",
+                    "RJ",
+                    "RN",
+                    "RS",
+                    "RO",
+                    "RR",
+                    "SC",
+                    "SP",
+                    "SE",
+                    "TO",
+                  ].map((uf) => (
+                    <SelectItem key={uf} value={uf}>
+                      {uf}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Área de Responsabilidade */}
+            <div>
+              <Label htmlFor="areaAtuacaoResp">Área de responsabilidade</Label>
+              <Input
+                id="areaAtuacaoResp"
+                type="text"
+                placeholder="Área de responsabilidade"
+                value={areaResp}
+                onChange={(e) => setAreaResp(e.target.value)}
+                readOnly={isEditing}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+      {formulario?.socios?.map((socio, index) => (
+        <div key={socio.id || index} className="">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-semibold">Sócio {index + 1}</h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Dados Pessoais */}
+            <div className="space-y-2">
+              <Label htmlFor={`nome-${index}`}>Nome Completo</Label>
+              <Input
+                id={`nome-${index}`}
+                value={socio.nome || ""}
+                readOnly={isEditing}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`nacionalidade-${index}`}>Nacionalidade</Label>
+              <Input
+                id={`nacionalidade-${index}`}
+                value={socio.nacionalidade || ""}
+                readOnly={isEditing}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`data_nascimento-${index}`}>
+                Data de Nascimento
+              </Label>
+              <Input
+                id={`data_nascimento-${index}`}
+                value={socio.data_nascimento || ""}
+                readOnly={isEditing}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`estado_civil-${index}`}>Estado Civil</Label>
+              <Input
+                id={`estado_civil-${index}`}
+                value={socio.estado_civil || ""}
+                readOnly={isEditing}
+              />
+            </div>
+
+            {socio.estado_civil === "casado" && (
+              <div className="space-y-2">
+                <Label htmlFor={`regime_casamento-${index}`}>
+                  Regime de Casamento
                 </Label>
                 <Input
-                  id="areaAtuacaoResp"
-                  type="text"
-                  placeholder="Área de responsabilidade"
-                  value={areaResp}
-                  onChange={(e) => setAreaResp(e.target.value)}
+                  id={`regime_casamento-${index}`}
+                  value={socio.regime_casamento || ""}
                   readOnly={isEditing}
                 />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor={`profissao-${index}`}>Profissão</Label>
+              <Input
+                id={`profissao-${index}`}
+                value={socio.profissao || ""}
+                readOnly={isEditing}
+                onChange={(e) => setNome2(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`cpf-${index}`}>CPF</Label>
+              <InputMask
+                mask="999.999.999-99"
+                defaultValue={socio.cpf || ""}
+                readOnly={isEditing}
+              >
+                {(inputProps: any) => <Input {...inputProps} />}
+              </InputMask>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`rg-${index}`}>RG</Label>
+              <InputMask
+                mask="99.999.999-9"
+                value={socio.rg || ""}
+                readOnly={isEditing}
+              >
+                {(inputProps: any) => <Input {...inputProps} />}
+              </InputMask>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`orgao_expedidor-${index}`}>
+                Órgão Expedidor
+              </Label>
+              <Input
+                id={`orgao_expedidor-${index}`}
+                value={socio.orgao_expedidor || ""}
+                readOnly={isEditing}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`uf-${index}`}>UF</Label>
+              <Input
+                id={`uf-${index}`}
+                value={socio.uf || ""}
+                readOnly={isEditing}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`qtd_cotas-${index}`}>Quantidade de Cotas</Label>
+              <Input
+                id={`qtd_cotas-${index}`}
+                value={socio.qtd_cotas?.toString() || ""}
+                readOnly={isEditing}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`administrador-${index}`}>Administrador</Label>
+              <Input
+                id={`administrador-${index}`}
+                value={socio.administrador ? "Sim" : "Não"}
+                readOnly={isEditing}
+              />
+            </div>
+
+            {socio.administrador && (
+              <div className="space-y-2">
+                <Label htmlFor={`tipo_administrador-${index}`}>
+                  Tipo de Administrador
+                </Label>
+                <Input
+                  id={`tipo_administrador-${index}`}
+                  value={socio.tipo_administrador || ""}
+                  readOnly={isEditing}
+                />
+              </div>
+            )}
+
+            {/* Seção de Endereço */}
+            <div className="col-span-2">
+              <h4 className="text-lg font-medium mb-4">Endereço</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor={`cep-${index}`}>CEP</Label>
+                  <InputMask
+                    mask="99999-999"
+                    value={socio.endereco?.cep || ""}
+                    readOnly={isEditing}
+                  >
+                    {(inputProps: any) => <Input {...inputProps} />}
+                  </InputMask>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`rua-${index}`}>Rua</Label>
+                  <Input
+                    id={`rua-${index}`}
+                    value={socio.endereco?.rua || ""}
+                    readOnly={isEditing}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`numero-${index}`}>Número</Label>
+                  <Input
+                    id={`numero-${index}`}
+                    value={socio.endereco?.numero?.toString() || ""}
+                    readOnly={isEditing}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`complemento-${index}`}>Complemento</Label>
+                  <Input
+                    id={`complemento-${index}`}
+                    value={socio.endereco?.complemento || ""}
+                    readOnly={isEditing}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`bairro-${index}`}>Bairro</Label>
+                  <Input
+                    id={`bairro-${index}`}
+                    value={socio.endereco?.bairro || ""}
+                    readOnly={isEditing}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`municipio-${index}`}>Município</Label>
+                  <Input
+                    id={`municipio-${index}`}
+                    value={socio.endereco?.municipio || ""}
+                    readOnly={isEditing}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`uf_endereco-${index}`}>UF</Label>
+                  <Input
+                    id={`uf_endereco-${index}`}
+                    value={socio.endereco?.uf || ""}
+                    readOnly={isEditing}
+                  />
+                </div>
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      ))}
       <div className="w-full flex-1 items-end text-right space-x-3">
         <Button type="button" variant="outline" onClick={handleEditing}>
           <div className="space-x-2 flex items-center gap-2">
