@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import FormularioAbertura from "./form";
 import Logo from "@/components/logo";
+import { Suspense } from "react";
 
 export default function Visualizar() {
   return (
@@ -31,7 +32,9 @@ export default function Visualizar() {
         </div>
 
         {/* Form */}
-        <FormularioAbertura />
+        <Suspense fallback={<div>Carregando...</div>}>
+          <FormularioAbertura />
+        </Suspense>
       </motion.div>
     </div>
   );

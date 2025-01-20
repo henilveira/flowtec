@@ -16,7 +16,6 @@ import FilterDropdown from "./filter";
 import { Requisicao } from "./requisicao";
 import { SkeletonColumn } from "@/components/skeleton-column";
 import { SkeletonSheet } from "@/components/skeleton-sheet";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Societario() {
   const {

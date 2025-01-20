@@ -116,7 +116,8 @@ interface UpdateProcessoRequest {
 export function useSocietarioActions() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorRegistro, setErrorRegistro] = useState<string | null>(null);
+  const [errorUpdate, setErrorUpdate] = useState<string | null>(null);
   const [processId, setProcessId] = useState<string | null>(null);
 
   // Criar novo registro
@@ -126,7 +127,7 @@ export function useSocietarioActions() {
     tipo_processo_id: string,
     etapa_id: string,
   ) => {
-    setError(null);
+    setErrorRegistro(null);
     setIsLoading(true); // Definido aqui para iniciar o carregamento
 
     try {
@@ -150,14 +151,13 @@ export function useSocietarioActions() {
 
       return response.data;
     } catch (error: any) {
-      setError(error.message); // Captura e define o erro com a mensagem correta
+      setErrorRegistro(error.message); // Captura e define o erro com a mensagem correta
     } finally {
       setIsLoading(false); // Definido para garantir que o estado de carregamento seja desativado
     }
   };
 
   const updateProcesso = async (data: UpdateProcessoRequest) => {
-    setError(null);
     setIsLoading(true);
 
     try {
@@ -174,7 +174,7 @@ export function useSocietarioActions() {
 
       return response.data;
     } catch (error: any) {
-      setError(error.message);
+      setErrorUpdate(error.message);
       throw error;
     } finally {
       setIsLoading(false);
@@ -198,6 +198,8 @@ export function useSocietarioActions() {
   };
 
   return {
+    errorRegistro,
+    errorUpdate,
     updateProcesso,
     isLoading,
     novoRegistro,

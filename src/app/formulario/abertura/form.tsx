@@ -777,14 +777,19 @@ const FormularioAbertura = () => {
           </div>
         )}
       </div>
-      <Button type="submit" variant="flowtec" disabled={isLoading}>
+      <Button
+        className="w-full"
+        type="submit"
+        variant="outline"
+        disabled={isLoading}
+      >
         {isLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Enviando...
           </>
         ) : (
-          "Enviar formulário"
+          "Enviar e avançar"
         )}
       </Button>
 
