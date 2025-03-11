@@ -83,7 +83,7 @@ const TableContabilidades = () => {
           Anterior
         </Button>
         <span>
-          Página {page} de {totalPages}
+          Página {page || 0} de {totalPages || 0}
         </span>
         <Button
           variant="outline"

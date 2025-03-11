@@ -92,7 +92,7 @@ export function Requisicao() {
       }, 2000);
     } catch (errorRegistro) {
       toast.error("Erro ao criar processo", {
-        description: "Por favor, tente novamente mais tarde.",
+        description: "Houve algum erro ao criar seu novo processo.",
       });
     }
   };
