@@ -18,10 +18,12 @@ export function useLogin() {
       });
       console.log("Login bem-sucedido:", response.data);
       router.push("/dashboard");
-    } catch (err: any) {
+      return true;
+    } catch (error: any) {
       setError(
-        err.response?.data?.detail || "Ocorreu um erro ao efetuar o login",
+        error.response?.data?.detail || "Ocorreu um erro ao efetuar o login",
       );
+      throw new Error(error);
     } finally {
       setIsLoading(false);
     }

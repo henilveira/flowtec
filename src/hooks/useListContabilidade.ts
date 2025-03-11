@@ -5,15 +5,15 @@ import {
 } from "@/@types/Contabilidades";
 
 export function useListContabilidades(
-  page: number = 1,
+  page: number = 1
 ): useListContabilidadesReturn {
   const { data, error, mutate, isLoading, isValidating } =
     useApiBase<ContabilidadeResponse>(
-      `/contabilidades/list-contabilidades/?page=${page}`,
+      `/contabilidades/list-contabilidades/?page=${page}`
     );
 
   return {
-    companies: data?.results.empresas || [],
+    companies: data?.results?.empresas || [],
     totalPages: data ? Math.ceil(data.count / 8) : 0,
     isLoading,
     isError: error,

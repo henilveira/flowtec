@@ -1,6 +1,4 @@
-import { useApiBase } from './useApiBase'; // Ajuste o caminho de importação conforme necessário
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { useApiBase } from "./useApiBase"; // Ajuste o caminho de importação conforme necessário
 
 // Interface para tipar a resposta da API
 interface UserResponse {
@@ -15,16 +13,18 @@ interface UserResponse {
 }
 
 export const useUser = () => {
-  const { data, error, isLoading } = useApiBase<UserResponse>('/accounts/get-user/');
+  const { data, error, isLoading } = useApiBase<UserResponse>(
+    "/accounts/get-user/",
+  );
 
   return {
-    id: data?.user.id ?? null,
-    primeiroNome: data?.user?.first_name || null,
-    ultimoNome: data?.user?.last_name || null,
-    email: data?.user?.email || null,
-    isAdminContabilidade: data?.user?.is_admin_contabilidade || null,
-    profilePicture: data?.user?.profile_picture || null,
+    id: data?.user.id ?? "",
+    primeiroNome: data?.user?.first_name ?? "",
+    ultimoNome: data?.user?.last_name ?? "",
+    email: data?.user?.email ?? "",
+    isAdminContabilidade: data?.user?.is_admin_contabilidade ?? false,
+    profilePicture: data?.user?.profile_picture ?? "",
     isLoading,
-    isError: error,
+    isError: error ? String(error) : null,
   };
 };

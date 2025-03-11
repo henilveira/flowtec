@@ -7,6 +7,7 @@ import {
   ProcessosResponse,
   Processo,
 } from "@/@types/Societario"; // Certifique-se de criar este tipo em `@/@types/Societario`
+import axiosInstance from "@/lib/axios";
 
 // Types para diferentes respostas de listagem
 interface EtapasResponse {
@@ -114,7 +115,7 @@ interface UpdateProcessoRequest {
 
 // Funções de Ações Societárias
 export function useSocietarioActions() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const API_URL = "http://127.0.0.1:8000/api";
   const [isLoading, setIsLoading] = useState(false);
   const [errorRegistro, setErrorRegistro] = useState<string | null>(null);
   const [errorUpdate, setErrorUpdate] = useState<string | null>(null);
@@ -131,8 +132,8 @@ export function useSocietarioActions() {
     setIsLoading(true); // Definido aqui para iniciar o carregamento
 
     try {
-      const response = await axios.post(
-        `${API_URL}/societario/create-processo/`,
+      const response = await axiosInstance.post(
+        `/societario/create-processo/`,
         {
           nome,
           contabilidade_id,
@@ -151,7 +152,9 @@ export function useSocietarioActions() {
 
       return response.data;
     } catch (error: any) {
-      setErrorRegistro(error.message); // Captura e define o erro com a mensagem correta
+      const errorMessage = "Erro ao criar processo";
+      setErrorRegistro(errorMessage);
+      throw error;
     } finally {
       setIsLoading(false); // Definido para garantir que o estado de carregamento seja desativado
     }

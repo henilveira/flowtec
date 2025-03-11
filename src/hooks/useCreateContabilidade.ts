@@ -15,8 +15,12 @@ export function useCreateContabilidade() {
         { cnpj },
       );
       console.log(response.data);
+      return response.data; // Retorna os dados em caso de sucesso
     } catch (err: any) {
-      setError(err.response?.data?.detail || "Erro ao criar contabilidade");
+      const errorMessage =
+        err.response?.data?.detail || "Erro ao criar contabilidade";
+      setError(errorMessage);
+      throw new Error(errorMessage); // Lança o erro para ser capturado no componente
     } finally {
       setIsLoading(false);
     }
