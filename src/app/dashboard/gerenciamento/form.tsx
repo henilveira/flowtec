@@ -15,19 +15,37 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useCreateContabilidade } from "@/hooks/useCreateContabilidade";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   cnpj: z
     .string()
     .min(14, { message: "CNPJ deve ter no mínimo 14 números" })
-    .max(14, { message: "CNPJ deve ter no máximo 14 números" })
-    .regex(/^\d+$/, { message: "CNPJ deve conter apenas números" }), // Regex para garantir que tenha apenas números
+    .max(18, { message: "CNPJ deve ter no máximo 14 números" }) // Aumentado para 18 para acomodar a formatação
+    .transform((val) => val.replace(/\D/g, "")) // Remove caracteres não numéricos
+    .refine((val) => val.length === 14, {
+      message: "CNPJ deve ter 14 números",
+    }),
 });
 
+const formatCNPJ = (value: string) => {
+  // Remove todos os caracteres não numéricos
+  const numbers = value.replace(/\D/g, "");
+
+  // Limita a 14 dígitos
+  const cnpj = numbers.slice(0, 14);
+
+  // Aplica a máscara XX.XXX.XXX/XXXX-XX
+  return cnpj
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1/$2")
+    .replace(/(\d{4})(\d)/, "$1-$2");
+};
+
 const CreateContabilidadeForm = () => {
-  const { create } = useCreateContabilidade();
-  const { toast } = useToast();
+  const { create, error: err, isLoading } = useCreateContabilidade();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -38,19 +56,17 @@ const CreateContabilidadeForm = () => {
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await create(values.cnpj);
-      toast({
-        title: "Contabilidade criada com sucesso!",
+      // Remove a formatação antes de enviar
+      const cleanCNPJ = values.cnpj.replace(/\D/g, "");
+      await create(cleanCNPJ);
+      toast.success("Contabilidade criada com sucesso!", {
         description:
           "Sua contabilidade já foi adicionada a sua lista de contabilidades.",
-        variant: "default",
       });
-    } catch (error: any) {
-      console.log(error);
-      toast({
-        title: "Houve algum erro ao adicionar contabilidade.",
+    } catch (err) {
+      console.log(err);
+      toast.error("Houve algum erro ao adicionar contabilidade.", {
         description: "Verifique se o CNPJ digitado está correto.",
-        variant: "destructive",
       });
     }
   };
@@ -68,17 +84,29 @@ const CreateContabilidadeForm = () => {
                 <Input
                   placeholder="Digite seu CNPJ"
                   {...field}
+                  value={formatCNPJ(field.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value.replace(/\D/g, ""));
+                  }}
+                  maxLength={18} // Comprimento máximo com a formatação
                   inputMode="numeric" // Garante que teclados móveis mostrem apenas números
                 />
               </FormControl>
-              <FormDescription>
-                Insira o CNPJ da contabilidade que deseja cadastrar.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button variant='flowtec' type="submit">Cadastrar</Button>
+        <Button variant="flowtec" type="submit" disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Cadastrando...
+            </>
+          ) : (
+            "Cadastrar"
+          )}
+        </Button>
       </form>
     </Form>
   );
