@@ -15,68 +15,71 @@ import { useForm } from "react-hook-form";
 import { useUser } from "@/hooks/useUser";
 import { useUpdateUser } from "@/hooks/useUpdateUser";
 import { ChangeEvent, useRef, useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import ProfileAvatar from "@/components/avatar";
+import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-// Definição da interface UpdateUser
 interface UpdateUser {
   first_name?: string;
   last_name?: string;
   email?: string;
-  avatar?: File | null; // Adiciona o campo avatar à interface
+  avatar?: File | null;
 }
 
 export default function ProfileSettings() {
-  const { toast } = useToast();
-
   const { primeiroNome, ultimoNome, email, profilePicture } = useUser();
   const { updateUser, isLoading, error } = useUpdateUser();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [loadingUpload, setLoadingUpload] = useState(false);
-  const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null); // Estado para armazenar o arquivo selecionado
+  const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const form = useForm<UpdateUser>({
     defaultValues: {
       first_name: primeiroNome || "",
       last_name: ultimoNome || "",
       email: email || "",
-      avatar: null, // Inicializa o campo avatar como null
+      avatar: null,
     },
   });
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
-      setSelectedAvatar(selectedFile); // Armazena o arquivo selecionado no estado
-      toast({
-        title: "Arquivo selecionado",
+      setSelectedAvatar(selectedFile);
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          setAvatarPreview(e.target.result as string);
+        }
+      };
+      reader.readAsDataURL(selectedFile);
+
+      toast("Arquivo selecionado!", {
         description: `Você selecionou ${selectedFile.name}`,
-        variant: "default",
+        duration: 3000,
       });
     }
   };
 
   const handleUpdate = async (data: UpdateUser) => {
-    const { avatar, ...userData } = data; // Remove avatar para a atualização
+    const { avatar, ...userData } = data;
 
     try {
       if (selectedAvatar) {
-        // Inclui o arquivo selecionado no objeto de atualização
         await updateUser({ ...userData, profile_picture: selectedAvatar });
       } else {
-        await updateUser(userData); // Chama a função de atualização com os dados do formulário
+        await updateUser(userData);
       }
-      toast({
-        title: "Perfil atualizado com sucesso!",
-        variant: "default",
+      toast.success("Perfil atualizado!", {
+        description: "Em pouco tempo suas informações vão ser atualizadas.",
+        duration: 3000,
       });
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);
-      toast({
-        title: "Erro ao atualizar perfil.",
-        description: "Verifique os dados e tente novamente.",
-        variant: "destructive",
+      toast.success("Erro!", {
+        description: "Erro ao atualizar perfil, tente novamente mais tarde.",
+        duration: 3000,
       });
     }
   };
@@ -90,11 +93,20 @@ export default function ProfileSettings() {
       <CardContent className="space-y-4">
         <form onSubmit={form.handleSubmit(handleUpdate)}>
           <div className="flex items-center space-x-4 mb-2">
-            <ProfileAvatar className="h-20 w-20" />
+            <Avatar className="h-20 w-20">
+              <AvatarImage
+                src={avatarPreview || profilePicture}
+                alt="Profile preview"
+              />
+              <AvatarFallback>
+                {primeiroNome?.[0]}
+                {ultimoNome?.[0]}
+              </AvatarFallback>
+            </Avatar>
             <div className="">
               <Label
                 htmlFor="avatar"
-                className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-800" // Aciona o clique no botão
+                className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-800"
               >
                 Alterar foto de perfil
               </Label>
@@ -104,10 +116,10 @@ export default function ProfileSettings() {
                 accept="image/*"
                 className="hidden"
                 ref={(e) => {
-                  fileInputRef.current = e; // Atualiza o ref
-                  form.register("avatar").ref(e); // Registra o input
+                  fileInputRef.current = e;
+                  form.register("avatar").ref(e);
                 }}
-                onChange={handleFileChange} // Adiciona o manipulador de mudança
+                onChange={handleFileChange}
               />
             </div>
           </div>
@@ -117,7 +129,7 @@ export default function ProfileSettings() {
               <Label htmlFor="first_name">Primeiro nome</Label>
               <Input
                 id="first_name"
-                placeholder={primeiroNome || ""} // Substitui `null` por uma string vazia
+                placeholder={primeiroNome || ""}
                 {...form.register("first_name", {
                   required: true,
                   minLength: 2,
@@ -129,7 +141,7 @@ export default function ProfileSettings() {
               <Label htmlFor="last_name">Último nome</Label>
               <Input
                 id="last_name"
-                placeholder={ultimoNome || ""} // Substitui `null` por uma string vazia
+                placeholder={ultimoNome || ""}
                 {...form.register("last_name", {
                   required: true,
                   minLength: 2,
@@ -140,16 +152,12 @@ export default function ProfileSettings() {
             <div className="space-y-2">
               <Input
                 id="email"
-                placeholder={email || ""} // Substitui `null` por uma string vazia
+                placeholder={email || ""}
                 {...form.register("email")}
                 disabled
               />
             </div>
-            <Button
-              variant="outline"
-              type="submit"
-              disabled={isLoading} // Desabilita o botão enquanto carrega
-            >
+            <Button variant="outline" type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

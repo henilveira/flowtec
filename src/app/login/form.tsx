@@ -24,8 +24,7 @@ export default function LoginForm() {
       });
     } catch (err) {
       toast.error("Falha!", {
-        description:
-          "Ocorreu um erro ao iniciar sua sessão, tente novamente mais tarde.",
+        description: error,
         duration: 3000,
       });
     }
@@ -63,7 +62,6 @@ export default function LoginForm() {
       </div>
 
       {/* Exibe erro da API se houver algum */}
-      {error && <div className="text-sm text-red-500">{error}</div>}
 
       <Button
         variant="flowtec"
