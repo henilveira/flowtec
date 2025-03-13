@@ -25,6 +25,7 @@ export function useUpdateUser() {
       console.log("Usuário atualizado:", response.data);
     } catch (err: any) {
       setError(err.response?.data?.detail || "Erro ao atualizar usuário");
+      throw new err(error)
     } finally {
       setIsLoading(false);
     }

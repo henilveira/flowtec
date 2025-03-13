@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Label, Pie, PieChart, Sector } from "recharts"
-import { PieSectorDataItem } from "recharts/types/polar/Pie"
+import React, { memo } from "react";
+import { Label, Pie, PieChart, Sector } from "recharts";
+import { PieSectorDataItem } from "recharts/types/polar/Pie";
 
 import {
   Card,
@@ -10,21 +10,21 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartStyle,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/components/ui/chart";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
 const desktopData = [
   { month: "january", desktop: 186, fill: "url(#january-gradient)" },
@@ -32,7 +32,7 @@ const desktopData = [
   { month: "march", desktop: 237, fill: "url(#march-gradient)" },
   { month: "april", desktop: 173, fill: "url(#april-gradient)" },
   { month: "may", desktop: 209, fill: "url(#may-gradient)" },
-]
+];
 
 const chartConfig = {
   visitors: { label: "Visitors" },
@@ -43,17 +43,17 @@ const chartConfig = {
   march: { label: "Março", color: "url(#march-gradient)" },
   april: { label: "Abril", color: "url(#april-gradient)" },
   may: { label: "Maio", color: "url(#may-gradient)" },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
-export function Piechart1() {
-  const id = "pie-interactive"
-  const [activeMonth, setActiveMonth] = React.useState(desktopData[0].month)
+export const Piechart1 = memo(function Piechart1() {
+  const id = "pie-interactive";
+  const [activeMonth, setActiveMonth] = React.useState(desktopData[0].month);
 
   const activeIndex = React.useMemo(
     () => desktopData.findIndex((item) => item.month === activeMonth),
     [activeMonth]
-  )
-  const months = React.useMemo(() => desktopData.map((item) => item.month), [])
+  );
+  const months = React.useMemo(() => desktopData.map((item) => item.month), []);
 
   return (
     <Card data-chart={id} className="flex flex-col">
@@ -72,10 +72,10 @@ export function Piechart1() {
           </SelectTrigger>
           <SelectContent align="end" className="rounded-xl">
             {months.map((key) => {
-              const config = chartConfig[key as keyof typeof chartConfig]
+              const config = chartConfig[key as keyof typeof chartConfig];
 
               if (!config) {
-                return null
+                return null;
               }
 
               return (
@@ -94,7 +94,7 @@ export function Piechart1() {
                     {config?.label}
                   </div>
                 </SelectItem>
-              )
+              );
             })}
           </SelectContent>
         </Select>
@@ -111,7 +111,13 @@ export function Piechart1() {
                 <stop offset="0%" stopColor="#2196f3" />
                 <stop offset="100%" stopColor="#03a9f4" />
               </linearGradient>
-              <linearGradient id="february-gradient" x1="0" y1="0" x2="1" y2="1">
+              <linearGradient
+                id="february-gradient"
+                x1="0"
+                y1="0"
+                x2="1"
+                y2="1"
+              >
                 <stop offset="0%" stopColor="#e91e63" />
                 <stop offset="100%" stopColor="#f06292" />
               </linearGradient>
@@ -178,7 +184,7 @@ export function Piechart1() {
                           Processos
                         </tspan>
                       </text>
-                    )
+                    );
                   }
                 }}
               />
@@ -187,5 +193,5 @@ export function Piechart1() {
         </ChartContainer>
       </CardContent>
     </Card>
-  )
-}
+  );
+});

@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { useCreateContabilidade } from "@/hooks/useCreateContabilidade";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import React from "react";
 
 const formSchema = z.object({
   cnpj: z
@@ -44,7 +45,7 @@ const formatCNPJ = (value: string) => {
     .replace(/(\d{4})(\d)/, "$1-$2");
 };
 
-const CreateContabilidadeForm = () => {
+const CreateContabilidadeForm = React.memo(() => {
   const { create, error: err, isLoading } = useCreateContabilidade();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -110,6 +111,8 @@ const CreateContabilidadeForm = () => {
       </form>
     </Form>
   );
-};
+});
+CreateContabilidadeForm.displayName = 'CreateContabilidadeForm';
+
 
 export default CreateContabilidadeForm;

@@ -116,7 +116,7 @@ const PartnerForm = () => {
       };
       setSocios(updatedSocios);
     }
-  }, [rua, bairro, municipio, uf]);
+  }, [rua, bairro, municipio, uf, socios]); // Added socios to the dependency array
 
   const addSocio = () => {
     setSocios([

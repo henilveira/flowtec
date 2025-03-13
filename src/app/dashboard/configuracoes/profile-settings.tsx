@@ -17,6 +17,7 @@ import { useUpdateUser } from "@/hooks/useUpdateUser";
 import { ChangeEvent, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import React, { memo } from "react";
 
 interface UpdateUser {
   first_name?: string;
@@ -25,7 +26,7 @@ interface UpdateUser {
   avatar?: File | null;
 }
 
-export default function ProfileSettings() {
+const MemoizedProfileSettings = memo(function ProfileSettings() {
   const { primeiroNome, ultimoNome, email, profilePicture } = useUser();
   const { updateUser, isLoading, error } = useUpdateUser();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -168,10 +169,12 @@ export default function ProfileSettings() {
               )}
             </Button>
 
-            {error && <p className="text-red-500">{error}</p>}
+            {error && <p className="text-red-500">{String(error)}</p>}
           </div>
         </form>
       </CardContent>
     </Card>
   );
-}
+});
+
+export default MemoizedProfileSettings;

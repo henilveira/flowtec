@@ -1,4 +1,5 @@
 "use client";
+import React, { memo } from "react";
 import Link from "next/link";
 import {
   HeartHandshake,
@@ -110,7 +111,7 @@ function NavItem({ href, children, className, ...props }: NavItemProps) {
         "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
         "hover:bg-accent hover:text-accent-foreground",
         isActive && "bg-flowtech-gradient-transparent text-accent-foreground",
-        className,
+        className
       )}
       {...props}
     >
@@ -119,7 +120,7 @@ function NavItem({ href, children, className, ...props }: NavItemProps) {
   );
 }
 
-function Sidebar() {
+const Sidebar = memo(function Sidebar() {
   return (
     <div className="flex flex-col gap-4 py-2 px-4">
       <div className="flex flex-col gap-1">
@@ -193,4 +194,4 @@ function Sidebar() {
       </div>
     </div>
   );
-}
+});
