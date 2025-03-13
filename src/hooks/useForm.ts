@@ -7,6 +7,7 @@ import {
 } from "@/@types/Formulario";
 import { useFormContext } from "@/contexts/form-context";
 import { useApiBase } from "./useApiBase";
+import axiosInstance from "@/lib/axios";
 
 export const useFormById = (id: string | null) => {
   const { data, error, isLoading } = useApiBase<GetFormularioResponse>(
@@ -32,8 +33,8 @@ export function useFormActions() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(
-        `${API_URL}/societario/create-form-abertura/`,
+      const response = await axiosInstance.post(
+        `/societario/create-form-abertura/`,
         data,
         {
           withCredentials: true,
