@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import React, { memo } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, X } from "lucide-react";
 import { ptBR } from "date-fns/locale";
@@ -60,7 +60,7 @@ export default function FilterDropdown({
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !startDate && "text-muted-foreground",
+                      !startDate && "text-muted-foreground"
                     )}
                   >
                     {startDate ? (
@@ -87,7 +87,7 @@ export default function FilterDropdown({
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !endDate && "text-muted-foreground",
+                      !endDate && "text-muted-foreground"
                     )}
                   >
                     {endDate ? format(endDate, "dd/MM/yyyy") : <span>Até</span>}

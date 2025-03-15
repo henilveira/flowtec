@@ -10,7 +10,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { useListContabilidades } from "@/hooks/useListContabilidade";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import LoadingAnimation from "@/components/ui/loading";
@@ -26,7 +26,7 @@ const StatusBadge = ({ status }: { status: AtividadeStatus }) => {
   return <Badge className={`${color}`}>{status}</Badge>;
 };
 
-const TableContabilidades = () => {
+const TableContabilidades = memo(() => {
   const [page, setPage] = useState(1);
   const { companies, totalPages, isLoading, isError } =
     useListContabilidades(page);
@@ -97,6 +97,7 @@ const TableContabilidades = () => {
       </div>
     </div>
   );
-};
+});
+TableContabilidades.displayName = 'TableContabilidades';
 
 export default TableContabilidades;

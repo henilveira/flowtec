@@ -1,7 +1,7 @@
 "use client";
 import { Loader2 } from "lucide-react";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useCallback, useState, useEffect, memo } from "react";
 import { Copy, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ import {
 } from "@/hooks/useSocietario";
 import { SelectContabilidade, useContabilidade } from "./select-contabilidade";
 
-export function Requisicao() {
+export const Requisicao = memo(function Requisicao() {
   const { novoRegistro, isLoading, processId, errorRegistro, errorUpdate } =
     useSocietarioActions();
   const { mutate } = useProcessosByEtapas();
@@ -49,66 +49,142 @@ export function Requisicao() {
   const [isOpen, setIsOpen] = useState(false);
   const [currentFormLink, setCurrentFormLink] = useState<string>("");
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setShowFormLink(false);
     setSelectedTipoProcesso("");
     setNomeCard("");
     setCurrentFormLink("");
-  };
+  }, []);
 
   useEffect(() => {
     if (processId) {
       setCurrentFormLink(
-        `http://localhost:3000/formulario/abertura?id=${processId}`,
+        `http://localhost:3000/formulario/abertura?id=${processId}`
       );
     }
   }, [processId]);
 
-  const copyToClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    navigator.clipboard.writeText(currentFormLink).then(() => {
-      toast.success("Link copiado para a área de transferência!", {
-        description: "Este link ficará salvo no card, não se preocupe.",
+  const copyToClipboard = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      navigator.clipboard.writeText(currentFormLink).then(() => {
+        toast.success("Link copiado para a área de transferência!", {
+          description: "Este link ficará salvo no card, não se preocupe.",
+        });
       });
-    });
-  };
+    },
+    [currentFormLink]
+  );
 
-  const handleRequest = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleRequest = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
 
-    try {
-      await novoRegistro(
-        nomeCard,
-        selectedCompany,
-        selectedTipoProcesso,
-        "e798715d-460e-410a-820a-8c4b6ce4ab4e",
-      );
-      setShowFormLink(true);
-      toast.success("Processo criado com sucesso!", {
-        description: "Espere alguns segundos para carregar seu novo card...",
-      });
-      setTimeout(() => {
-        mutate();
-      }, 2000);
-    } catch (errorRegistro) {
-      toast.error("Erro ao criar processo", {
-        description: "Houve algum erro ao criar seu novo processo.",
-      });
-    }
-  };
+      try {
+        await novoRegistro(
+          nomeCard,
+          selectedCompany,
+          selectedTipoProcesso,
+          "e798715d-460e-410a-820a-8c4b6ce4ab4e"
+        );
+        setShowFormLink(true);
+        toast.success("Processo criado com sucesso!", {
+          description: "Espere alguns segundos para carregar seu novo card...",
+        });
+        setTimeout(() => {
+          mutate();
+        }, 2000);
+      } catch (errorRegistro) {
+        toast.error("Erro ao criar processo", {
+          description: "Houve algum erro ao criar seu novo processo.",
+        });
+      }
+    },
+    [nomeCard, selectedCompany, selectedTipoProcesso, novoRegistro, mutate]
+  );
+
+  const handleValueChange = useCallback((value: string) => {
+    setSelectedTipoProcesso(value);
+  }, []);
+
+  const getDescricaoSimplificada = useCallback((descricao: string) => {
+    if (descricao === "Abertura de empresa") return "Abertura";
+    if (descricao === "Alteração contratual com regin") return "Alteração";
+    if (descricao === "Alteração contratual sem regin/baixa") return "Baixa";
+    return descricao;
+  }, []);
+
+  const tabsTriggers = useMemo(
+    () =>
+      tipoProcessos.map((processo) => (
+        <TabsTrigger key={processo.id} value={processo.id} className="w-full">
+          {getDescricaoSimplificada(processo.descricao)}
+        </TabsTrigger>
+      )),
+    [tipoProcessos, getDescricaoSimplificada]
+  );
+
+  const tabsContents = useMemo(
+    () =>
+      tipoProcessos.map((processo) => (
+        <TabsContent key={processo.id} value={processo.id}>
+          <div className="flex justify-center items-start gap-2">
+            {processo.descricao === "Alteração contratual com regin" && (
+              <div className="items-start flex flex-col gap-2 w-full">
+                <Label htmlFor="Contabilidade" className="text-right">
+                  Com ou sem regin?
+                </Label>
+                <Select
+                  onValueChange={setSelectedTipoProcesso}
+                  value={selectedTipoProcesso}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione a opção" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="3d9a0a72-e041-44f2-be47-1c8a692b51e3">
+                        Com Regin
+                      </SelectItem>
+                      <SelectItem value="4bdd1186-ccb5-489f-8548-80eb2db1720e">
+                        Sem Regin
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+      )),
+    [tipoProcessos, selectedTipoProcesso]
+  );
+
+  const handleOnOpenChange = useCallback(
+    (open: boolean) => {
+      setIsOpen(open);
+      if (!open) {
+        resetForm();
+      }
+    },
+    [resetForm]
+  );
+
+  const openDialog = useCallback(() => {
+    setIsOpen(true);
+  }, []);
+
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setNomeCard(e.target.value);
+    },
+    []
+  );
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(open) => {
-        setIsOpen(open);
-        if (!open) {
-          resetForm();
-        }
-      }}
-    >
+    <Dialog open={isOpen} onOpenChange={handleOnOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="flowtec" onClick={() => setIsOpen(true)}>
+        <Button variant="flowtec" onClick={openDialog}>
           <Plus className="mr-2 h-5 w-5" /> Abrir requisição
         </Button>
       </DialogTrigger>
@@ -123,63 +199,12 @@ export function Requisicao() {
         <form onSubmit={handleRequest}>
           <Tabs
             defaultValue="Abertura de empresa"
-            onValueChange={setSelectedTipoProcesso}
+            onValueChange={handleValueChange}
             className="w-full"
           >
-            <TabsList className="w-full">
-              {tipoProcessos.map((processo) => {
-                const getDescricaoSimplificada = (descricao: string) => {
-                  if (descricao === "Abertura de empresa") return "Abertura";
-                  if (descricao === "Alteração contratual com regin")
-                    return "Alteração";
-                  if (descricao === "Alteração contratual sem regin/baixa")
-                    return "Baixa";
-                  return descricao;
-                };
+            <TabsList className="w-full">{tabsTriggers}</TabsList>
 
-                return (
-                  <TabsTrigger
-                    key={processo.id}
-                    value={processo.id}
-                    className="w-full"
-                  >
-                    {getDescricaoSimplificada(processo.descricao)}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-
-            {tipoProcessos.map((processo) => (
-              <TabsContent key={processo.id} value={processo.id}>
-                <div className="flex justify-center items-start gap-2">
-                  {processo.descricao === "Alteração contratual com regin" && (
-                    <div className="items-start flex flex-col gap-2 w-full">
-                      <Label htmlFor="Contabilidade" className="text-right">
-                        Com ou sem regin?
-                      </Label>
-                      <Select
-                        onValueChange={setSelectedTipoProcesso}
-                        value={selectedTipoProcesso}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Selecione a opção" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value="3d9a0a72-e041-44f2-be47-1c8a692b51e3">
-                              Com Regin
-                            </SelectItem>
-                            <SelectItem value="4bdd1186-ccb5-489f-8548-80eb2db1720e">
-                              Sem Regin
-                            </SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-            ))}
+            {tabsContents}
           </Tabs>
 
           <div className="grid gap-4 py-2">
@@ -209,7 +234,7 @@ export function Requisicao() {
                 id="name"
                 placeholder="Empresa de Pedro"
                 value={nomeCard}
-                onChange={(e) => setNomeCard(e.target.value)}
+                onChange={handleNameChange}
                 className="w-full"
               />
             </div>
@@ -263,4 +288,4 @@ export function Requisicao() {
       </DialogContent>
     </Dialog>
   );
-}
+});

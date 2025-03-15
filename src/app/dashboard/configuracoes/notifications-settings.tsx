@@ -1,11 +1,18 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import React, { memo } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
-export default function NotificationSettings() {
+const NotificationSettings = memo(function NotificationSettings() {
   return (
     <Card>
       <CardHeader>
@@ -28,12 +35,12 @@ export default function NotificationSettings() {
         </div>
         <Separator />
         <div className="flex items-center justify-between">
-          <Label htmlFor="account-activity">
-            Notificar minhas atividades
-          </Label>
+          <Label htmlFor="account-activity">Notificar minhas atividades</Label>
           <Switch id="account-activity" />
         </div>
       </CardContent>
     </Card>
   );
-}
+});
+
+export default NotificationSettings;

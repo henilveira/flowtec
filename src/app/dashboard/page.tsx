@@ -8,8 +8,11 @@ import RecentRequests from "./requisicoes-recentes";
 import { Piechart2 } from "./piechart-2";
 import { Piechart1 } from "./piechart-1";
 import { Barchart1 } from "./barchart-1";
+import { useMemo } from "react";
 
 export default function Painel() {
+  const memoizedRecentRequests = useMemo(() => <RecentRequests />, []);
+
   return (
     <div className="p-6">
       <Title titulo="Dashboard">
@@ -29,7 +32,7 @@ export default function Painel() {
           <Piechart2 />
         </div>
         <div className="grid gap-6 md:grid-cols-2">
-          <RecentRequests />
+          {memoizedRecentRequests}
           <Barchart1 />
         </div>
       </div>

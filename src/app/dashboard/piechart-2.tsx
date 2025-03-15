@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { TrendingUp } from 'lucide-react'
-import { Label, Pie, PieChart } from "recharts"
+import React, { memo } from "react";
+import { TrendingUp } from "lucide-react";
+import { Label, Pie, PieChart } from "recharts";
 
 import {
   Card,
@@ -11,18 +11,18 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/components/ui/chart";
 
 const chartData = [
   { browser: "Pausados", visitors: 10, fill: "url(#paused-gradient)" },
   { browser: "Suspensos", visitors: 20, fill: "url(#suspended-gradient)" },
-]
+];
 
 const chartConfig = {
   visitors: {
@@ -36,12 +36,12 @@ const chartConfig = {
     label: "Suspensos",
     color: "url(#suspended-gradient)",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
-export function Piechart2() {
+export const Piechart2 = memo(function Piechart2() {
   const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0)
-  }, [])
+    return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
+  }, []);
 
   return (
     <Card className="flex flex-col">
@@ -62,7 +62,13 @@ export function Piechart2() {
                 <stop offset="100%" stopColor="#ff9800" /> {/* Amarelo */}
               </linearGradient>
               {/* Gradiente para "Suspensos" */}
-              <linearGradient id="suspended-gradient" x1="0" y1="0" x2="1" y2="1">
+              <linearGradient
+                id="suspended-gradient"
+                x1="0"
+                y1="0"
+                x2="1"
+                y2="1"
+              >
                 <stop offset="0%" stopColor="#4caf50" /> {/* Verde */}
                 <stop offset="100%" stopColor="#8bc34a" /> {/* Verde Claro */}
               </linearGradient>
@@ -103,7 +109,7 @@ export function Piechart2() {
                           Processos
                         </tspan>
                       </text>
-                    )
+                    );
                   }
                 }}
               />
@@ -120,5 +126,5 @@ export function Piechart2() {
         </div>
       </CardFooter>
     </Card>
-  )
-}
+  );
+});

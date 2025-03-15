@@ -37,19 +37,7 @@ export default function Login() {
           {/* Form */}
           <LoginForm />
 
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm"></div>
-          </div>
 
-          {/* Google login button */}
-          <Button variant="outline" className="w-full">
-            <FaGoogle className="mr-2" />
-            Google
-          </Button>
         </motion.div>
       </div>
     </AuroraBackground>
