@@ -27,6 +27,8 @@ import { Separator } from "@/components/ui/separator";
 import { usePathname } from "next/navigation";
 import { NavUser } from "@/components/nav-user";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import ProtectedRoute from "@/routes/ProtectRoutes";
+import LoadingSlider from "@/components/loading-slider";
 
 export default function DashboardLayout({
   children,
@@ -34,63 +36,66 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ContabilidadeProvider>
-      <EtapaProvider>
-        <ThemeProvider attribute="class" defaultTheme="system">
-          <SidebarProvider>
-            {" "}
-            {/* Adicione o SidebarProvider aqui */}
-            <div className="flex h-screen w-screen overflow-hidden">
-              <nav className="hidden lg:flex w-64 flex-shrink-0 flex-col border-r bg-background">
-                <div className="p-6">
-                  <Logo />
-                </div>
-                <div className="flex-1">
-                  <Sidebar />
-                </div>
-                <Separator />
-                <div className="p-4">
-                  <NavUser />
-                </div>
-              </nav>
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <header className="lg:hidden flex h-14 items-center border-b bg-background px-6 flex-shrink-0">
-                  <Sheet>
-                    <SheetTrigger asChild>
-                      <Button variant="outline" size="icon">
-                        <PanelLeft className="h-5 w-5" />
-                        <span className="sr-only">Toggle menu</span>
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent
-                      side="left"
-                      className="w-[80%] sm:w-[350px] p-0"
-                    >
-                      <div className="p-6">
-                        <Logo />
-                      </div>
-                      <div className="h-[calc(100vh-8rem)]">
-                        <Sidebar />
-                      </div>
-                      <div className="absolute bottom-0 left-0 right-0">
-                        <Separator />
-                        <div className="p-4">
-                          <NavUser />
+    <ProtectedRoute>
+      <ContabilidadeProvider>
+        <EtapaProvider>
+          <LoadingSlider />
+          <ThemeProvider attribute="class" defaultTheme="system">
+            <SidebarProvider>
+              {" "}
+              {/* Adicione o SidebarProvider aqui */}
+              <div className="flex h-screen w-screen overflow-hidden">
+                <nav className="hidden lg:flex w-64 flex-shrink-0 flex-col border-r bg-background">
+                  <div className="p-6">
+                    <Logo />
+                  </div>
+                  <div className="flex-1">
+                    <Sidebar />
+                  </div>
+                  <Separator />
+                  <div className="p-4">
+                    <NavUser />
+                  </div>
+                </nav>
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  <header className="lg:hidden flex h-14 items-center border-b bg-background px-6 flex-shrink-0">
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button variant="outline" size="icon">
+                          <PanelLeft className="h-5 w-5" />
+                          <span className="sr-only">Toggle menu</span>
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent
+                        side="left"
+                        className="w-[80%] sm:w-[350px] p-0"
+                      >
+                        <div className="p-6">
+                          <Logo />
                         </div>
-                      </div>
-                    </SheetContent>
-                  </Sheet>
-                </header>
-                <main className="flex-1 overflow-auto">
-                  {children}
-                  <Toaster />
-                </main>
+                        <div className="h-[calc(100vh-8rem)]">
+                          <Sidebar />
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0">
+                          <Separator />
+                          <div className="p-4">
+                            <NavUser />
+                          </div>
+                        </div>
+                      </SheetContent>
+                    </Sheet>
+                  </header>
+                  <main className="flex-1 overflow-auto">
+                    {children}
+                    <Toaster />
+                  </main>
+                </div>
               </div>
-            </div>
-          </SidebarProvider>
-        </ThemeProvider>
-      </EtapaProvider>
-    </ContabilidadeProvider>
+            </SidebarProvider>
+          </ThemeProvider>
+        </EtapaProvider>
+      </ContabilidadeProvider>
+    </ProtectedRoute>
   );
 }
 
