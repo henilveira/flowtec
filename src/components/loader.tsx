@@ -65,11 +65,6 @@ const FlowtecAuthLoader = ({
           <div className="mt-2 text-xs text-zinc-400">{message}</div>
         </div>
         
-        {/* Progress bar */}
-        <div className="relative w-full h-1 bg-white rounded-full overflow-hidden">
-          <div className="absolute top-0 h-full w-1/2 bg-gradient-to-r from-blue-500 to-green-400 rounded-full animate-pulse"></div>
-        </div>
-        
         {/* Secure badge */}
         {showSecureBadge && (
           <div className="flex items-center justify-center mt-6 text-xs text-zinc-500 gap-2">

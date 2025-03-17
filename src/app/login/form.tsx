@@ -8,7 +8,7 @@ import { useLogin } from "@/hooks/useLogin";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import FlowtecAuthLoader from "./loader";
+import FlowtecAuthLoader from "../../components/loader";
 
 export default function LoginForm() {
   const { login, isLoading, error } = useLogin();
@@ -72,7 +72,6 @@ export default function LoginForm() {
       >
         {isLoading ? (
           <>
-
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Entrando...
           </>
