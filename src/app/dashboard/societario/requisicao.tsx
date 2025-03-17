@@ -85,7 +85,8 @@ export const Requisicao = memo(function Requisicao() {
           nomeCard,
           selectedCompany,
           selectedTipoProcesso,
-          "a0f5c0af-cdcd-4d6f-8fa3-40448ff62a23"
+          "d2ddd5ad-a82b-4335-9d6a-1cc797563930"
+          // "e798715d-460e-410a-820a-8c4b6ce4ab4e"
         );
         setShowFormLink(true);
         toast.success("Processo criado com sucesso!", {
@@ -143,10 +144,10 @@ export const Requisicao = memo(function Requisicao() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="3d9a0a72-e041-44f2-be47-1c8a692b51e3">
+                      <SelectItem value={tipoProcessos[1].id || ""}>
                         Com Regin
                       </SelectItem>
-                      <SelectItem value="4bdd1186-ccb5-489f-8548-80eb2db1720e">
+                      <SelectItem value={tipoProcessos[2].id || ""}>
                         Sem Regin
                       </SelectItem>
                     </SelectGroup>
