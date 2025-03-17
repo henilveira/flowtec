@@ -1,7 +1,14 @@
 "use client";
 import { Loader2 } from "lucide-react";
 
-import { useMemo, useCallback, useState, useEffect, memo } from "react";
+import {
+  useMemo,
+  useCallback,
+  useState,
+  useEffect,
+  memo,
+  Suspense,
+} from "react";
 import { Copy, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -35,13 +42,16 @@ import {
   useSocietarioActions,
 } from "@/hooks/useSocietario";
 import { SelectContabilidade, useContabilidade } from "./select-contabilidade";
+import { useRouter } from "next/navigation";
 
-export const Requisicao = memo(function Requisicao() {
+// Component wrapped with Suspense to handle potential useSearchParams() usage
+function RequisicaoInner() {
   const { novoRegistro, isLoading, processId, errorRegistro, errorUpdate } =
     useSocietarioActions();
   const { mutate } = useProcessosByEtapas();
   const { selectedCompany } = useContabilidade();
   const { tipoProcessos } = useListTipoProcessos();
+  const router = useRouter();
 
   const [showFormLink, setShowFormLink] = useState(false);
   const [selectedTipoProcesso, setSelectedTipoProcesso] = useState("");
@@ -95,6 +105,11 @@ export const Requisicao = memo(function Requisicao() {
         setTimeout(() => {
           mutate();
         }, 2000);
+
+        // Redirect option if needed
+        // if (processId) {
+        //   router.push(`/formulario/abertura?id=${processId}`);
+        // }
       } catch (errorRegistro) {
         toast.error("Erro ao criar processo", {
           description: "Houve algum erro ao criar seu novo processo.",
@@ -288,5 +303,21 @@ export const Requisicao = memo(function Requisicao() {
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// Use Suspense boundary for the component that might use useSearchParams
+export const Requisicao = memo(function Requisicao() {
+  return (
+    <Suspense
+      fallback={
+        <Button variant="flowtec" disabled>
+          <Plus className="mr-2 h-4 w-4" />
+          Carregando...
+        </Button>
+      }
+    >
+      <RequisicaoInner />
+    </Suspense>
   );
 });

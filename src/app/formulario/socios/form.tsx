@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import InputMask from "react-input-mask";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -31,7 +31,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const PartnerForm = () => {
+// Inner component that uses useSearchParams
+function PartnerFormInner() {
   const [socios, setSocios] = useState<Socio[]>([
     {
       nome: "",
@@ -82,7 +83,7 @@ const PartnerForm = () => {
         router.push("/formulario/abertura");
       }
     }, 1000);
-    
+
     return () => clearTimeout(timer);
   }, [formId, urlId, router]);
 
@@ -184,8 +185,8 @@ const PartnerForm = () => {
     }
 
     if (!formId && !urlId) {
-      toast.error("ID do formulário não encontrado", { 
-        description: "Volte para a etapa anterior e tente novamente" 
+      toast.error("ID do formulário não encontrado", {
+        description: "Volte para a etapa anterior e tente novamente",
       });
       return;
     }
@@ -232,8 +233,8 @@ const PartnerForm = () => {
       await criarSocios(formDataToSubmit);
       toast.success("Sócios cadastrados com sucesso!");
       setShowConfirmDialog(false);
-      
-      router.push(`/formulario/finalizado${formId ? `?id=${formId}` : ''}`);
+
+      router.push(`/formulario/finalizado${formId ? `?id=${formId}` : ""}`);
     } catch (error) {
       toast.error("Erro ao cadastrar sócios. Por favor, tente novamente.");
       console.error(error);
@@ -775,6 +776,15 @@ const PartnerForm = () => {
         </AlertDialogContent>
       </AlertDialog>
     </form>
+  );
+}
+
+// Main component with Suspense
+const PartnerForm = () => {
+  return (
+    <Suspense fallback={<div>Carregando formulário de sócios...</div>}>
+      <PartnerFormInner />
+    </Suspense>
   );
 };
 

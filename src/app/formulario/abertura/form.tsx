@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
@@ -34,7 +34,8 @@ import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { useFormContext } from "@/contexts/form-context";
 
-const FormularioAbertura = () => {
+// Separate component that uses useSearchParams
+function FormularioAberturaInner() {
   const router = useRouter();
   const { criarAbertura, isLoading, error } = useFormActions();
   const searchParams = useSearchParams();
@@ -198,6 +199,7 @@ const FormularioAbertura = () => {
       });
     }
   };
+
   return (
     <form
       className="mt-8 space-y-8 bg-white p-4 rounded-lg max-w-2xl mx-auto"
@@ -829,6 +831,15 @@ const FormularioAbertura = () => {
         </AlertDialogContent>
       </AlertDialog>
     </form>
+  );
+}
+
+// Main component with Suspense
+const FormularioAbertura = () => {
+  return (
+    <Suspense fallback={<div>Carregando formulário...</div>}>
+      <FormularioAberturaInner />
+    </Suspense>
   );
 };
 

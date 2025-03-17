@@ -1,11 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useFormById } from "@/hooks/useForm";
 import InputMask from "react-input-mask";
 
 import { toast } from "sonner"; // ou sua biblioteca de toast preferida
-import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import FieldWithTooltip from "../tooltip";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,8 +23,11 @@ import { estados } from "../estados";
 import { Checkbox } from "@/components/ui/checkbox";
 import { orgaosExpedidores } from "../orgaos-expedidores";
 
-const FormularioAbertura = () => {
+// Inner component that uses useSearchParams
+function FormularioAberturaInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
 
   // ABERTURA
   const [nome1, setNome1] = useState("");
@@ -56,8 +58,6 @@ const FormularioAbertura = () => {
   const [ufProfissional, setUfProfissional] = useState("");
   const [areaResp, setAreaResp] = useState("");
 
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id"); //
   const { formulario, isError: error } = useFormById(id); // Hook retornando dados diretamente
 
   const [isEditing, setIsEditing] = useState(true);
@@ -102,10 +102,10 @@ const FormularioAbertura = () => {
       setAreaResp(formulario.info_adicionais?.area_resp || "");
       setNomeRespTecnico(formulario.info_adicionais?.nome_responsavel || "");
       setCarteiraProfissional(
-        formulario.info_adicionais?.nome_responsavel || "",
+        formulario.info_adicionais?.nome_responsavel || ""
       );
       setAtividadeRespTecnica(
-        formulario.info_adicionais?.resp_tecnica || false,
+        formulario.info_adicionais?.resp_tecnica || false
       );
     }
     setUfProfissional(formulario?.info_adicionais?.uf || "");
@@ -801,6 +801,15 @@ const FormularioAbertura = () => {
         </Button>
       </div>
     </form>
+  );
+}
+
+// Main component with Suspense
+const FormularioAbertura = () => {
+  return (
+    <Suspense fallback={<div>Carregando formulário...</div>}>
+      <FormularioAberturaInner />
+    </Suspense>
   );
 };
 

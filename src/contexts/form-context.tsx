@@ -5,6 +5,7 @@ import {
   useContext,
   useState,
   useEffect,
+  Suspense,
 } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -17,7 +18,8 @@ const FORM_ID_STORAGE_KEY = "flowtec_form_id";
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
-export function FormProvider({ children }: { children: ReactNode }) {
+// Inner component that uses useSearchParams inside Suspense
+function FormProviderInner({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
   const urlId = searchParams.get("id");
 
@@ -49,6 +51,15 @@ export function FormProvider({ children }: { children: ReactNode }) {
     <FormContext.Provider value={{ formId, setFormId }}>
       {children}
     </FormContext.Provider>
+  );
+}
+
+// Main provider component with Suspense
+export function FormProvider({ children }: { children: ReactNode }) {
+  return (
+    <Suspense fallback={<div>Loading form context...</div>}>
+      <FormProviderInner>{children}</FormProviderInner>
+    </Suspense>
   );
 }
 
