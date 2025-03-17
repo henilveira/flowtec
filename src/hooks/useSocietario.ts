@@ -115,7 +115,6 @@ interface UpdateProcessoRequest {
 
 // Funções de Ações Societárias
 export function useSocietarioActions() {
-  const API_URL = "http://127.0.0.1:8000/api";
   const [isLoading, setIsLoading] = useState(false);
   const [errorRegistro, setErrorRegistro] = useState<string | null>(null);
   const [errorUpdate, setErrorUpdate] = useState<string | null>(null);
@@ -164,8 +163,8 @@ export function useSocietarioActions() {
     setIsLoading(true);
 
     try {
-      const response = await axios.put(
-        `${API_URL}/societario/update-processo/`,
+      const response = await axiosInstance.put(
+        `/societario/update-processo/`,
         data,
         {
           withCredentials: true,
@@ -187,7 +186,7 @@ export function useSocietarioActions() {
   // Remover registro
   const remove = async (id: string) => {
     try {
-      await axios.delete(`${API_URL}/societario/${id}/`, {
+      await axiosInstance.delete(`/societario/${id}/`, {
         withCredentials: true, // Inclui os cookies de autenticação
       });
       return true;

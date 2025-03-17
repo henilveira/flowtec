@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { SlidersHorizontal, RotateCcw } from "lucide-react";
+import { SlidersHorizontal, RotateCcw, Search } from "lucide-react";
 import {
   useProcessosByEtapas,
   useProcessosById,
@@ -16,6 +16,8 @@ import FilterDropdown from "./filter";
 import { Requisicao } from "./requisicao";
 import { SkeletonColumn } from "@/components/skeleton-column";
 import { SkeletonSheet } from "@/components/skeleton-sheet";
+import { Input } from "@/components/ui/input";
+import { ProcessoPorEtapa, Processo } from "@/@types/Societario";
 
 export default function Societario() {
   const {
@@ -26,6 +28,7 @@ export default function Societario() {
   const { etapas } = useListEtapas();
   const [selectedProcesso, setSelectedProcesso] = useState<any | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const processoId = selectedProcesso?.id ?? null;
   const {
@@ -67,6 +70,21 @@ export default function Societario() {
     }
   }, [refetchProcessos]);
 
+  // Filter processes based on search query
+  const filteredProcessos = useMemo(() => {
+    if (!searchQuery.trim() || !processosCard) return processosCard;
+
+    const query = searchQuery.toLowerCase().trim();
+
+    // Create a new array with filtered processes while preserving the structure
+    return processosCard.map((etapa: ProcessoPorEtapa) => ({
+      ...etapa,
+      processos: etapa.processos.filter((processo: Processo) =>
+        processo.nome.toLowerCase().includes(query)
+      ),
+    }));
+  }, [processosCard, searchQuery]);
+
   const memoizedSkeletonColumns = useMemo(
     () => (
       <div className="px-5 flex space-x-6 w-max">
@@ -99,18 +117,34 @@ export default function Societario() {
     [atualizarProcessos, isRefreshing, isProcessosLoading]
   );
 
-  const memoizedButtonFilter = useMemo(
+  // const memoizedButtonFilter = useMemo(
+  //   () => (
+  //     <Button variant="outline" className="w-full sm:w-auto">
+  //       <FilterDropdown>
+  //         <span className="flex items-center justify-center">
+  //           <SlidersHorizontal className="mr-2 h-4 w-4" />
+  //           Filtrar
+  //         </span>
+  //       </FilterDropdown>
+  //     </Button>
+  //   ),
+  //   []
+  // );
+
+  const memoizedSearchBar = useMemo(
     () => (
-      <Button variant="outline" className="w-full sm:w-auto">
-        <FilterDropdown>
-          <span className="flex items-center justify-center">
-            <SlidersHorizontal className="mr-2 h-4 w-4" />
-            Filtrar
-          </span>
-        </FilterDropdown>
-      </Button>
+      <div className="relative flex-1 max-w-sm">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Pesquisar por nome..."
+          className="pl-8 w-full"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
     ),
-    []
+    [searchQuery]
   );
 
   return (
@@ -118,10 +152,13 @@ export default function Societario() {
       {/* Cabeçalho fixo */}
       <div className="flex-none p-6">
         <Title titulo="Societário">
-          <div className="flex flex-wrap gap-2">
-            {memoizedButtonRefresh}
-            {memoizedButtonFilter}
-            <Requisicao />
+          <div className="flex flex-col sm:flex-row gap-2 w-full">
+            {memoizedSearchBar}
+            <div className="flex flex-wrap gap-2">
+              {memoizedButtonRefresh}
+              {/* {memoizedButtonFilter} */}
+              <Requisicao />
+            </div>
           </div>
         </Title>
       </div>
@@ -140,7 +177,7 @@ export default function Societario() {
               </div>
             ) : (
               <KanbanColumns
-                processosCard={processosCard}
+                processosCard={filteredProcessos}
                 handleCardEdit={handleCardEdit}
                 selectedProcessoId={selectedProcesso?.id}
               />

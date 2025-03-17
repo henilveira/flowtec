@@ -86,13 +86,13 @@ export default function EditSheet({
   isLoading,
 }: EditSheetProps) {
   const [tarefasAtualizadas, setTarefasAtualizadas] = useState<Tarefa[]>(
-    tarefas.sort((a, b) => a.sequencia - b.sequencia),
+    tarefas.sort((a, b) => a.sequencia - b.sequencia)
   );
   const [isSaving, setIsSaving] = useState(false);
 
   const { updateProcesso } = useSocietarioActions();
-  const linkToForm = `http://localhost:3000/formulario/visualizar?id=${viewFormLink}`;
-  const formLink = `http://localhost:3000/formulario/abertura?id=${processo.id}`;
+  const linkToForm = `https://www.flowtec.dev/formulario/visualizar?id=${viewFormLink}`;
+  const formLink = `https://www.flowtec.dev/formulario/abertura?id=${processo.id}`;
 
   const copyToClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -105,18 +105,15 @@ export default function EditSheet({
 
   const handleTaskToggle = (id: string, concluida: boolean) => {
     // Group tasks by stage, ensuring task.etapa and task.etapa.id are defined
-    const stageTaskMap = tarefasAtualizadas.reduce(
-      (acc, task) => {
-        if (task.etapa && task.etapa.id) {
-          if (!acc[task.etapa.id]) {
-            acc[task.etapa.id] = [];
-          }
-          acc[task.etapa.id].push(task);
+    const stageTaskMap = tarefasAtualizadas.reduce((acc, task) => {
+      if (task.etapa && task.etapa.id) {
+        if (!acc[task.etapa.id]) {
+          acc[task.etapa.id] = [];
         }
-        return acc;
-      },
-      {} as { [stageId: string]: Tarefa[] },
-    );
+        acc[task.etapa.id].push(task);
+      }
+      return acc;
+    }, {} as { [stageId: string]: Tarefa[] });
 
     // Sort stages by ordem, including only stages with tasks
     const sortedStages = etapas
@@ -126,7 +123,7 @@ export default function EditSheet({
     // Sort tasks within each stage by sequencia
     sortedStages.forEach((stage) => {
       stageTaskMap[stage.id] = stageTaskMap[stage.id].sort(
-        (a, b) => a.sequencia - b.sequencia,
+        (a, b) => a.sequencia - b.sequencia
       );
     });
 
@@ -158,15 +155,15 @@ export default function EditSheet({
       // Uncheck only if it's the last checked task in its stage and no tasks in later stages are checked
       // Find all tasks in stages after the current stage
       const stagesAfterIndex = sortedStages.findIndex(
-        (s) => s.id === currentTask.etapa.id,
+        (s) => s.id === currentTask.etapa.id
       );
       const stagesAfter = sortedStages.slice(stagesAfterIndex + 1);
       const tasksAfterStage = stagesAfter.flatMap(
-        (stage) => stageTaskMap[stage.id] ?? [],
+        (stage) => stageTaskMap[stage.id] ?? []
       );
       if (tasksAfterStage.some((t) => t.concluida)) {
         toast(
-          "Você não pode desmarcar esta tarefa enquanto houver tarefas concluídas em etapas posteriores.",
+          "Você não pode desmarcar esta tarefa enquanto houver tarefas concluídas em etapas posteriores."
         );
         return;
       }
@@ -182,7 +179,7 @@ export default function EditSheet({
         tasksInStage.slice(taskStageIndex + 1).some((t) => t.concluida)
       ) {
         toast(
-          "Você não pode desmarcar esta tarefa enquanto houver tarefas concluídas posteriores na mesma etapa.",
+          "Você não pode desmarcar esta tarefa enquanto houver tarefas concluídas posteriores na mesma etapa."
         );
         return;
       }
@@ -190,7 +187,7 @@ export default function EditSheet({
 
     // Update the task status
     setTarefasAtualizadas((prevTarefas) =>
-      prevTarefas.map((t) => (t.id === id ? { ...t, concluida } : t)),
+      prevTarefas.map((t) => (t.id === id ? { ...t, concluida } : t))
     );
   };
 
@@ -202,7 +199,7 @@ export default function EditSheet({
         .filter(
           (tarefa) =>
             tarefa.concluida !==
-            tarefas.find((t) => t.id === tarefa.id)?.concluida,
+            tarefas.find((t) => t.id === tarefa.id)?.concluida
         )
         .map((tarefa) => ({
           tarefa_id: tarefa.id,
@@ -231,13 +228,13 @@ export default function EditSheet({
       } else {
         // Verifica se todas as tarefas da etapa atual foram concluídas
         const etapaAtual = etapas.find(
-          (etapa) => etapa.id === processo.etapa?.id,
+          (etapa) => etapa.id === processo.etapa?.id
         );
         const tarefasDaEtapaAtual = tarefasAtualizadas.filter(
-          (tarefa) => tarefa.etapa.id === processo.etapa?.id,
+          (tarefa) => tarefa.etapa.id === processo.etapa?.id
         );
         const todasTarefasConcluidas = tarefasDaEtapaAtual.every(
-          (tarefa) => tarefa.concluida,
+          (tarefa) => tarefa.concluida
         );
 
         // Encontra a próxima etapa apenas se todas as tarefas foram concluídas
@@ -390,6 +387,11 @@ export default function EditSheet({
                               className="flex items-center space-x-2"
                             >
                               <Checkbox
+                                className="
+                                  data-[state=checked]:bg-flowtech-gradient
+                                data-[state=checked]:text-white
+                                  data-[s tate=checked]:border-transparent
+                                "
                                 id={tarefa.id}
                                 checked={tarefa.concluida}
                                 onCheckedChange={(checked) =>
@@ -442,7 +444,7 @@ export default function EditSheet({
           </Button>
           <Button
             onClick={handleSave}
-            variant="default"
+            variant="flowtec"
             type="submit"
             disabled={isSaving}
           >

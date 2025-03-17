@@ -1,6 +1,5 @@
 import { Socio, Socios } from "@/@types/Formulario";
 import { useFormActions } from "@/hooks/useForm";
-import { useCep } from "@/hooks/viacep";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -30,7 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const PartnerForm = () => {
   const [socios, setSocios] = useState<Socio[]>([
@@ -61,15 +60,36 @@ const PartnerForm = () => {
   ]);
 
   const { criarSocios, isLoading, error } = useFormActions();
-  const { formId } = useFormContext();
+  const { formId, setFormId } = useFormContext();
+  const searchParams = useSearchParams();
+  const urlId = searchParams.get("id");
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
   const [formDataToSubmit, setFormDataToSubmit] = useState<Socios | null>(null);
   const router = useRouter();
 
+  useEffect(() => {
+    if (urlId && !formId) {
+      setFormId(urlId);
+    }
+  }, [urlId, formId, setFormId]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!formId && !urlId) {
+        toast.error("ID do formulário não encontrado", {
+          description: "Redirecionando para o início do formulário",
+        });
+        router.push("/formulario/abertura");
+      }
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [formId, urlId, router]);
+
   const handleSocioChange = (
     index: number,
     field: string,
-    value: string | boolean | number,
+    value: string | boolean | number
   ) => {
     const updatedSocios = [...socios];
     if (field.startsWith("endereco.")) {
@@ -89,34 +109,11 @@ const PartnerForm = () => {
 
   const handleCepChange = (
     index: number,
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const cep = event.target.value.replace(/\D/g, "");
     handleSocioChange(index, "endereco.cep", cep);
   };
-
-  const shouldFetchCep = socios[0]?.endereco.cep.length === 8;
-  const {
-    rua,
-    municipio,
-    uf,
-    bairro,
-    isLoading: isLoadingCep,
-  } = useCep(shouldFetchCep ? socios[0].endereco.cep : "");
-
-  useEffect(() => {
-    if (rua) {
-      const updatedSocios = [...socios];
-      updatedSocios[0].endereco = {
-        ...updatedSocios[0].endereco,
-        rua,
-        bairro,
-        municipio,
-        uf,
-      };
-      setSocios(updatedSocios);
-    }
-  }, [rua, bairro, municipio, uf, socios]); // Added socios to the dependency array
 
   const addSocio = () => {
     setSocios([
@@ -151,7 +148,7 @@ const PartnerForm = () => {
   const removeSocio = (index: number) => {
     if (socios.length > 1) {
       const updatedSocios = socios.filter(
-        (_, indexAtual) => indexAtual !== index,
+        (_, indexAtual) => indexAtual !== index
       );
       setSocios(updatedSocios);
     }
@@ -171,7 +168,7 @@ const PartnerForm = () => {
 
       if (socio.administrador && !socio.tipo_administrador) {
         toast.error(
-          "Tipo de administrador é obrigatório para sócios administradores",
+          "Tipo de administrador é obrigatório para sócios administradores"
         );
         return false;
       }
@@ -186,8 +183,15 @@ const PartnerForm = () => {
       return;
     }
 
+    if (!formId && !urlId) {
+      toast.error("ID do formulário não encontrado", { 
+        description: "Volte para a etapa anterior e tente novamente" 
+      });
+      return;
+    }
+
     const formData: Socios = {
-      empresa_id: formId,
+      empresa_id: formId || urlId,
       socios: socios.map((socio) => ({
         nome: socio.nome,
         nacionalidade: socio.nacionalidade,
@@ -228,7 +232,8 @@ const PartnerForm = () => {
       await criarSocios(formDataToSubmit);
       toast.success("Sócios cadastrados com sucesso!");
       setShowConfirmDialog(false);
-      router.push("/formulario/finalizado");
+      
+      router.push(`/formulario/finalizado${formId ? `?id=${formId}` : ''}`);
     } catch (error) {
       toast.error("Erro ao cadastrar sócios. Por favor, tente novamente.");
       console.error(error);
@@ -308,7 +313,7 @@ const PartnerForm = () => {
                   handleSocioChange(
                     index,
                     "data_nascimento",
-                    event.target.value,
+                    event.target.value
                   )
                 }
                 required
@@ -405,7 +410,7 @@ const PartnerForm = () => {
                   handleSocioChange(
                     index,
                     "cpf",
-                    event.target.value.replace(/\D/g, ""),
+                    event.target.value.replace(/\D/g, "")
                   )
                 }
                 placeholder="000.000.000-00"
@@ -510,7 +515,7 @@ const PartnerForm = () => {
                   handleSocioChange(
                     index,
                     "qtd_cotas",
-                    Number(event.target.value),
+                    Number(event.target.value)
                   )
                 }
                 min="0"
@@ -575,7 +580,6 @@ const PartnerForm = () => {
                       mask="99999-999"
                       value={socio.endereco.cep}
                       onChange={(event) => handleCepChange(index, event)}
-                      disabled={isLoading}
                       placeholder="00000-000"
                       required
                     >
@@ -587,9 +591,6 @@ const PartnerForm = () => {
                         />
                       )}
                     </InputMask>
-                    {isLoadingCep && (
-                      <Loader2 className="animate-spin h-4 w-4 absolute right-3 top-3" />
-                    )}
                   </div>
                 </div>
 
@@ -605,11 +606,10 @@ const PartnerForm = () => {
                       handleSocioChange(
                         index,
                         "endereco.rua",
-                        event.target.value,
+                        event.target.value
                       )
                     }
                     placeholder="Nome da rua"
-                    readOnly={isLoading}
                     required
                     className={cn(error && "border-red-500")}
                   />
@@ -628,7 +628,7 @@ const PartnerForm = () => {
                       handleSocioChange(
                         index,
                         "endereco.numero",
-                        Number(event.target.value),
+                        Number(event.target.value)
                       )
                     }
                     placeholder="Nº"
@@ -649,7 +649,7 @@ const PartnerForm = () => {
                       handleSocioChange(
                         index,
                         "endereco.complemento",
-                        event.target.value,
+                        event.target.value
                       )
                     }
                     placeholder="Apto, Sala, etc."
@@ -670,11 +670,10 @@ const PartnerForm = () => {
                       handleSocioChange(
                         index,
                         "endereco.bairro",
-                        event.target.value,
+                        event.target.value
                       )
                     }
                     placeholder="Bairro"
-                    readOnly={isLoading}
                     required
                     className={cn(error && "border-red-500")}
                   />
@@ -692,11 +691,10 @@ const PartnerForm = () => {
                       handleSocioChange(
                         index,
                         "endereco.municipio",
-                        event.target.value,
+                        event.target.value
                       )
                     }
                     placeholder="Cidade"
-                    readOnly={isLoading}
                     required
                     className={cn(error && "border-red-500")}
                   />
@@ -712,7 +710,6 @@ const PartnerForm = () => {
                     onValueChange={(value) =>
                       handleSocioChange(index, "endereco.uf", value)
                     }
-                    disabled={isLoading}
                     required
                   >
                     <SelectTrigger>

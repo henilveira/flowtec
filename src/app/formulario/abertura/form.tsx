@@ -32,9 +32,21 @@ import {
 import { useCep } from "@/hooks/viacep";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
+import { useFormContext } from "@/contexts/form-context";
+
 const FormularioAbertura = () => {
   const router = useRouter();
   const { criarAbertura, isLoading, error } = useFormActions();
+  const searchParams = useSearchParams();
+  const urlId = searchParams.get("id");
+  const { formId, setFormId } = useFormContext();
+
+  // Use the ID from context or URL
+  useEffect(() => {
+    if (urlId && !formId) {
+      setFormId(urlId);
+    }
+  }, [urlId, formId, setFormId]);
 
   // Estado para controlar o AlertDialog
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -69,9 +81,6 @@ const FormularioAbertura = () => {
   const [ufProfissional, setUfProfissional] = useState("");
   const [areaResp, setAreaResp] = useState("");
 
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id"); //
-
   const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const cep = e.target.value.replace(/\D/g, "");
     setCepEmpresa(cep);
@@ -99,7 +108,7 @@ const FormularioAbertura = () => {
   };
 
   const dadosFormulario: FormularioDados = {
-    processo_id: id,
+    processo_id: formId || urlId,
     opcoes_nome_empresa: [nome1, nome2, nome3],
     nome_fantasia: nomeFantasia,
     endereco: {
@@ -168,11 +177,18 @@ const FormularioAbertura = () => {
       const response = await criarAbertura(formData);
       console.log("Resposta:", response);
 
+      // Ensure we have the ID saved in context and localStorage
+      if (response.id) {
+        setFormId(response.id);
+      }
+
       toast.success("Dados enviados com sucesso!", {
         description: "Redirecionando para próxima etapa...",
         duration: 3000,
       });
-      router.push("/formulario/socios");
+
+      // Navigate to the next page, passing the ID in the URL for extra security
+      router.push(`/formulario/socios${formId ? `?id=${formId}` : ""}`);
 
       setShowConfirmDialog(false);
     } catch (err) {
@@ -209,7 +225,7 @@ const FormularioAbertura = () => {
                 disabled={isLoading}
                 required
                 className={cn(
-                  error && "border-red-500 focus-visible:ring-red-500",
+                  error && "border-red-500 focus-visible:ring-red-500"
                 )}
               />
               <Input
@@ -221,7 +237,7 @@ const FormularioAbertura = () => {
                 disabled={isLoading}
                 required
                 className={cn(
-                  error && "border-red-500 focus-visible:ring-red-500",
+                  error && "border-red-500 focus-visible:ring-red-500"
                 )}
               />
               <Input
@@ -233,7 +249,7 @@ const FormularioAbertura = () => {
                 disabled={isLoading}
                 required
                 className={cn(
-                  error && "border-red-500 focus-visible:ring-red-500",
+                  error && "border-red-500 focus-visible:ring-red-500"
                 )}
               />
             </div>
@@ -262,7 +278,7 @@ const FormularioAbertura = () => {
               disabled={isLoading}
               required
               className={cn(
-                error && "border-red-500 focus-visible:ring-red-500",
+                error && "border-red-500 focus-visible:ring-red-500"
               )}
             />
           </FieldWithTooltip>
@@ -281,7 +297,7 @@ const FormularioAbertura = () => {
                 {...inputProps}
                 id="cepempresa"
                 className={cn(
-                  error && "border-red-500 focus-visible:ring-red-500",
+                  error && "border-red-500 focus-visible:ring-red-500"
                 )}
               />
             )}
@@ -424,7 +440,7 @@ const FormularioAbertura = () => {
                 {...inputProps}
                 id="inscricaoimobiliaria"
                 className={cn(
-                  error && "border-red-500 focus-visible:ring-red-500",
+                  error && "border-red-500 focus-visible:ring-red-500"
                 )}
               />
             )}
@@ -503,7 +519,7 @@ const FormularioAbertura = () => {
                 {...inputProps}
                 id="telefoneEmpresa"
                 className={cn(
-                  error && "border-red-500 focus-visible:ring-red-500",
+                  error && "border-red-500 focus-visible:ring-red-500"
                 )}
               />
             )}
@@ -568,7 +584,7 @@ const FormularioAbertura = () => {
               disabled={isLoading}
               required
               className={cn(
-                error && "border-red-500 focus-visible:ring-red-500",
+                error && "border-red-500 focus-visible:ring-red-500"
               )}
             />
           </div>
@@ -677,7 +693,7 @@ const FormularioAbertura = () => {
                   disabled={isLoading}
                   required
                   className={cn(
-                    error && "border-red-500 focus-visible:ring-red-500",
+                    error && "border-red-500 focus-visible:ring-red-500"
                   )}
                 />
               </div>
@@ -696,7 +712,7 @@ const FormularioAbertura = () => {
                   disabled={isLoading}
                   required
                   className={cn(
-                    error && "border-red-500 focus-visible:ring-red-500",
+                    error && "border-red-500 focus-visible:ring-red-500"
                   )}
                 />
               </div>
@@ -769,7 +785,7 @@ const FormularioAbertura = () => {
                   disabled={isLoading}
                   required
                   className={cn(
-                    error && "border-red-500 focus-visible:ring-red-500",
+                    error && "border-red-500 focus-visible:ring-red-500"
                   )}
                 />
               </div>
