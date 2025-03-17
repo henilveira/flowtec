@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import InputMask from "react-input-mask";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -18,7 +18,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
 import { estados } from "../estados";
 import { orgaosExpedidores } from "../orgaos-expedidores";
-import { useFormContext } from "@/contexts/form-context";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,10 +28,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { getStoredFormId, storeFormId } from "@/lib/form-storage";
 
-// Inner component that uses useSearchParams
-function PartnerFormInner() {
+const PartnerForm = () => {
   const [socios, setSocios] = useState<Socio[]>([
     {
       nome: "",
@@ -61,31 +60,24 @@ function PartnerFormInner() {
   ]);
 
   const { criarSocios, isLoading, error } = useFormActions();
-  const { formId, setFormId } = useFormContext();
-  const searchParams = useSearchParams();
-  const urlId = searchParams.get("id");
+  const [formId, setFormId] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
   const [formDataToSubmit, setFormDataToSubmit] = useState<Socios | null>(null);
   const router = useRouter();
 
+  // Load form ID from localStorage on component mount
   useEffect(() => {
-    if (urlId && !formId) {
-      setFormId(urlId);
+    const savedId = getStoredFormId();
+    if (savedId) {
+      setFormId(savedId);
+    } else {
+      // Redirect if no ID is found
+      toast.error("ID do formulário não encontrado", {
+        description: "Redirecionando para o início do formulário",
+      });
+      router.push("/formulario/abertura");
     }
-  }, [urlId, formId, setFormId]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!formId && !urlId) {
-        toast.error("ID do formulário não encontrado", {
-          description: "Redirecionando para o início do formulário",
-        });
-        router.push("/formulario/abertura");
-      }
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [formId, urlId, router]);
+  }, [router]);
 
   const handleSocioChange = (
     index: number,
@@ -184,7 +176,7 @@ function PartnerFormInner() {
       return;
     }
 
-    if (!formId && !urlId) {
+    if (!formId) {
       toast.error("ID do formulário não encontrado", {
         description: "Volte para a etapa anterior e tente novamente",
       });
@@ -192,7 +184,7 @@ function PartnerFormInner() {
     }
 
     const formData: Socios = {
-      empresa_id: formId || urlId,
+      empresa_id: formId,
       socios: socios.map((socio) => ({
         nome: socio.nome,
         nacionalidade: socio.nacionalidade,
@@ -234,7 +226,8 @@ function PartnerFormInner() {
       toast.success("Sócios cadastrados com sucesso!");
       setShowConfirmDialog(false);
 
-      router.push(`/formulario/finalizado${formId ? `?id=${formId}` : ""}`);
+      // Navigate to the completion page
+      router.push("/formulario/finalizado");
     } catch (error) {
       toast.error("Erro ao cadastrar sócios. Por favor, tente novamente.");
       console.error(error);
@@ -776,15 +769,6 @@ function PartnerFormInner() {
         </AlertDialogContent>
       </AlertDialog>
     </form>
-  );
-}
-
-// Main component with Suspense
-const PartnerForm = () => {
-  return (
-    <Suspense fallback={<div>Carregando formulário de sócios...</div>}>
-      <PartnerFormInner />
-    </Suspense>
   );
 };
 

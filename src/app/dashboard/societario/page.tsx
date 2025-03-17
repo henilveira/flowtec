@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, Suspense } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { SlidersHorizontal, RotateCcw, Search } from "lucide-react";
@@ -19,8 +19,7 @@ import { SkeletonSheet } from "@/components/skeleton-sheet";
 import { Input } from "@/components/ui/input";
 import { ProcessoPorEtapa, Processo } from "@/@types/Societario";
 
-// Check if this component uses useSearchParams()
-function SocietarioContent() {
+export default function Societario() {
   const {
     processos: processosCard,
     mutate: refetchProcessos,
@@ -207,14 +206,5 @@ function SocietarioContent() {
         ) : null
       ) : null}
     </div>
-  );
-}
-
-// Main component with Suspense in case it's needed for useSearchParams or other hooks
-export default function Societario() {
-  return (
-    <Suspense fallback={<div>Carregando quadro societário...</div>}>
-      <SocietarioContent />
-    </Suspense>
   );
 }

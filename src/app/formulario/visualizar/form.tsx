@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { useFormById } from "@/hooks/useForm";
 import InputMask from "react-input-mask";
 
 import { toast } from "sonner"; // ou sua biblioteca de toast preferida
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import FieldWithTooltip from "../tooltip";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,12 +22,10 @@ import { Pencil } from "lucide-react";
 import { estados } from "../estados";
 import { Checkbox } from "@/components/ui/checkbox";
 import { orgaosExpedidores } from "../orgaos-expedidores";
+import { getStoredFormId } from "@/lib/form-storage";
 
-// Inner component that uses useSearchParams
-function FormularioAberturaInner() {
+const FormularioAbertura = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
 
   // ABERTURA
   const [nome1, setNome1] = useState("");
@@ -58,8 +56,22 @@ function FormularioAberturaInner() {
   const [ufProfissional, setUfProfissional] = useState("");
   const [areaResp, setAreaResp] = useState("");
 
-  const { formulario, isError: error } = useFormById(id); // Hook retornando dados diretamente
+  // Get form ID from localStorage
+  const [formId, setFormId] = useState<string | null>(null);
 
+  useEffect(() => {
+    const savedId = getStoredFormId();
+    if (savedId) {
+      setFormId(savedId);
+    } else {
+      toast.error("ID do formulário não encontrado", {
+        description: "Redirecionando para o início do formulário",
+      });
+      router.push("/formulario/abertura");
+    }
+  }, [router]);
+
+  const { formulario, isError: error } = useFormById(formId); // Use form ID from state
   const [isEditing, setIsEditing] = useState(true);
 
   const handleEditing = () => {
@@ -801,15 +813,6 @@ function FormularioAberturaInner() {
         </Button>
       </div>
     </form>
-  );
-}
-
-// Main component with Suspense
-const FormularioAbertura = () => {
-  return (
-    <Suspense fallback={<div>Carregando formulário...</div>}>
-      <FormularioAberturaInner />
-    </Suspense>
   );
 };
 

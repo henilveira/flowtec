@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import FormularioAbertura from "./form";
 import Logo from "@/components/logo";
-import { Suspense } from "react";
 
 export default function Abertura() {
   return (
@@ -32,9 +31,7 @@ export default function Abertura() {
         </div>
 
         {/* Form */}
-        <Suspense fallback={<div>Carregando...</div>}>
-          <FormularioAbertura />
-        </Suspense>
+        <FormularioAbertura />
       </motion.div>
     </div>
   );

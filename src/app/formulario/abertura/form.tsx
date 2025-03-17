@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
@@ -31,23 +31,25 @@ import {
 } from "@/components/ui/select";
 import { useCep } from "@/hooks/viacep";
 import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
-import { useFormContext } from "@/contexts/form-context";
+import { getStoredFormId, storeFormId } from "@/lib/form-storage";
 
-// Separate component that uses useSearchParams
-function FormularioAberturaInner() {
+// Storage key constant
+const FORM_ID_STORAGE_KEY = "flowtec_form_id";
+
+const FormularioAbertura = () => {
   const router = useRouter();
   const { criarAbertura, isLoading, error } = useFormActions();
-  const searchParams = useSearchParams();
-  const urlId = searchParams.get("id");
-  const { formId, setFormId } = useFormContext();
 
-  // Use the ID from context or URL
+  // Local state for form ID
+  const [formId, setFormId] = useState<string | null>(null);
+
+  // Get saved form ID on mount
   useEffect(() => {
-    if (urlId && !formId) {
-      setFormId(urlId);
+    const savedId = getStoredFormId();
+    if (savedId) {
+      setFormId(savedId);
     }
-  }, [urlId, formId, setFormId]);
+  }, []);
 
   // Estado para controlar o AlertDialog
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -109,7 +111,7 @@ function FormularioAberturaInner() {
   };
 
   const dadosFormulario: FormularioDados = {
-    processo_id: formId || urlId,
+    processo_id: formId,
     opcoes_nome_empresa: [nome1, nome2, nome3],
     nome_fantasia: nomeFantasia,
     endereco: {
@@ -178,8 +180,9 @@ function FormularioAberturaInner() {
       const response = await criarAbertura(formData);
       console.log("Resposta:", response);
 
-      // Ensure we have the ID saved in context and localStorage
+      // Save ID to localStorage
       if (response.id) {
+        storeFormId(response.id);
         setFormId(response.id);
       }
 
@@ -188,8 +191,8 @@ function FormularioAberturaInner() {
         duration: 3000,
       });
 
-      // Navigate to the next page, passing the ID in the URL for extra security
-      router.push(`/formulario/socios${formId ? `?id=${formId}` : ""}`);
+      // Navigate to the next page
+      router.push("/formulario/socios");
 
       setShowConfirmDialog(false);
     } catch (err) {
@@ -831,15 +834,6 @@ function FormularioAberturaInner() {
         </AlertDialogContent>
       </AlertDialog>
     </form>
-  );
-}
-
-// Main component with Suspense
-const FormularioAbertura = () => {
-  return (
-    <Suspense fallback={<div>Carregando formulário...</div>}>
-      <FormularioAberturaInner />
-    </Suspense>
   );
 };
 
