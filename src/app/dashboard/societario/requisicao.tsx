@@ -42,6 +42,7 @@ export const Requisicao = memo(function Requisicao() {
   const { mutate } = useProcessosByEtapas();
   const { selectedCompany } = useContabilidade();
   const { tipoProcessos } = useListTipoProcessos();
+  const { etapas } = useListEtapas();
 
   const [showFormLink, setShowFormLink] = useState(false);
   const [selectedTipoProcesso, setSelectedTipoProcesso] = useState("");
@@ -85,8 +86,7 @@ export const Requisicao = memo(function Requisicao() {
           nomeCard,
           selectedCompany,
           selectedTipoProcesso,
-          // "d2ddd5ad-a82b-4335-9d6a-1cc797563930"
-          "a0f5c0af-cdcd-4d6f-8fa3-40448ff62a23"
+          etapas[0].id
         );
         setShowFormLink(true);
         toast.success("Processo criado com sucesso!", {
