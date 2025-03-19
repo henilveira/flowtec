@@ -25,6 +25,7 @@ interface Tarefa {
   id: string;
   tarefa: {
     descricao: string;
+    obrigatoria: boolean;
   };
   concluida: boolean;
   sequencia: number;
@@ -86,7 +87,7 @@ export default function EditSheet({
   isLoading,
 }: EditSheetProps) {
   const [tarefasAtualizadas, setTarefasAtualizadas] = useState<Tarefa[]>(
-    tarefas.sort((a, b) => a.sequencia - b.sequencia),
+    tarefas.sort((a, b) => a.sequencia - b.sequencia)
   );
   const [isSaving, setIsSaving] = useState(false);
 
@@ -105,18 +106,15 @@ export default function EditSheet({
 
   const handleTaskToggle = (id: string, concluida: boolean) => {
     // Group tasks by stage, ensuring task.etapa and task.etapa.id are defined
-    const stageTaskMap = tarefasAtualizadas.reduce(
-      (acc, task) => {
-        if (task.etapa && task.etapa.id) {
-          if (!acc[task.etapa.id]) {
-            acc[task.etapa.id] = [];
-          }
-          acc[task.etapa.id].push(task);
+    const stageTaskMap = tarefasAtualizadas.reduce((acc, task) => {
+      if (task.etapa && task.etapa.id) {
+        if (!acc[task.etapa.id]) {
+          acc[task.etapa.id] = [];
         }
-        return acc;
-      },
-      {} as { [stageId: string]: Tarefa[] },
-    );
+        acc[task.etapa.id].push(task);
+      }
+      return acc;
+    }, {} as { [stageId: string]: Tarefa[] });
 
     // Sort stages by ordem, including only stages with tasks
     const sortedStages = etapas
@@ -126,7 +124,7 @@ export default function EditSheet({
     // Sort tasks within each stage by sequencia
     sortedStages.forEach((stage) => {
       stageTaskMap[stage.id] = stageTaskMap[stage.id].sort(
-        (a, b) => a.sequencia - b.sequencia,
+        (a, b) => a.sequencia - b.sequencia
       );
     });
 
@@ -158,15 +156,15 @@ export default function EditSheet({
       // Uncheck only if it's the last checked task in its stage and no tasks in later stages are checked
       // Find all tasks in stages after the current stage
       const stagesAfterIndex = sortedStages.findIndex(
-        (s) => s.id === currentTask.etapa.id,
+        (s) => s.id === currentTask.etapa.id
       );
       const stagesAfter = sortedStages.slice(stagesAfterIndex + 1);
       const tasksAfterStage = stagesAfter.flatMap(
-        (stage) => stageTaskMap[stage.id] ?? [],
+        (stage) => stageTaskMap[stage.id] ?? []
       );
       if (tasksAfterStage.some((t) => t.concluida)) {
         toast(
-          "Você não pode desmarcar esta tarefa enquanto houver tarefas concluídas em etapas posteriores.",
+          "Você não pode desmarcar esta tarefa enquanto houver tarefas concluídas em etapas posteriores."
         );
         return;
       }
@@ -182,7 +180,7 @@ export default function EditSheet({
         tasksInStage.slice(taskStageIndex + 1).some((t) => t.concluida)
       ) {
         toast(
-          "Você não pode desmarcar esta tarefa enquanto houver tarefas concluídas posteriores na mesma etapa.",
+          "Você não pode desmarcar esta tarefa enquanto houver tarefas concluídas posteriores na mesma etapa."
         );
         return;
       }
@@ -190,7 +188,7 @@ export default function EditSheet({
 
     // Update the task status
     setTarefasAtualizadas((prevTarefas) =>
-      prevTarefas.map((t) => (t.id === id ? { ...t, concluida } : t)),
+      prevTarefas.map((t) => (t.id === id ? { ...t, concluida } : t))
     );
   };
 
@@ -202,7 +200,7 @@ export default function EditSheet({
         .filter(
           (tarefa) =>
             tarefa.concluida !==
-            tarefas.find((t) => t.id === tarefa.id)?.concluida,
+            tarefas.find((t) => t.id === tarefa.id)?.concluida
         )
         .map((tarefa) => ({
           tarefa_id: tarefa.id,
@@ -231,13 +229,13 @@ export default function EditSheet({
       } else {
         // Verifica se todas as tarefas da etapa atual foram concluídas
         const etapaAtual = etapas.find(
-          (etapa) => etapa.id === processo.etapa?.id,
+          (etapa) => etapa.id === processo.etapa?.id
         );
         const tarefasDaEtapaAtual = tarefasAtualizadas.filter(
-          (tarefa) => tarefa.etapa.id === processo.etapa?.id,
+          (tarefa) => tarefa.etapa.id === processo.etapa?.id
         );
         const todasTarefasConcluidas = tarefasDaEtapaAtual.every(
-          (tarefa) => tarefa.concluida,
+          (tarefa) => tarefa.concluida
         );
 
         // Encontra a próxima etapa apenas se todas as tarefas foram concluídas
@@ -387,25 +385,57 @@ export default function EditSheet({
                           .map((tarefa) => (
                             <div
                               key={tarefa.id}
-                              className="flex items-center space-x-2"
+                              className="flex items-center space-x-2 justify-between"
                             >
-                              <Checkbox
-                                id={tarefa.id}
-                                checked={tarefa.concluida}
-                                onCheckedChange={(checked) =>
-                                  handleTaskToggle(tarefa.id, Boolean(checked))
-                                }
-                              />
-                              <label
-                                htmlFor={tarefa.id}
-                                className={`text-sm leading-none ${
-                                  tarefa.concluida
-                                    ? "line-through text-muted-foreground"
-                                    : ""
-                                }`}
-                              >
-                                {tarefa.tarefa.descricao}
-                              </label>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={tarefa.id}
+                                  checked={tarefa.concluida && tarefa.tarefa.obrigatoria == true}
+                                  onCheckedChange={(checked) =>
+                                    handleTaskToggle(
+                                      tarefa.id,
+                                      Boolean(checked)
+                                    )
+                                  }
+                                />
+                                <Label
+                                  htmlFor={tarefa.id}
+                                  className={`text-sm leading-none ${
+                                    tarefa.concluida
+                                      ? "line-through text-muted-foreground"
+                                      : ""
+                                  }`}
+                                >
+                                  {tarefa.tarefa.descricao}
+                                </Label>
+                              </div>
+
+                              <div className="flex items-center space-x-2">
+                                {!tarefa.tarefa.obrigatoria && (
+                                  <>
+                                    <Checkbox
+                                      id={`optional-${tarefa.id}`}
+                                      checked={tarefa.tarefa.obrigatoria == false}
+                                      onCheckedChange={(checked) =>
+                                        handleTaskToggle(
+                                          tarefa.id,
+                                          Boolean(checked)
+                                        )
+                                      }
+                                    />
+                                    <Label
+                                      htmlFor={`optional-${tarefa.id}`}
+                                      className={`text-sm leading-none ${
+                                        tarefa.concluida
+                                          ? "line-through text-muted-foreground"
+                                          : ""
+                                      }`}
+                                    >
+                                      Dispensado
+                                    </Label>
+                                  </>
+                                )}
+                              </div>
                             </div>
                           ))}
                       </div>
