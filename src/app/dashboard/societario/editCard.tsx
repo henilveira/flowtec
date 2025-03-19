@@ -92,8 +92,8 @@ export default function EditSheet({
   const [isSaving, setIsSaving] = useState(false);
 
   const { updateProcesso } = useSocietarioActions();
-  const linkToForm = `http://localhost:3000/formulario/visualizar?id=${viewFormLink}`;
-  const formLink = `http://localhost:3000/formulario/abertura?id=${processo.id}`;
+  const linkToForm = `https://www.flowtec.dev/formulario/visualizar?id=${viewFormLink}`;
+  const formLink = `https://www.flowtec.dev/formulario/abertura?id=${processo.id}`;
 
   const copyToClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -387,55 +387,23 @@ export default function EditSheet({
                               key={tarefa.id}
                               className="flex items-center space-x-2 justify-between"
                             >
-                              <div className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={tarefa.id}
-                                  checked={tarefa.concluida && tarefa.tarefa.obrigatoria == true}
-                                  onCheckedChange={(checked) =>
-                                    handleTaskToggle(
-                                      tarefa.id,
-                                      Boolean(checked)
-                                    )
-                                  }
-                                />
-                                <Label
-                                  htmlFor={tarefa.id}
-                                  className={`text-sm leading-none ${
-                                    tarefa.concluida
-                                      ? "line-through text-muted-foreground"
-                                      : ""
-                                  }`}
-                                >
-                                  {tarefa.tarefa.descricao}
-                                </Label>
-                              </div>
-
-                              <div className="flex items-center space-x-2">
-                                {!tarefa.tarefa.obrigatoria && (
-                                  <>
-                                    <Checkbox
-                                      id={`optional-${tarefa.id}`}
-                                      checked={tarefa.tarefa.obrigatoria == false}
-                                      onCheckedChange={(checked) =>
-                                        handleTaskToggle(
-                                          tarefa.id,
-                                          Boolean(checked)
-                                        )
-                                      }
-                                    />
-                                    <Label
-                                      htmlFor={`optional-${tarefa.id}`}
-                                      className={`text-sm leading-none ${
-                                        tarefa.concluida
-                                          ? "line-through text-muted-foreground"
-                                          : ""
-                                      }`}
-                                    >
-                                      Dispensado
-                                    </Label>
-                                  </>
-                                )}
-                              </div>
+                              <Checkbox
+                                id={tarefa.id}
+                                checked={tarefa.concluida}
+                                onCheckedChange={(checked) =>
+                                  handleTaskToggle(tarefa.id, Boolean(checked))
+                                }
+                              />
+                              <label
+                                htmlFor={tarefa.id}
+                                className={`text-sm leading-none ${
+                                  tarefa.concluida
+                                    ? "line-through text-muted-foreground"
+                                    : ""
+                                }`}
+                              >
+                                {tarefa.tarefa.descricao}
+                              </label>
                             </div>
                           ))}
                       </div>
@@ -472,7 +440,7 @@ export default function EditSheet({
           </Button>
           <Button
             onClick={handleSave}
-            variant="default"
+            variant="flowtec"
             type="submit"
             disabled={isSaving}
           >

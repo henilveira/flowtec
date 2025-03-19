@@ -60,7 +60,7 @@ export const Requisicao = memo(function Requisicao() {
   useEffect(() => {
     if (processId) {
       setCurrentFormLink(
-        `http://localhost:3000/formulario/abertura?id=${processId}`
+        `https://www.flowtec.dev/formulario/abertura?id=${processId}`
       );
     }
   }, [processId]);
@@ -86,7 +86,7 @@ export const Requisicao = memo(function Requisicao() {
           nomeCard,
           selectedCompany,
           selectedTipoProcesso,
-          etapas[0].id
+          "e798715d-460e-410a-820a-8c4b6ce4ab4e"
         );
         setShowFormLink(true);
         toast.success("Processo criado com sucesso!", {
@@ -144,10 +144,10 @@ export const Requisicao = memo(function Requisicao() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="3d9a0a72-e041-44f2-be47-1c8a692b51e3">
+                      <SelectItem value={tipoProcessos[1].id || ""}>
                         Com Regin
                       </SelectItem>
-                      <SelectItem value="4bdd1186-ccb5-489f-8548-80eb2db1720e">
+                      <SelectItem value={tipoProcessos[2].id || ""}>
                         Sem Regin
                       </SelectItem>
                     </SelectGroup>
