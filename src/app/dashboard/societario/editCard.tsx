@@ -86,8 +86,24 @@ export default function EditSheet({
   viewFormLink,
   isLoading,
 }: EditSheetProps) {
+  // Modifique a inicialização do estado para tarefas opcionais
   const [tarefasAtualizadas, setTarefasAtualizadas] = useState<Tarefa[]>(
-    tarefas.sort((a, b) => a.sequencia - b.sequencia)
+    tarefas
+      .map((t) => {
+        // Para tarefas originalmente opcionais, inicia como obrigatoria=true
+        if (!t.tarefa.obrigatoria) {
+          return {
+            ...t,
+            concluida: false,
+            tarefa: {
+              ...t.tarefa,
+              obrigatoria: true, // Inicia como não dispensado
+            },
+          };
+        }
+        return t;
+      })
+      .sort((a, b) => a.sequencia - b.sequencia)
   );
   const [isSaving, setIsSaving] = useState(false);
 
@@ -145,16 +161,22 @@ export default function EditSheet({
     const taskIndex = sortedTasks.indexOf(currentTask);
 
     if (concluida) {
-      // Check if all previous tasks are checked
+      // Check if all previous tasks are either completed or optional and dismissed
       for (let i = 0; i < taskIndex; i++) {
-        if (!sortedTasks[i].concluida) {
-          toast("Você precisa concluir as tarefas anteriores primeiro.");
+        const prevTask = sortedTasks[i];
+        const isPrevTaskCompletedOrDismissed =
+          prevTask.concluida ||
+          (!prevTask.tarefa.obrigatoria && !prevTask.tarefa.obrigatoria);
+
+        if (!isPrevTaskCompletedOrDismissed) {
+          toast(
+            "Você precisa concluir ou dispensar as tarefas anteriores primeiro."
+          );
           return;
         }
       }
     } else {
-      // Uncheck only if it's the last checked task in its stage and no tasks in later stages are checked
-      // Find all tasks in stages after the current stage
+      // Existing logic for unchecking remains the same
       const stagesAfterIndex = sortedStages.findIndex(
         (s) => s.id === currentTask.etapa.id
       );
@@ -168,7 +190,6 @@ export default function EditSheet({
         );
         return;
       }
-      // Within the same stage, ensure no tasks after this one are checked
       const tasksInStage = stageTaskMap[currentTask.etapa.id];
       if (!tasksInStage) {
         toast("Etapa da tarefa não encontrada.");
@@ -186,9 +207,33 @@ export default function EditSheet({
       }
     }
 
-    // Update the task status
-    setTarefasAtualizadas((prevTarefas) =>
-      prevTarefas.map((t) => (t.id === id ? { ...t, concluida } : t))
+    // Update task status and handle mutual exclusivity
+    setTarefasAtualizadas(prevTarefas =>
+      prevTarefas.map(t => {
+        if (t.id === id) {
+          return {
+            ...t,
+            concluida,
+            tarefa: { ...t.tarefa } // Não altera obrigatoria
+          };
+        }
+        return t;
+      })
+    );
+  };
+
+  const handleDispensadoToggle = (id: string, dispensado: boolean) => {
+    setTarefasAtualizadas(prevTarefas =>
+      prevTarefas.map(t => 
+        t.id === id ? {
+          ...t,
+          concluida: true,
+          tarefa: { 
+            ...t.tarefa,
+            obrigatoria: !dispensado 
+          }
+        } : t
+      )
     );
   };
 
@@ -196,102 +241,24 @@ export default function EditSheet({
     setIsSaving(true);
 
     try {
-      const tarefasAlteradas: UpdateTarefaRequest[] = tarefasAtualizadas
-        .filter(
-          (tarefa) =>
-            tarefa.concluida !==
-            tarefas.find((t) => t.id === tarefa.id)?.concluida
-        )
-        .map((tarefa) => ({
-          tarefa_id: tarefa.id,
-          concluida:
-            tarefa.concluida.toString().charAt(0).toUpperCase() +
-            tarefa.concluida.toString().slice(1),
+      const tarefasAlteradas = tarefasAtualizadas
+        .filter((t) => t.concluida) // Apenas tarefas marcadas como concluídas
+        .map((t) => ({
+          tarefa_id: t.id,
+          concluida: "True",
+          obrigatoria: t.tarefa.obrigatoria ? "True" : "False",
         }));
 
-      if (tarefasAlteradas.length === 0) {
-        toast("Não houve alterações nas tarefas.");
-        setIsSaving(false);
-        return;
-      }
-
-      // Verifica se alguma tarefa foi desmarcada
-      const tarefaDesmarcada = tarefasAtualizadas.find((tarefaAtual) => {
-        const tarefaOriginal = tarefas.find((t) => t.id === tarefaAtual.id);
-        return tarefaOriginal?.concluida && !tarefaAtual.concluida;
+      await updateProcesso({
+        processo_id: processo.id,
+        etapa_id: processo.etapa?.id || "",
+        tarefas: tarefasAlteradas,
       });
 
-      // Se uma tarefa foi desmarcada, encontra a etapa correspondente
-      let etapaIdToSend: string;
-      if (tarefaDesmarcada) {
-        // Encontra a etapa da tarefa desmarcada
-        etapaIdToSend = tarefaDesmarcada.etapa.id;
-      } else {
-        // Verifica se todas as tarefas da etapa atual foram concluídas
-        const etapaAtual = etapas.find(
-          (etapa) => etapa.id === processo.etapa?.id
-        );
-        const tarefasDaEtapaAtual = tarefasAtualizadas.filter(
-          (tarefa) => tarefa.etapa.id === processo.etapa?.id
-        );
-        const todasTarefasConcluidas = tarefasDaEtapaAtual.every(
-          (tarefa) => tarefa.concluida
-        );
-
-        // Encontra a próxima etapa apenas se todas as tarefas foram concluídas
-        const proximaEtapa =
-          etapaAtual && todasTarefasConcluidas
-            ? etapas.find((etapa) => etapa.ordem === etapaAtual.ordem + 1)
-            : null;
-
-        etapaIdToSend = proximaEtapa?.id || processo.etapa?.id || "";
-      }
-
-      if (!etapaIdToSend) {
-        toast("Erro: Não foi possível identificar a etapa do processo.");
-        setIsSaving(false);
-        return;
-      }
-
-      const dataToSend: UpdateProcessoRequest = {
-        processo_id: processo.id,
-        etapa_id: etapaIdToSend,
-        tarefas: tarefasAlteradas.map(({ tarefa_id, concluida }) => ({
-          tarefa_id,
-          concluida,
-        })),
-      };
-
-      await updateProcesso(dataToSend);
-
-      // Encontra a etapa para atualização local
-      const novaEtapa = etapas.find((etapa) => etapa.id === etapaIdToSend);
-
-      // Atualiza o processo local
-      const updatedProcesso = {
-        ...processo,
-        tarefas: tarefasAtualizadas,
-        etapa: novaEtapa || processo.etapa,
-      };
-
-      onSave(updatedProcesso);
-
-      // Mostra mensagem adequada
-      if (tarefaDesmarcada) {
-        toast(`Processo retornou para a etapa: ${tarefaDesmarcada.etapa.nome}`);
-      } else {
-        const etapaAtual = etapas.find((e) => e.id === processo.etapa?.id);
-        const novaEtapa = etapas.find((e) => e.id === etapaIdToSend);
-
-        if (etapaAtual?.id !== novaEtapa?.id) {
-          toast(`Processo movido para a etapa: ${novaEtapa?.nome}`);
-        } else {
-          toast("As alterações foram salvas com sucesso.");
-        }
-      }
+      toast.success("Alterações salvas com sucesso!");
+      onSave({ ...processo, tarefas: tarefasAtualizadas });
     } catch (error) {
-      console.error("Erro ao salvar as alterações", error);
-      toast("Ocorreu um erro ao salvar as alterações.");
+      toast.error("Erro ao salvar alterações");
     } finally {
       setIsSaving(false);
     }
@@ -382,30 +349,62 @@ export default function EditSheet({
                       <div className="space-y-2 pl-4">
                         {tarefasAtualizadas
                           .filter((tarefa) => tarefa.etapa.id === etapa.id)
-                          .map((tarefa) => (
-                            <div
-                              key={tarefa.id}
-                              className="flex items-center space-x-2 justify-between"
-                            >
-                              <Checkbox
-                                id={tarefa.id}
-                                checked={tarefa.concluida}
-                                onCheckedChange={(checked) =>
-                                  handleTaskToggle(tarefa.id, Boolean(checked))
-                                }
-                              />
-                              <label
-                                htmlFor={tarefa.id}
-                                className={`text-sm leading-none ${
-                                  tarefa.concluida
-                                    ? "line-through text-muted-foreground"
-                                    : ""
-                                }`}
+                          .map((tarefa) => {
+                            // Verifica se a tarefa é originalmente opcional
+                            const isOriginalOptional =
+                              tarefas.find((t) => t.id === tarefa.id)?.tarefa
+                                .obrigatoria === false;
+
+                            return (
+                              <div
+                                className="flex items-center justify-between"
+                                key={tarefa.id}
                               >
-                                {tarefa.tarefa.descricao}
-                              </label>
-                            </div>
-                          ))}
+                                {/* Checkbox Concluído */}
+                                <div className="flex items-center space-x-2">
+                                  <Checkbox
+                                    id={tarefa.id}
+                                    checked={tarefa.concluida}
+                                    onCheckedChange={(checked) => {
+                                      handleTaskToggle(
+                                        tarefa.id,
+                                        checked === true
+                                      );
+                                    }}
+                                  />
+                                  <Label
+                                    htmlFor={tarefa.id}
+                                    className={`text-sm leading-none ${
+                                      tarefa.concluida
+                                        ? "line-through text-muted-foreground"
+                                        : ""
+                                    }`}
+                                  >
+                                    {tarefa.tarefa.descricao}
+                                  </Label>
+                                </div>
+
+                                {tarefas.find((t) => t.id === tarefa.id)?.tarefa
+                                  .obrigatoria === false && (
+                                  <div className="flex items-center space-x-2 w-1/2">
+                                    <Checkbox
+                                      id={`optional-${tarefa.id}`}
+                                      checked={!tarefa.tarefa.obrigatoria}
+                                      onCheckedChange={(checked) => {
+                                        handleDispensadoToggle(
+                                          tarefa.id,
+                                          Boolean(checked)
+                                        );
+                                      }}
+                                    />
+                                    <Label htmlFor={`optional-${tarefa.id}`}>
+                                      Dispensado
+                                    </Label>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                       </div>
                     </AccordionContent>
                   </AccordionItem>

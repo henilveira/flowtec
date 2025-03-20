@@ -121,6 +121,7 @@ export interface Processo {
 export interface UpdateTarefaRequest {
   tarefa_id: string;
   concluida: string;
+  obrigatoria?: string;
 }
 
 export interface UpdateProcessoRequest {
