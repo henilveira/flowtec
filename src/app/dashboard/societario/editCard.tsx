@@ -27,6 +27,7 @@ interface Tarefa {
     descricao: string;
     obrigatoria: boolean;
   };
+  nao_aplicavel: boolean;
   concluida: boolean;
   sequencia: number;
   etapa: {
@@ -86,23 +87,15 @@ export default function EditSheet({
   viewFormLink,
   isLoading,
 }: EditSheetProps) {
-  // Modifique a inicialização do estado para tarefas opcionais
+  // Corrigida a inicialização do estado para garantir a estrutura correta
   const [tarefasAtualizadas, setTarefasAtualizadas] = useState<Tarefa[]>(
     tarefas
-      .map((t) => {
-        // Para tarefas originalmente opcionais, inicia como obrigatoria=true
-        if (!t.tarefa.obrigatoria) {
-          return {
-            ...t,
-            concluida: false,
-            tarefa: {
-              ...t.tarefa,
-              obrigatoria: true, // Inicia como não dispensado
-            },
-          };
-        }
-        return t;
-      })
+      .map((t) => ({
+        ...t,
+        // Mantemos os valores originais de concluida e nao_aplicavel
+        concluida: t.concluida,
+        nao_aplicavel: t.nao_aplicavel // Garantimos que nao_aplicavel está no nível correto
+      }))
       .sort((a, b) => a.sequencia - b.sequencia)
   );
   const [isSaving, setIsSaving] = useState(false);
@@ -166,7 +159,7 @@ export default function EditSheet({
         const prevTask = sortedTasks[i];
         const isPrevTaskCompletedOrDismissed =
           prevTask.concluida ||
-          (!prevTask.tarefa.obrigatoria && !prevTask.tarefa.obrigatoria);
+          (!prevTask.tarefa.obrigatoria && prevTask.nao_aplicavel);
 
         if (!isPrevTaskCompletedOrDismissed) {
           toast(
@@ -208,13 +201,13 @@ export default function EditSheet({
     }
 
     // Update task status and handle mutual exclusivity
-    setTarefasAtualizadas(prevTarefas =>
-      prevTarefas.map(t => {
+    setTarefasAtualizadas((prevTarefas) =>
+      prevTarefas.map((t) => {
         if (t.id === id) {
           return {
             ...t,
             concluida,
-            tarefa: { ...t.tarefa } // Não altera obrigatoria
+            // Não alteramos nao_aplicavel aqui
           };
         }
         return t;
@@ -223,40 +216,73 @@ export default function EditSheet({
   };
 
   const handleDispensadoToggle = (id: string, dispensado: boolean) => {
-    setTarefasAtualizadas(prevTarefas =>
-      prevTarefas.map(t => 
-        t.id === id ? {
-          ...t,
-          concluida: true,
-          tarefa: { 
-            ...t.tarefa,
-            obrigatoria: !dispensado 
-          }
-        } : t
+    setTarefasAtualizadas((prevTarefas) =>
+      prevTarefas.map((t) =>
+        t.id === id
+          ? {
+              ...t,
+              concluida: false, // Força concluida para false
+              nao_aplicavel: dispensado, // Usa o valor do checkbox
+            }
+          : t
       )
     );
   };
 
   const handleSave = async () => {
     setIsSaving(true);
-
+  
     try {
       const tarefasAlteradas = tarefasAtualizadas
-        .filter((t) => t.concluida) // Apenas tarefas marcadas como concluídas
+        .filter((t) => t.concluida || t.nao_aplicavel)
         .map((t) => ({
-          tarefa_id: t.id,
-          concluida: "True",
-          obrigatoria: t.tarefa.obrigatoria ? "True" : "False",
+          id: t.id,
+          concluida: t.concluida ? "True" : "False",
+          nao_aplicavel: t.nao_aplicavel ? "True" : "False",
         }));
-
+  
+      // Lógica de progressão de etapas
+      let novaEtapaId = processo.etapa?.id || "";
+      const etapasOrdenadas = [...etapas].sort((a, b) => a.ordem - b.ordem);
+  
+      if (processo.etapa) {
+        // Verifica todas as tarefas da etapa atual
+        const tarefasDaEtapa = tarefasAtualizadas.filter(
+          (t) => t.etapa.id === processo.etapa?.id
+        );
+  
+        // Verifica se todas as tarefas estão concluídas ou marcadas como não aplicáveis
+        const etapaCompleta = tarefasDaEtapa.every(
+          (t) => t.concluida || t.nao_aplicavel
+        );
+  
+        if (etapaCompleta) {
+          // Encontra a próxima etapa
+          const indexEtapaAtual = etapasOrdenadas.findIndex(
+            (e) => e.id === processo.etapa?.id
+          );
+  
+          if (indexEtapaAtual !== -1 && indexEtapaAtual + 1 < etapasOrdenadas.length) {
+            novaEtapaId = etapasOrdenadas[indexEtapaAtual + 1].id;
+          }
+        }
+      }
+  
       await updateProcesso({
         processo_id: processo.id,
-        etapa_id: processo.etapa?.id || "",
+        etapa_id: novaEtapaId,
         tarefas: tarefasAlteradas,
       });
-
+  
+      // Atualiza o estado com a nova etapa se necessário
+      const updatedProcesso = {
+        ...processo,
+        tarefas: tarefasAtualizadas,
+        etapa: etapas.find((e) => e.id === novaEtapaId) || processo.etapa,
+      };
+  
       toast.success("Alterações salvas com sucesso!");
-      onSave({ ...processo, tarefas: tarefasAtualizadas });
+      onSave(updatedProcesso);
     } catch (error) {
       toast.error("Erro ao salvar alterações");
     } finally {
@@ -349,62 +375,59 @@ export default function EditSheet({
                       <div className="space-y-2 pl-4">
                         {tarefasAtualizadas
                           .filter((tarefa) => tarefa.etapa.id === etapa.id)
-                          .map((tarefa) => {
-                            // Verifica se a tarefa é originalmente opcional
-                            const isOriginalOptional =
-                              tarefas.find((t) => t.id === tarefa.id)?.tarefa
-                                .obrigatoria === false;
+                          .map((tarefa) => (
+                            <div
+                              className="flex items-center justify-between"
+                              key={tarefa.id}
+                            >
+                              {/* Checkbox Concluído */}
+                              <div className="flex items-center space-x-2 flex-1">
+                                <Checkbox
+                                  id={tarefa.id}
+                                  checked={tarefa.concluida}
+                                  disabled={tarefa.nao_aplicavel}
+                                  onCheckedChange={(checked) => {
+                                    handleTaskToggle(
+                                      tarefa.id,
+                                      checked === true
+                                    );
+                                  }}
+                                />
+                                <Label
+                                  htmlFor={tarefa.id}
+                                  className={`text-sm leading-none ${
+                                    tarefa.concluida
+                                      ? "line-through text-muted-foreground"
+                                      : ""
+                                  }`}
+                                >
+                                  {tarefa.tarefa.descricao}
+                                </Label>
+                              </div>
 
-                            return (
-                              <div
-                                className="flex items-center justify-between"
-                                key={tarefa.id}
-                              >
-                                {/* Checkbox Concluído */}
-                                <div className="flex items-center space-x-2">
+                              {/* Checkbox Dispensado */}
+                              {!tarefa.tarefa.obrigatoria && (
+                                <div className="flex items-center space-x-2 ml-4">
                                   <Checkbox
-                                    id={tarefa.id}
-                                    checked={tarefa.concluida}
+                                    id={`dispensado-${tarefa.id}`}
+                                    checked={tarefa.nao_aplicavel}
                                     onCheckedChange={(checked) => {
-                                      handleTaskToggle(
+                                      handleDispensadoToggle(
                                         tarefa.id,
                                         checked === true
                                       );
                                     }}
                                   />
                                   <Label
-                                    htmlFor={tarefa.id}
-                                    className={`text-sm leading-none ${
-                                      tarefa.concluida
-                                        ? "line-through text-muted-foreground"
-                                        : ""
-                                    }`}
+                                    htmlFor={`dispensado-${tarefa.id}`}
+                                    className="text-sm text-muted-foreground"
                                   >
-                                    {tarefa.tarefa.descricao}
+                                    Dispensado
                                   </Label>
                                 </div>
-
-                                {tarefas.find((t) => t.id === tarefa.id)?.tarefa
-                                  .obrigatoria === false && (
-                                  <div className="flex items-center space-x-2 w-1/2">
-                                    <Checkbox
-                                      id={`optional-${tarefa.id}`}
-                                      checked={!tarefa.tarefa.obrigatoria}
-                                      onCheckedChange={(checked) => {
-                                        handleDispensadoToggle(
-                                          tarefa.id,
-                                          Boolean(checked)
-                                        );
-                                      }}
-                                    />
-                                    <Label htmlFor={`optional-${tarefa.id}`}>
-                                      Dispensado
-                                    </Label>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
+                              )}
+                            </div>
+                          ))}
                       </div>
                     </AccordionContent>
                   </AccordionItem>
