@@ -101,7 +101,7 @@ export const Requisicao = memo(function Requisicao() {
         });
       }
     },
-    [nomeCard, selectedCompany, selectedTipoProcesso, novoRegistro, mutate]
+    [nomeCard, selectedCompany, selectedTipoProcesso, novoRegistro, mutate, etapas]
   );
 
   const handleValueChange = useCallback((value: string) => {
