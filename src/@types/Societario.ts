@@ -94,6 +94,7 @@ export interface TarefaDetalhada {
   tarefa: Tarefa;
   concluida: boolean;
   sequencia: number;
+  nao_aplicavel: boolean;
 }
 
 export interface Contabilidade {
