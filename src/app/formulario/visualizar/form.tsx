@@ -5,7 +5,6 @@ import InputMask from "react-input-mask";
 
 import { toast } from "sonner"; // ou sua biblioteca de toast preferida
 import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
 import FieldWithTooltip from "../tooltip";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +22,7 @@ import { Pencil } from "lucide-react";
 import { estados } from "../estados";
 import { Checkbox } from "@/components/ui/checkbox";
 import { orgaosExpedidores } from "../orgaos-expedidores";
+import { getStoredFormId } from "@/lib/form-storage";
 
 const FormularioAbertura = () => {
   const router = useRouter();
@@ -56,10 +56,22 @@ const FormularioAbertura = () => {
   const [ufProfissional, setUfProfissional] = useState("");
   const [areaResp, setAreaResp] = useState("");
 
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id"); //
-  const { formulario, isError: error } = useFormById(id); // Hook retornando dados diretamente
+  // Get form ID from localStorage
+  const [formId, setFormId] = useState<string | null>(null);
 
+  useEffect(() => {
+    const savedId = getStoredFormId();
+    if (savedId) {
+      setFormId(savedId);
+    } else {
+      toast.error("ID do formulário não encontrado", {
+        description: "Redirecionando para o início do formulário",
+      });
+      router.push("/formulario/abertura");
+    }
+  }, [router]);
+
+  const { formulario, isError: error } = useFormById(formId); // Use form ID from state
   const [isEditing, setIsEditing] = useState(true);
 
   const handleEditing = () => {
@@ -102,10 +114,10 @@ const FormularioAbertura = () => {
       setAreaResp(formulario.info_adicionais?.area_resp || "");
       setNomeRespTecnico(formulario.info_adicionais?.nome_responsavel || "");
       setCarteiraProfissional(
-        formulario.info_adicionais?.nome_responsavel || "",
+        formulario.info_adicionais?.nome_responsavel || ""
       );
       setAtividadeRespTecnica(
-        formulario.info_adicionais?.resp_tecnica || false,
+        formulario.info_adicionais?.resp_tecnica || false
       );
     }
     setUfProfissional(formulario?.info_adicionais?.uf || "");

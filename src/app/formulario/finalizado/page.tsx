@@ -1,88 +1,64 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import dynamic from "next/dynamic";
-import Logo from "@/components/logo";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { HiClipboardCheck } from "react-icons/hi";
+import { getStoredFormId, clearStoredFormId } from "@/lib/form-storage";
+import { useEffect, useState } from "react";
 
-const Confetti = dynamic(() => import("react-confetti"), { ssr: false });
+export default function FormularioFinalizado() {
+  const router = useRouter();
+  const [formId, setFormId] = useState<string | null>(null);
 
-export default function Finalizado() {
-  const [confettiActive, setConfettiActive] = useState(true);
-  const [numberOfPieces, setNumberOfPieces] = useState(200);
-  const [windowDimensions, setWindowDimensions] = useState({
-    width: typeof window !== "undefined" ? window.innerWidth : 1000,
-    height: typeof window !== "undefined" ? window.innerHeight : 1000,
-  });
-
+  // Recuperar o ID do formulário do localStorage quando a página carregar
   useEffect(() => {
-    // Atualiza as dimensões da janela
-    const handleResize = () => {
-      setWindowDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-
-    // Configura o listener de redimensionamento
-    window.addEventListener("resize", handleResize);
-    handleResize();
-
-    // Gradualmente diminui o número de confetes
-    const startTime = Date.now();
-    const duration = 5000; // 5 segundos
-
-    const animationInterval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-
-      setNumberOfPieces(Math.max(0, Math.floor(200 * (1 - progress))));
-
-      if (progress >= 1) {
-        clearInterval(animationInterval);
-        setConfettiActive(false);
-      }
-    }, 100);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      clearInterval(animationInterval);
-    };
+    const savedId = getStoredFormId();
+    setFormId(savedId);
   }, []);
 
-  return (
-    <div className="flex min-h-screen w-full items-start justify-center p-4 sm:p-8">
-      {confettiActive && numberOfPieces > 0 && (
-        <Confetti
-          width={windowDimensions.width}
-          height={windowDimensions.height}
-          numberOfPieces={numberOfPieces}
-          recycle={true}
-          gravity={0.2}
-          tweenDuration={100}
-        />
-      )}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{
-          delay: 0.3,
-          duration: 0.8,
-          ease: "easeInOut",
-        }}
-        className="w-full max-w-2xl space-y-8 sm:p-8"
-      >
-        <div className="flex justify-center">
-          <Logo />
-        </div>
+  // Função para limpar o ID e voltar ao dashboard
+  const handleGoToDashboard = () => {
+    clearStoredFormId(); // Limpar o ID do localStorage
+    router.push("/dashboard");
+  };
 
-        <div className="text-center">
-          <h2 className="text-3xl font-bold">Formulário de abertura</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Seu formulário foi enviado com sucesso!
-          </p>
+  // Função para visualizar o formulário
+  const handleViewForm = () => {
+    router.push("/formulario/visualizar");
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+      <div className="bg-white p-10 rounded-xl shadow-lg max-w-md w-full text-center">
+        <div className="flex justify-center mb-4">
+          <div className="bg-green-100 p-3 rounded-full">
+            <HiClipboardCheck className="text-green-600 w-10 h-10" />
+          </div>
         </div>
-      </motion.div>
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+          Formulário enviado com sucesso!
+        </h1>
+        <p className="text-gray-600 mb-6">
+          Seu formulário foi recebido e está sendo processado por nossa equipe.
+          {formId && (
+            <span className="block mt-2 font-medium">
+              ID do processo: {formId}
+            </span>
+          )}
+        </p>
+        <div className="space-y-4">
+          <Button variant="outline" className="w-full" onClick={handleViewForm}>
+            Ver formulário
+          </Button>
+          <Button
+            variant="default"
+            className="w-full"
+            onClick={handleGoToDashboard}
+          >
+            Ir para o Dashboard
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

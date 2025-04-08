@@ -5,13 +5,13 @@ import {
   FormularioDados,
   GetFormularioResponse,
 } from "@/@types/Formulario";
-import { useFormContext } from "@/contexts/form-context";
 import { useApiBase } from "./useApiBase";
 import axiosInstance from "@/lib/axios";
+import { storeFormId } from "@/lib/form-storage";
 
 export const useFormById = (id: string | null) => {
   const { data, error, isLoading } = useApiBase<GetFormularioResponse>(
-    `/societario/get-form-abertura/?form_id=${id}`, // Certifique-se de que este endpoint está correto
+    `/societario/get-form-abertura/?form_id=${id}` // Certifique-se de que este endpoint está correto
   );
 
   return {
@@ -24,7 +24,6 @@ export const useFormById = (id: string | null) => {
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export function useFormActions() {
-  const { setFormId } = useFormContext();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,12 +40,14 @@ export function useFormActions() {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       const id = response.data.formulario.id;
-      setFormId(id); // Atualiza o contexto com o ID
-      return id;
+      storeFormId(id); // Salvar ID diretamente no localStorage
+      return {
+        id: id,
+      };
     } catch (error: any) {
       const errorMessage = error.response?.data?.detail || error.message;
       setError(errorMessage);
@@ -55,6 +56,7 @@ export function useFormActions() {
       setIsLoading(false);
     }
   };
+
   const criarSocios = async (data: Socios) => {
     setError(null);
     setIsLoading(true);
@@ -68,7 +70,7 @@ export function useFormActions() {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       return response.data;

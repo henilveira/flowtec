@@ -18,7 +18,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
 import { estados } from "../estados";
 import { orgaosExpedidores } from "../orgaos-expedidores";
-import { useFormContext } from "@/contexts/form-context";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +28,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { getStoredFormId, storeFormId } from "@/lib/form-storage";
 
 const PartnerForm = () => {
   const [socios, setSocios] = useState<Socio[]>([
@@ -60,31 +60,24 @@ const PartnerForm = () => {
   ]);
 
   const { criarSocios, isLoading, error } = useFormActions();
-  const { formId, setFormId } = useFormContext();
-  const searchParams = useSearchParams();
-  const urlId = searchParams.get("id");
+  const [formId, setFormId] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
   const [formDataToSubmit, setFormDataToSubmit] = useState<Socios | null>(null);
   const router = useRouter();
 
+  // Load form ID from localStorage on component mount
   useEffect(() => {
-    if (urlId && !formId) {
-      setFormId(urlId);
+    const savedId = getStoredFormId();
+    if (savedId) {
+      setFormId(savedId);
+    } else {
+      // Redirect if no ID is found
+      toast.error("ID do formulário não encontrado", {
+        description: "Redirecionando para o início do formulário",
+      });
+      router.push("/formulario/abertura");
     }
-  }, [urlId, formId, setFormId]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!formId && !urlId) {
-        toast.error("ID do formulário não encontrado", {
-          description: "Redirecionando para o início do formulário",
-        });
-        router.push("/formulario/abertura");
-      }
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, [formId, urlId, router]);
+  }, [router]);
 
   const handleSocioChange = (
     index: number,
@@ -183,15 +176,15 @@ const PartnerForm = () => {
       return;
     }
 
-    if (!formId && !urlId) {
-      toast.error("ID do formulário não encontrado", { 
-        description: "Volte para a etapa anterior e tente novamente" 
+    if (!formId) {
+      toast.error("ID do formulário não encontrado", {
+        description: "Volte para a etapa anterior e tente novamente",
       });
       return;
     }
 
     const formData: Socios = {
-      empresa_id: formId || urlId,
+      empresa_id: formId,
       socios: socios.map((socio) => ({
         nome: socio.nome,
         nacionalidade: socio.nacionalidade,
@@ -232,8 +225,9 @@ const PartnerForm = () => {
       await criarSocios(formDataToSubmit);
       toast.success("Sócios cadastrados com sucesso!");
       setShowConfirmDialog(false);
-      
-      router.push(`/formulario/finalizado${formId ? `?id=${formId}` : ''}`);
+
+      // Navigate to the completion page
+      router.push("/formulario/finalizado");
     } catch (error) {
       toast.error("Erro ao cadastrar sócios. Por favor, tente novamente.");
       console.error(error);

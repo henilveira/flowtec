@@ -4,8 +4,8 @@ import { useEffect, useState, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/useUser";
 import { Loader2 } from "lucide-react";
-import { toast } from 'sonner'
-import FlowtecAuthLoader from "@/app/login/loader";
+import { toast } from "sonner";
+import FlowtecAuthLoader from "@/components/loader";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -38,9 +38,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   // Mostra loader enquanto verifica autenticação
   if (isLoading || isAuthorized === null) {
-    return (
-      <FlowtecAuthLoader />
-    );
+    return <FlowtecAuthLoader />;
   }
 
   // Se autorizado, mostra o conteúdo da página

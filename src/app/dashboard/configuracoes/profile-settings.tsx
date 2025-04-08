@@ -23,7 +23,6 @@ interface UpdateUser {
   first_name?: string;
   last_name?: string;
   email?: string;
-  avatar?: File | null;
 }
 
 const MemoizedProfileSettings = memo(function ProfileSettings() {
@@ -33,57 +32,88 @@ const MemoizedProfileSettings = memo(function ProfileSettings() {
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
-  const form = useForm<UpdateUser>({
+  const { register, handleSubmit, reset } = useForm<UpdateUser>({
     defaultValues: {
       first_name: primeiroNome || "",
       last_name: ultimoNome || "",
       email: email || "",
-      avatar: null,
     },
   });
 
-  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      setSelectedAvatar(selectedFile);
+  // Simplified file change handler
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
+    
+    if (!file) {
+      setSelectedAvatar(null);
+      setAvatarPreview(null);
+      return;
+    }
+    
+    setSelectedAvatar(file);
+    
+    // Create a preview URL
+    const fileReader = new FileReader();
+    fileReader.onload = (e) => {
+      const result = e.target?.result;
+      if (typeof result === 'string') {
+        setAvatarPreview(result);
+      }
+    };
+    fileReader.readAsDataURL(file);
+    
+    toast("Arquivo selecionado!", {
+      description: `Você selecionou ${file.name}`,
+      duration: 3000,
+    });
+  };
 
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          setAvatarPreview(e.target.result as string);
-        }
-      };
-      reader.readAsDataURL(selectedFile);
-
-      toast("Arquivo selecionado!", {
-        description: `Você selecionou ${selectedFile.name}`,
-        duration: 3000,
-      });
+  // Clear selected file
+  const clearFileSelection = () => {
+    setSelectedAvatar(null);
+    setAvatarPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
+  // Handle form submission
   const handleUpdate = async (data: UpdateUser) => {
-    const { avatar, ...userData } = data;
-
     try {
+      const formData = new FormData();
+      
+      // Campos textuais
+      formData.append("first_name", data.first_name || "");
+      formData.append("last_name", data.last_name || "");
+      
+      // Campo do arquivo com o nome que o backend espera
       if (selectedAvatar) {
-        await updateUser({ ...userData, profile_picture: selectedAvatar });
-      } else {
-        await updateUser(userData);
+        formData.append("profile_picture", selectedAvatar); // Nome corrigido
       }
+  
+      await updateUser(formData);
+      
       toast.success("Perfil atualizado!", {
-        description: "Em pouco tempo suas informações vão ser atualizadas.",
+        description: "Foto e dados salvos com sucesso",
         duration: 3000,
       });
+  
+      // Resetar estados
+      setSelectedAvatar(null);
+      setAvatarPreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);
-      toast.success("Erro!", {
-        description: "Erro ao atualizar perfil, tente novamente mais tarde.",
-        duration: 3000,
+      toast.error("Erro na atualização", {
+        description: error instanceof Error ? error.message : "Erro no envio da foto",
+        duration: 5000,
       });
     }
   };
+
+  // Determine avatar source
+  const avatarSrc = avatarPreview || profilePicture || "";
 
   return (
     <Card>
@@ -92,36 +122,45 @@ const MemoizedProfileSettings = memo(function ProfileSettings() {
         <CardDescription>Atualize seus dados de perfil aqui.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <form onSubmit={form.handleSubmit(handleUpdate)}>
+        <form onSubmit={handleSubmit(handleUpdate)}>
           <div className="flex items-center space-x-4 mb-2">
             <Avatar className="h-20 w-20">
-              <AvatarImage
-                src={avatarPreview || profilePicture}
-                alt="Profile preview"
-              />
+              {avatarSrc ? (
+                <AvatarImage
+                  src={avatarSrc}
+                  alt="Profile preview"
+                />
+              ) : null}
               <AvatarFallback>
                 {primeiroNome?.[0]}
                 {ultimoNome?.[0]}
               </AvatarFallback>
             </Avatar>
-            <div className="">
+            <div className="flex flex-col gap-2">
               <Label
-                htmlFor="avatar"
+                htmlFor="avatar-upload"
                 className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-800"
               >
                 Alterar foto de perfil
               </Label>
-              <Input
-                id="avatar"
+              <input
+                id="avatar-upload"
                 type="file"
                 accept="image/*"
                 className="hidden"
-                ref={(e) => {
-                  fileInputRef.current = e;
-                  form.register("avatar").ref(e);
-                }}
+                ref={fileInputRef}
                 onChange={handleFileChange}
               />
+              
+              {selectedAvatar && (
+                <button
+                  type="button"
+                  onClick={clearFileSelection}
+                  className="text-xs text-red-500 hover:text-red-700"
+                >
+                  Remover foto selecionada
+                </button>
+              )}
             </div>
           </div>
 
@@ -131,9 +170,12 @@ const MemoizedProfileSettings = memo(function ProfileSettings() {
               <Input
                 id="first_name"
                 placeholder={primeiroNome || ""}
-                {...form.register("first_name", {
-                  required: true,
-                  minLength: 2,
+                {...register("first_name", {
+                  required: "Nome é obrigatório",
+                  minLength: {
+                    value: 2,
+                    message: "Mínimo 2 caracteres"
+                  }
                 })}
               />
             </div>
@@ -143,21 +185,25 @@ const MemoizedProfileSettings = memo(function ProfileSettings() {
               <Input
                 id="last_name"
                 placeholder={ultimoNome || ""}
-                {...form.register("last_name", {
-                  required: true,
-                  minLength: 2,
+                {...register("last_name", {
+                  required: "Sobrenome é obrigatório",
+                  minLength: {
+                    value: 2,
+                    message: "Mínimo 2 caracteres"
+                  }
                 })}
               />
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"
-                placeholder={email || ""}
-                {...form.register("email")}
+                value={email || ""}
                 disabled
               />
             </div>
+            
             <Button variant="outline" type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
@@ -169,7 +215,8 @@ const MemoizedProfileSettings = memo(function ProfileSettings() {
               )}
             </Button>
 
-            {error && <p className="text-red-500">{String(error)}</p>}
+            {error && <p className="text-red-500">{error}</p>}
+            
           </div>
         </form>
       </CardContent>
