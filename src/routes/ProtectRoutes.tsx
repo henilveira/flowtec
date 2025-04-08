@@ -24,13 +24,13 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         // Redireciona para o login
         router.push("/login");
         toast.error("Sessão expirada!", {
-          description: "Desculpe, mas é assim que temos que jogar o jogo :(",
+          description: "Faça login novamente para continuar acessando.",
         });
       } else {
         // Usuário está autenticado
         setIsAuthorized(true);
-        toast.success("Pode ir campeão!", {
-          description: "Preservamos sua sessão com carinho...",
+        toast.success("Sucesso!", {
+          description: "Bem-vindo ao sistema flowtec!",
         });
       }
     }

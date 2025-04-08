@@ -86,7 +86,7 @@ export const Requisicao = memo(function Requisicao() {
           nomeCard,
           selectedCompany,
           selectedTipoProcesso,
-          "e798715d-460e-410a-820a-8c4b6ce4ab4e"
+          etapas[0].id
         );
         setShowFormLink(true);
         toast.success("Processo criado com sucesso!", {
@@ -101,7 +101,7 @@ export const Requisicao = memo(function Requisicao() {
         });
       }
     },
-    [nomeCard, selectedCompany, selectedTipoProcesso, novoRegistro, mutate]
+    [nomeCard, selectedCompany, selectedTipoProcesso, novoRegistro, mutate, etapas]
   );
 
   const handleValueChange = useCallback((value: string) => {

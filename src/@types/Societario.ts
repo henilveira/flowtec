@@ -94,6 +94,8 @@ export interface TarefaDetalhada {
   tarefa: Tarefa;
   concluida: boolean;
   sequencia: number;
+  nao_aplicavel: boolean;
+  tipo_tributacao?: string | undefined;
 }
 
 export interface Contabilidade {
@@ -121,6 +123,7 @@ export interface Processo {
 export interface UpdateTarefaRequest {
   tarefa_id: string;
   concluida: string;
+  obrigatoria?: string;
 }
 
 export interface UpdateProcessoRequest {
