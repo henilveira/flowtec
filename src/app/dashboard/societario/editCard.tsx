@@ -117,18 +117,25 @@ export default function EditSheet({
   );
   const [isSaving, setIsSaving] = useState(false);
   const [dateInputs, setDateInputs] = useState<{ [key: string]: string }>({});
-  
+
   // Encontrar o tipo de tributação inicial a partir das tarefas
   const getTipoTributacaoInicial = (): string => {
-    const tarefaComTipo = tarefas.find(t => t.tipo_tributacao);
+    const tarefaComTipo = tarefas.find((t) => t.tipo_tributacao);
     return tarefaComTipo?.tipo_tributacao || "";
   };
-  
-  const [tributacao, setTributacao] = useState(getTipoTributacaoInicial());
+
+  // Corrigido: inicializa com um valor padrão se não encontrar nas tarefas
+  const [tributacao, setTributacao] = useState<string>(() => {
+    const tipoInicial = getTipoTributacaoInicial();
+    return tipoInicial || "Selecionar..."; // Valor padrão se não houver tipo definido
+  });
 
   // Atualizar o estado quando as tarefas mudarem
   useEffect(() => {
-    setTributacao(getTipoTributacaoInicial());
+    const tipoInicial = getTipoTributacaoInicial();
+    if (tipoInicial) {
+      setTributacao(tipoInicial);
+    }
   }, [processo.id]);
 
   const { updateProcesso } = useSocietarioActions();
@@ -143,12 +150,13 @@ export default function EditSheet({
       });
     });
   };
+
   const formatDateInput = (input: string) => {
     const numbers = input.replace(/\D/g, "");
 
     let formatted = "";
     for (let i = 0; i < numbers.length; i++) {
-      if (i === 2 || i === 4) formatted += "-";
+      if (i === 2 || i === 4) formatted += "/";
       if (i >= 8) break;
       formatted += numbers[i];
     }
@@ -159,11 +167,9 @@ export default function EditSheet({
   const handleDateInputChange = (tarefaId: string, value: string) => {
     const formattedValue = formatDateInput(value);
 
-    // Atualiza o input com o valor formatado (DD-MM-AAAA)
-
-    // Tenta converter apenas quando o formato estiver completo (DD-MM-AAAA)
+    // Tenta converter apenas quando o formato estiver completo (DD/MM/AAAA)
     if (formattedValue.length === 10) {
-      const [day, month, year] = formattedValue.split("-").map(Number);
+      const [day, month, year] = formattedValue.split("/").map(Number);
 
       // Cria a data (lembre-se que o mês no construtor Date é 0-indexed)
       const newDate = new Date(year, month - 1, day);
@@ -182,6 +188,24 @@ export default function EditSheet({
         );
       }
     }
+  };
+
+  // Atualiza o tipo de tributação de todas as tarefas na etapa relevante
+  const handleTributacaoChange = (novoTipo: string) => {
+    setTributacao(novoTipo);
+
+    // Atualiza imediatamente as tarefas da etapa 5 com o novo tipo
+    setTarefasAtualizadas((prevTarefas) =>
+      prevTarefas.map((t) => {
+        if (t.etapa && etapas.find((e) => e.id === t.etapa.id)?.ordem === 5) {
+          return {
+            ...t,
+            tipo_tributacao: novoTipo,
+          };
+        }
+        return t;
+      })
+    );
   };
 
   const handleTaskToggle = (id: string, concluida: boolean) => {
@@ -312,32 +336,58 @@ export default function EditSheet({
       )
     );
   };
+  
+  const getCurrentTributacao = () => {
+    const etapa5Tarefas = tarefasAtualizadas.filter(
+      (t) => etapas.find((e) => e.id === t.etapa.id)?.ordem === 5
+    );
+    return etapa5Tarefas[0]?.tipo_tributacao || "Selecionar...";
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
 
     try {
-      // Atualiza o tipo de tributação em todas as tarefas que precisam dele
-      // (manter a lógica de atribuir o tipo de tributação às tarefas)
-      const tarefasComTipo = tarefasAtualizadas.map(t => {
-        if (t.etapa && etapas.find(e => e.id === t.etapa.id)?.ordem === 5) {
+      // Aplica o tipo de tributação atual para todas as tarefas em etapa 5
+      const tarefasComTipo = tarefasAtualizadas.map((t) => {
+        if (t.etapa && etapas.find((e) => e.id === t.etapa.id)?.ordem === 5) {
           return {
             ...t,
-            tipo_tributacao: tributacao
+            tipo_tributacao: tributacao,
           };
         }
         return t;
       });
-      
+
+
+
+      // Prepara payload para API - inclui TODAS as tarefas com tipo de tributação modificado
+      // Modificado para incluir tipo de tributação mesmo para tarefas não concluídas na etapa 5
       const tarefasAlteradas = tarefasComTipo
-        .filter((t) => t.concluida || t.nao_aplicavel)
+        .filter((t) => {
+          // Inclui tarefas concluídas ou dispensadas
+          if (t.concluida || t.nao_aplicavel) return true;
+
+          // Inclui também tarefas da etapa 5, para atualizar o tipo de tributação
+          if (t.etapa && etapas.find((e) => e.id === t.etapa.id)?.ordem === 5)
+            return true;
+
+          return false;
+        })
         .map((t) => {
           const payload: any = {
             id: t.id,
             concluida: t.concluida ? "True" : "False",
             nao_aplicavel: t.nao_aplicavel ? "True" : "False",
-            tipo_tributacao: t.tipo_tributacao, // Usa o tipo de tributação da tarefa
           };
+
+          // Adiciona tipo de tributação para tarefas da etapa 5
+          if (t.etapa && etapas.find((e) => e.id === t.etapa.id)?.ordem === 5) {
+            payload.tipo_tributacao = tributacao;
+          } else if (t.tipo_tributacao) {
+            // Mantém o tipo de tributação atual para outras tarefas, se existir
+            payload.tipo_tributacao = t.tipo_tributacao;
+          }
 
           // Adiciona expire_at se existir
           if (t.expire_at) {
@@ -346,6 +396,10 @@ export default function EditSheet({
 
           return payload;
         });
+
+      // Log para diagnóstico (pode remover em produção)
+      console.log("Tipo de tributação selecionado:", tributacao);
+      console.log("Tarefas sendo enviadas:", tarefasAlteradas);
 
       // Lógica de progressão de etapas (mantida igual)
       let novaEtapaId = processo.etapa?.id || "";
@@ -374,14 +428,14 @@ export default function EditSheet({
         }
       }
 
-      // Atualiza com os dados da data
+      // Atualiza o processo com os dados modificados
       await updateProcesso({
         processo_id: processo.id,
         etapa_id: novaEtapaId,
         tarefas: tarefasAlteradas,
       });
 
-      // Atualiza o estado local com as datas
+      // Atualiza o estado local
       const updatedProcesso = {
         ...processo,
         tarefas: tarefasComTipo,
@@ -475,31 +529,20 @@ export default function EditSheet({
                   <AccordionItem key={etapa.id} value={etapa.id}>
                     <AccordionTrigger>{etapa.nome}</AccordionTrigger>
                     <AccordionContent>
-                      {etapa.ordem === 5 && (
-                        <div className="mb-4">
-                          <Label 
-                            htmlFor={`tributacao-${etapa.id}`} 
-                            className="text-sm font-medium mb-2 block"
+                    {etapa.ordem == 5 && (
+                        <div className="space-y-2 mx-1 mb-4">
+                          <Label>Tipo de tributação</Label>
+                          <Select
+                            value={getCurrentTributacao()}
+                            onValueChange={handleTributacaoChange}
                           >
-                            Tipo de Tributação
-                          </Label>
-                          <Select 
-                            value={tributacao} 
-                            onValueChange={setTributacao}
-                          >
-                            <SelectTrigger 
-                              id={`tributacao-${etapa.id}`} 
-                              className="w-full h-10 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                            >
-                              <SelectValue placeholder="Selecione o tipo de tributação">
-                                {tributacao ? formatarTipoTributacao(tributacao) : "Selecione o tipo de tributação"}
-                              </SelectValue>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione o tipo" />
                             </SelectTrigger>
-                            <SelectContent className="min-w-[220px]">
+                            <SelectContent>
                               <SelectGroup>
-                                <SelectLabel>Tipos de Tributação</SelectLabel>
                                 {TiposTributacao.map((tipo) => (
-                                  <SelectItem key={tipo} value={tipo} className="cursor-pointer">
+                                  <SelectItem key={tipo} value={tipo}>
                                     {formatarTipoTributacao(tipo)}
                                   </SelectItem>
                                 ))}
@@ -579,7 +622,7 @@ export default function EditSheet({
                                         (tarefa.expire_at
                                           ? format(
                                               tarefa.expire_at,
-                                              "dd-MM-yyyy"
+                                              "dd/MM/yyyy"
                                             )
                                           : "")
                                       }
@@ -598,7 +641,7 @@ export default function EditSheet({
                                         if (formattedValue.length === 10) {
                                           const [day, month, year] =
                                             formattedValue
-                                              .split("-")
+                                              .split("/")
                                               .map(Number);
                                           const newDate = new Date(
                                             year,
