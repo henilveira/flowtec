@@ -1,8 +1,4 @@
 "use client";
-import {
-  UpdateProcessoRequest,
-  UpdateTarefaRequest,
-} from "@/@types/Societario";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,6 +16,18 @@ import {
 import { useSocietarioActions } from "@/hooks/useSocietario";
 import { toast } from "sonner";
 import Link from "next/link";
+import {
+  Select,
+  SelectItem,
+  SelectContent,
+  SelectGroup,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { format } from "date-fns";
+
+const TiposTributacao = ["simples", "lucro", "real"];
 
 interface Tarefa {
   id: string;
@@ -30,6 +38,8 @@ interface Tarefa {
   nao_aplicavel: boolean;
   concluida: boolean;
   sequencia: number;
+  expire_at?: Date;
+  tipo_tributacao?: string;
   etapa: {
     id: string;
     nome: string;
@@ -78,6 +88,12 @@ const calcularDiasPassados = (startDate: string): number => {
   return Math.floor(diferencaEmMs / (1000 * 3600 * 24));
 };
 
+// Função para formatar o tipo de tributação com a primeira letra maiúscula
+const formatarTipoTributacao = (tipo: string): string => {
+  if (!tipo) return "";
+  return tipo.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
 export default function EditSheet({
   processo,
   etapas,
@@ -92,13 +108,28 @@ export default function EditSheet({
     tarefas
       .map((t) => ({
         ...t,
-        // Mantemos os valores originais de concluida e nao_aplicavel
+        // Garantir que expire_at seja um objeto Date se existir
+        expire_at: t.expire_at ? new Date(t.expire_at) : undefined,
         concluida: t.concluida,
-        nao_aplicavel: t.nao_aplicavel // Garantimos que nao_aplicavel está no nível correto
+        nao_aplicavel: t.nao_aplicavel,
       }))
       .sort((a, b) => a.sequencia - b.sequencia)
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [dateInputs, setDateInputs] = useState<{ [key: string]: string }>({});
+  
+  // Encontrar o tipo de tributação inicial a partir das tarefas
+  const getTipoTributacaoInicial = (): string => {
+    const tarefaComTipo = tarefas.find(t => t.tipo_tributacao);
+    return tarefaComTipo?.tipo_tributacao || "";
+  };
+  
+  const [tributacao, setTributacao] = useState(getTipoTributacaoInicial());
+
+  // Atualizar o estado quando as tarefas mudarem
+  useEffect(() => {
+    setTributacao(getTipoTributacaoInicial());
+  }, [processo.id]);
 
   const { updateProcesso } = useSocietarioActions();
   const linkToForm = `https://www.flowtec.dev/formulario/visualizar?id=${viewFormLink}`;
@@ -111,6 +142,46 @@ export default function EditSheet({
         description: "Envie para o seu cliente preencher",
       });
     });
+  };
+  const formatDateInput = (input: string) => {
+    const numbers = input.replace(/\D/g, "");
+
+    let formatted = "";
+    for (let i = 0; i < numbers.length; i++) {
+      if (i === 2 || i === 4) formatted += "-";
+      if (i >= 8) break;
+      formatted += numbers[i];
+    }
+
+    return formatted;
+  };
+
+  const handleDateInputChange = (tarefaId: string, value: string) => {
+    const formattedValue = formatDateInput(value);
+
+    // Atualiza o input com o valor formatado (DD-MM-AAAA)
+
+    // Tenta converter apenas quando o formato estiver completo (DD-MM-AAAA)
+    if (formattedValue.length === 10) {
+      const [day, month, year] = formattedValue.split("-").map(Number);
+
+      // Cria a data (lembre-se que o mês no construtor Date é 0-indexed)
+      const newDate = new Date(year, month - 1, day);
+
+      // Verifica se a data é válida
+      if (!isNaN(newDate.getTime())) {
+        setTarefasAtualizadas((prevTarefas) =>
+          prevTarefas.map((t) =>
+            t.id === tarefaId
+              ? {
+                  ...t,
+                  expire_at: newDate,
+                }
+              : t
+          )
+        );
+      }
+    }
   };
 
   const handleTaskToggle = (id: string, concluida: boolean) => {
@@ -229,71 +300,103 @@ export default function EditSheet({
     );
   };
 
+  const handleDateChange = (tarefaId: string, newDate: Date | undefined) => {
+    setTarefasAtualizadas((prevTarefas) =>
+      prevTarefas.map((t) =>
+        t.id === tarefaId
+          ? {
+              ...t,
+              expire_at: newDate,
+            }
+          : t
+      )
+    );
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
-  
+
     try {
-      const tarefasAlteradas = tarefasAtualizadas
+      // Atualiza o tipo de tributação em todas as tarefas que precisam dele
+      // (manter a lógica de atribuir o tipo de tributação às tarefas)
+      const tarefasComTipo = tarefasAtualizadas.map(t => {
+        if (t.etapa && etapas.find(e => e.id === t.etapa.id)?.ordem === 5) {
+          return {
+            ...t,
+            tipo_tributacao: tributacao
+          };
+        }
+        return t;
+      });
+      
+      const tarefasAlteradas = tarefasComTipo
         .filter((t) => t.concluida || t.nao_aplicavel)
-        .map((t) => ({
-          id: t.id,
-          concluida: t.concluida ? "True" : "False",
-          nao_aplicavel: t.nao_aplicavel ? "True" : "False",
-        }));
-  
-      // Lógica de progressão de etapas
+        .map((t) => {
+          const payload: any = {
+            id: t.id,
+            concluida: t.concluida ? "True" : "False",
+            nao_aplicavel: t.nao_aplicavel ? "True" : "False",
+            tipo_tributacao: t.tipo_tributacao, // Usa o tipo de tributação da tarefa
+          };
+
+          // Adiciona expire_at se existir
+          if (t.expire_at) {
+            payload.expire_at = format(t.expire_at, "yyyy-MM-dd");
+          }
+
+          return payload;
+        });
+
+      // Lógica de progressão de etapas (mantida igual)
       let novaEtapaId = processo.etapa?.id || "";
       const etapasOrdenadas = [...etapas].sort((a, b) => a.ordem - b.ordem);
-  
+
       if (processo.etapa) {
-        // Verifica todas as tarefas da etapa atual
         const tarefasDaEtapa = tarefasAtualizadas.filter(
           (t) => t.etapa.id === processo.etapa?.id
         );
-  
-        // Verifica se todas as tarefas estão concluídas ou marcadas como não aplicáveis
+
         const etapaCompleta = tarefasDaEtapa.every(
           (t) => t.concluida || t.nao_aplicavel
         );
-  
+
         if (etapaCompleta) {
-          // Encontra a próxima etapa
           const indexEtapaAtual = etapasOrdenadas.findIndex(
             (e) => e.id === processo.etapa?.id
           );
-  
-          if (indexEtapaAtual !== -1 && indexEtapaAtual + 1 < etapasOrdenadas.length) {
+
+          if (
+            indexEtapaAtual !== -1 &&
+            indexEtapaAtual + 1 < etapasOrdenadas.length
+          ) {
             novaEtapaId = etapasOrdenadas[indexEtapaAtual + 1].id;
           }
         }
       }
-  
+
+      // Atualiza com os dados da data
       await updateProcesso({
         processo_id: processo.id,
         etapa_id: novaEtapaId,
         tarefas: tarefasAlteradas,
       });
-  
-      // Atualiza o estado com a nova etapa se necessário
+
+      // Atualiza o estado local com as datas
       const updatedProcesso = {
         ...processo,
-        tarefas: tarefasAtualizadas,
+        tarefas: tarefasComTipo,
         etapa: etapas.find((e) => e.id === novaEtapaId) || processo.etapa,
       };
-  
+
       toast.success("Alterações salvas com sucesso!");
       onSave(updatedProcesso);
     } catch (error) {
+      console.error("Erro ao salvar:", error);
       toast.error("Erro ao salvar alterações");
     } finally {
       setIsSaving(false);
     }
   };
-
-  useEffect(() => {
-    console.log("Tarefas:", tarefas);
-    console.log("Etapas:", etapas);
-  }, [tarefas, etapas]);
 
   return (
     <Sheet open onOpenChange={() => onCancel?.()}>
@@ -372,7 +475,40 @@ export default function EditSheet({
                   <AccordionItem key={etapa.id} value={etapa.id}>
                     <AccordionTrigger>{etapa.nome}</AccordionTrigger>
                     <AccordionContent>
-                      <div className="space-y-2 pl-4">
+                      {etapa.ordem === 5 && (
+                        <div className="mb-4">
+                          <Label 
+                            htmlFor={`tributacao-${etapa.id}`} 
+                            className="text-sm font-medium mb-2 block"
+                          >
+                            Tipo de Tributação
+                          </Label>
+                          <Select 
+                            value={tributacao} 
+                            onValueChange={setTributacao}
+                          >
+                            <SelectTrigger 
+                              id={`tributacao-${etapa.id}`} 
+                              className="w-full h-10 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                            >
+                              <SelectValue placeholder="Selecione o tipo de tributação">
+                                {tributacao ? formatarTipoTributacao(tributacao) : "Selecione o tipo de tributação"}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent className="min-w-[220px]">
+                              <SelectGroup>
+                                <SelectLabel>Tipos de Tributação</SelectLabel>
+                                {TiposTributacao.map((tipo) => (
+                                  <SelectItem key={tipo} value={tipo} className="cursor-pointer">
+                                    {formatarTipoTributacao(tipo)}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                      <div className="space-y-2">
                         {tarefasAtualizadas
                           .filter((tarefa) => tarefa.etapa.id === etapa.id)
                           .map((tarefa) => (
@@ -407,23 +543,91 @@ export default function EditSheet({
 
                               {/* Checkbox Dispensado */}
                               {!tarefa.tarefa.obrigatoria && (
-                                <div className="flex items-center space-x-2 ml-4">
-                                  <Checkbox
-                                    id={`dispensado-${tarefa.id}`}
-                                    checked={tarefa.nao_aplicavel}
-                                    onCheckedChange={(checked) => {
-                                      handleDispensadoToggle(
-                                        tarefa.id,
-                                        checked === true
-                                      );
-                                    }}
-                                  />
-                                  <Label
-                                    htmlFor={`dispensado-${tarefa.id}`}
-                                    className="text-sm text-muted-foreground"
-                                  >
-                                    Dispensado
-                                  </Label>
+                                <div className="flex items-center space-x-4 ml-4">
+                                  {/* Checkbox */}
+                                  <div className="flex items-center space-x-2">
+                                    <Checkbox
+                                      id={`dispensado-${tarefa.id}`}
+                                      checked={tarefa.nao_aplicavel}
+                                      onCheckedChange={(checked) => {
+                                        handleDispensadoToggle(
+                                          tarefa.id,
+                                          checked === true
+                                        );
+                                      }}
+                                    />
+                                    <Label
+                                      htmlFor={`dispensado-${tarefa.id}`}
+                                      className="text-sm text-muted-foreground"
+                                    >
+                                      N/A
+                                    </Label>
+                                  </div>
+
+                                  <div className="flex items-center space-x-2">
+                                    <Label
+                                      htmlFor={`data-${tarefa.id}`}
+                                      className="text-sm text-muted-foreground"
+                                    ></Label>
+                                    <Input
+                                      id={`data-${tarefa.id}`}
+                                      type="text"
+                                      placeholder="Data de expiração"
+                                      className="w-[160px]"
+                                      value={
+                                        dateInputs[tarefa.id] ||
+                                        (tarefa.expire_at
+                                          ? format(
+                                              tarefa.expire_at,
+                                              "dd-MM-yyyy"
+                                            )
+                                          : "")
+                                      }
+                                      onChange={(e) => {
+                                        const rawValue = e.target.value;
+                                        const formattedValue =
+                                          formatDateInput(rawValue);
+
+                                        // Atualiza o estado temporário
+                                        setDateInputs((prev) => ({
+                                          ...prev,
+                                          [tarefa.id]: formattedValue,
+                                        }));
+
+                                        // Tenta converter para Date apenas quando completo
+                                        if (formattedValue.length === 10) {
+                                          const [day, month, year] =
+                                            formattedValue
+                                              .split("-")
+                                              .map(Number);
+                                          const newDate = new Date(
+                                            year,
+                                            month - 1,
+                                            day
+                                          );
+
+                                          if (!isNaN(newDate.getTime())) {
+                                            handleDateChange(
+                                              tarefa.id,
+                                              newDate
+                                            );
+                                          }
+                                        } else {
+                                          handleDateChange(
+                                            tarefa.id,
+                                            undefined
+                                          );
+                                        }
+                                      }}
+                                      onBlur={() => {
+                                        // Limpa o estado temporário ao sair do campo
+                                        setDateInputs((prev) => ({
+                                          ...prev,
+                                          [tarefa.id]: "",
+                                        }));
+                                      }}
+                                    />
+                                  </div>
                                 </div>
                               )}
                             </div>

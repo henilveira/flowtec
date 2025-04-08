@@ -107,6 +107,7 @@ export function useEtapaById(id: string) {
 interface UpdateProcessoRequest {
   processo_id: string;
   etapa_id: string;
+
   tarefas: {
     id: string;
     concluida: string;

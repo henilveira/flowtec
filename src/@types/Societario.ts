@@ -95,6 +95,7 @@ export interface TarefaDetalhada {
   concluida: boolean;
   sequencia: number;
   nao_aplicavel: boolean;
+  tipo_tributacao?: string | undefined;
 }
 
 export interface Contabilidade {
