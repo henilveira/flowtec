@@ -135,7 +135,7 @@ export default function EditSheet({
   const [isSaving, setIsSaving] = useState(false);
   const [dateInputs, setDateInputs] = useState<{ [key: string]: string }>({});
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isSimplesNacional, setIsSimplesNacional] = useState(false)
+  const [isSimplesNacional, setIsSimplesNacional] = useState(false);
 
   // Encontrar o tipo de tributação inicial a partir das tarefas
   const getTipoTributacaoInicial = (): string => {
@@ -149,32 +149,30 @@ export default function EditSheet({
     return tipoInicial || "Selecionar..."; // Valor padrão se não houver tipo definido
   });
 
-  
-
   // Atualizar o estado quando as tarefas mudarem
-// Efeito para inicializar o status do "Simples solicitado" com base no tipo de tributação
-useEffect(() => {
-  const tipoInicial = getTipoTributacaoInicial();
-  if (tipoInicial) {
-    setTributacao(tipoInicial);
-    
-    // Atualiza o status do "Simples solicitado" na inicialização com base no tipo
-    setTarefasAtualizadas((prevTarefas) =>
-      prevTarefas.map((t) => {
-        if (t.tarefa.descricao === "Simples solicitado") {
-          return {
-            ...t,
-            nao_aplicavel: tipoInicial !== "simples",
-            // Se estava concluída e o tipo mudou, mantém a conclusão
-            // Caso contrário, deixa como estava
-            concluida: tipoInicial !== "simples" ? false : t.concluida
-          };
-        }
-        return t;
-      })
-    );
-  }
-}, [processo.id]);
+  // Efeito para inicializar o status do "Simples solicitado" com base no tipo de tributação
+  useEffect(() => {
+    const tipoInicial = getTipoTributacaoInicial();
+    if (tipoInicial) {
+      setTributacao(tipoInicial);
+
+      // Atualiza o status do "Simples solicitado" na inicialização com base no tipo
+      setTarefasAtualizadas((prevTarefas) =>
+        prevTarefas.map((t) => {
+          if (t.tarefa.descricao === "Simples solicitado") {
+            return {
+              ...t,
+              nao_aplicavel: tipoInicial !== "simples",
+              // Se estava concluída e o tipo mudou, mantém a conclusão
+              // Caso contrário, deixa como estava
+              concluida: tipoInicial !== "simples" ? false : t.concluida,
+            };
+          }
+          return t;
+        })
+      );
+    }
+  }, [processo.id]);
 
   const { mutate } = useProcessosByEtapas();
   const { updateProcesso, remove } = useSocietarioActions();
@@ -190,51 +188,31 @@ useEffect(() => {
     });
   };
 
-  const formatDateInput = (input: string) => {
-    const numbers = input.replace(/\D/g, "");
+  const handleTributacaoChange = (novoTipo: string) => {
+    setTributacao(novoTipo);
 
-    let formatted = "";
-    for (let i = 0; i < numbers.length; i++) {
-      if (i === 2 || i === 4) formatted += "/";
-      if (i >= 8) break;
-      formatted += numbers[i];
-    }
+    setTarefasAtualizadas((prevTarefas) =>
+      prevTarefas.map((t) => {
+        if (t.tarefa.descricao === "Simples solicitado") {
+          return {
+            ...t,
+            tipo_tributacao: novoTipo,
+            nao_aplicavel: novoTipo !== "simples",
+            concluida: false,
+          };
+        }
 
-    return formatted;
+        // Para qualquer outra tarefa da etapa 5, só atualiza o tipo de tributação
+        if (t.etapa && etapas.find((e) => e.id === t.etapa.id)?.ordem === 5) {
+          return {
+            ...t,
+            tipo_tributacao: novoTipo,
+          };
+        }
+        return t;
+      })
+    );
   };
-
-  // Atualiza o tipo de tributação de todas as tarefas na etapa relevante
-  // Atualiza o tipo de tributação de todas as tarefas na etapa relevante
-const handleTributacaoChange = (novoTipo: string) => {
-  setTributacao(novoTipo);
-
-  // Atualiza imediatamente as tarefas da etapa 5 com o novo tipo
-  setTarefasAtualizadas((prevTarefas) =>
-    prevTarefas.map((t) => {
-      // Se for a tarefa "Simples solicitado"
-      if (t.tarefa.descricao === "Simples solicitado") {
-        return {
-          ...t,
-          tipo_tributacao: novoTipo,
-          // Se não for simples nacional, marca como não aplicável
-          // Se for simples, desmarca o não aplicável
-          nao_aplicavel: novoTipo !== "simples",
-          // Sempre desmarca como concluída quando mudar o tipo de tributação
-          concluida: false
-        };
-      }
-      
-      // Para qualquer outra tarefa da etapa 5, só atualiza o tipo de tributação
-      if (t.etapa && etapas.find((e) => e.id === t.etapa.id)?.ordem === 5) {
-        return {
-          ...t,
-          tipo_tributacao: novoTipo,
-        };
-      }
-      return t;
-    })
-  );
-};
 
   const handleTaskToggle = (id: string, concluida: boolean) => {
     // Group tasks by stage, ensuring task.etapa and task.etapa.id are defined
@@ -352,16 +330,24 @@ const handleTributacaoChange = (novoTipo: string) => {
     );
   };
 
-  const handleDateChange = (tarefaId: string, newDate: Date | undefined) => {
+  const handleDateChange = (tarefaId: string, dateString: string) => {
+    // Atualiza o estado de dateInputs com a nova data
+    setDateInputs((prev) => ({
+      ...prev,
+      [tarefaId]: dateString,
+    }));
+
+    // Atualiza o estado das tarefas com a nova data
     setTarefasAtualizadas((prevTarefas) =>
-      prevTarefas.map((t) =>
-        t.id === tarefaId
-          ? {
-              ...t,
-              expire_at: newDate,
-            }
-          : t
-      )
+      prevTarefas.map((t) => {
+        if (t.id === tarefaId) {
+          return {
+            ...t,
+            expire_at: dateString ? new Date(dateString) : undefined,
+          };
+        }
+        return t;
+      })
     );
   };
 
@@ -423,13 +409,15 @@ const handleTributacaoChange = (novoTipo: string) => {
           return payload;
         });
 
-      // Log para diagnóstico (pode remover em produção)
-      console.log("Tipo de tributação selecionado:", tributacao);
-      console.log("Tarefas sendo enviadas:", tarefasAlteradas);
-
-      // Lógica de progressão de etapas (mantida igual)
+      // Lógica de progressão de etapas com a nova regra de pular etapa
       let novaEtapaId = processo.etapa?.id || "";
       const etapasOrdenadas = [...etapas].sort((a, b) => a.ordem - b.ordem);
+
+      // Verifica se o processo é de um dos tipos que devem pular a etapa de viabilidade
+      const deveSkipViabilidade =
+        processo.tipo_processo.descricao === "Alteração contratual com regin" ||
+        processo.tipo_processo.descricao ===
+          "Alteração contratual sem regin/baixa";
 
       if (processo.etapa) {
         const tarefasDaEtapa = tarefasAtualizadas.filter(
@@ -449,7 +437,51 @@ const handleTributacaoChange = (novoTipo: string) => {
             indexEtapaAtual !== -1 &&
             indexEtapaAtual + 1 < etapasOrdenadas.length
           ) {
-            novaEtapaId = etapasOrdenadas[indexEtapaAtual + 1].id;
+            // Verifica se está saindo da etapa de proposta/formulário e se deve pular viabilidade
+            const etapaAtual = etapasOrdenadas[indexEtapaAtual];
+            const isEtapaPropostaFormulario =
+              etapaAtual.nome.toLowerCase().includes("proposta") ||
+              etapaAtual.nome.toLowerCase().includes("formulário");
+
+            if (deveSkipViabilidade && isEtapaPropostaFormulario) {
+              // Encontra a etapa de viabilidade
+              const etapaViabilidade = etapasOrdenadas.find((e) =>
+                e.nome.toLowerCase().includes("viabilidade")
+              );
+
+              // Encontra a etapa de registro (que vem após viabilidade)
+              const indexEtapaViabilidade = etapaViabilidade
+                ? etapasOrdenadas.findIndex((e) => e.id === etapaViabilidade.id)
+                : -1;
+
+              if (
+                indexEtapaViabilidade !== -1 &&
+                indexEtapaViabilidade + 1 < etapasOrdenadas.length
+              ) {
+                // Pular para a etapa após a viabilidade (registro)
+                novaEtapaId = etapasOrdenadas[indexEtapaViabilidade + 1].id;
+
+                // Marca todas as tarefas da etapa de viabilidade como concluídas
+                const tarefasViabilidade = tarefasAtualizadas.filter(
+                  (t) => t.etapa.id === etapaViabilidade?.id
+                );
+
+                // Adiciona as tarefas de viabilidade como concluídas ao payload
+                tarefasViabilidade.forEach((tarefa) => {
+                  tarefasAlteradas.push({
+                    id: tarefa.id,
+                    concluida: "True",
+                    nao_aplicavel: "False",
+                  });
+                });
+              } else {
+                // Caso não encontre a etapa de viabilidade ou registro, segue fluxo normal
+                novaEtapaId = etapasOrdenadas[indexEtapaAtual + 1].id;
+              }
+            } else {
+              // Fluxo normal - avança para a próxima etapa
+              novaEtapaId = etapasOrdenadas[indexEtapaAtual + 1].id;
+            }
           }
         }
       }
@@ -461,7 +493,7 @@ const handleTributacaoChange = (novoTipo: string) => {
         tarefas: tarefasAlteradas,
       });
 
-      // Atualiza o estado local
+      // Atualiza o estado local com as mudanças
       const updatedProcesso = {
         ...processo,
         tarefas: tarefasComTipo,
@@ -601,71 +633,108 @@ const handleTributacaoChange = (novoTipo: string) => {
                         </div>
                       )}
                       <div className="space-y-2">
-                    {tarefasAtualizadas
-                      .filter(
-                        (t) =>
-                          t.etapa.id === etapa.id &&
-                          !(t.tarefa.descricao === "Simples solicitado" && tributacao !== "simples")
-                      )
-                      .map((tarefa) => (
-                        <div key={tarefa.id} className="flex items-center justify-between">
-                          {/* Concluído */}
-                          <div className="flex items-center space-x-2 flex-1">
-                            <Checkbox
-                              id={tarefa.id}
-                              checked={tarefa.concluida}
-                              disabled={tarefa.nao_aplicavel}
-                              onCheckedChange={(checked) => handleTaskToggle(tarefa.id, checked === true)}
-                            />
-                            <Label
-                              htmlFor={tarefa.id}
-                              className={`text-sm leading-none ${
-                                tarefa.concluida ? 'line-through text-muted-foreground' : ''
-                              }`}
+                        {tarefasAtualizadas
+                          .filter(
+                            (t) =>
+                              t.etapa.id === etapa.id &&
+                              !(
+                                t.tarefa.descricao === "Simples solicitado" &&
+                                tributacao !== "simples"
+                              )
+                          )
+                          .map((tarefa) => (
+                            <div
+                              key={tarefa.id}
+                              className="flex items-center justify-between"
                             >
-                              {tarefa.tarefa.descricao}
-                            </Label>
-                          </div>
+                              {/* Concluído */}
+                              <div className="flex items-center space-x-2 flex-1">
+                                <Checkbox
+                                  id={tarefa.id}
+                                  checked={tarefa.concluida}
+                                  disabled={tarefa.nao_aplicavel}
+                                  onCheckedChange={(checked) =>
+                                    handleTaskToggle(
+                                      tarefa.id,
+                                      checked === true
+                                    )
+                                  }
+                                />
+                                <Label
+                                  htmlFor={tarefa.id}
+                                  className={`text-sm leading-none ${
+                                    tarefa.concluida
+                                      ? "line-through text-muted-foreground"
+                                      : ""
+                                  }`}
+                                >
+                                  {tarefa.tarefa.descricao}
+                                </Label>
+                              </div>
 
-                          {/* Checkbox N/A para Simples solicitado quando tributação simples */}
-                          {tarefa.tarefa.descricao === "Simples solicitado" && tributacao === "simples" ? (
-                            <div className="flex items-center space-x-2 ml-4">
-                              <Checkbox
-                              className="hidden"
-                                id={`dispensado-${tarefa.id}`}
-                                checked={tarefa.nao_aplicavel}
-                                onCheckedChange={(checked) => handleDispensadoToggle(tarefa.id, checked === true)}
-                              />
-                            </div>
-                          ) : (
-                            /* Dispensado + Data para outras não obrigatórias */
-                            !tarefa.tarefa.obrigatoria && (
-                              <div className="flex items-center space-x-4 ml-4">
-                                <div className="flex items-center space-x-2">
+                              {/* Checkbox N/A para Simples solicitado quando tributação simples */}
+                              {tarefa.tarefa.descricao ===
+                                "Simples solicitado" &&
+                              tributacao === "simples" ? (
+                                <div className="flex items-center space-x-2 ml-4">
                                   <Checkbox
+                                    className="hidden"
                                     id={`dispensado-${tarefa.id}`}
                                     checked={tarefa.nao_aplicavel}
-                                    onCheckedChange={(checked) => handleDispensadoToggle(tarefa.id, checked === true)}
+                                    onCheckedChange={(checked) =>
+                                      handleDispensadoToggle(
+                                        tarefa.id,
+                                        checked === true
+                                      )
+                                    }
                                   />
-                                  <Label htmlFor={`dispensado-${tarefa.id}`} className="text-sm text-muted-foreground">
-                                    N/A
-                                  </Label>
                                 </div>
-                                {/* Input de data */}
-                                <DatePicker
-                                  id={`data-${tarefa.id}`}
-                                  placeholder="Data de expiração"
-                                  className="w-[160px]"
-                                  value={dateInputs[tarefa.id] || (tarefa.expire_at ? format(tarefa.expire_at, 'dd/MM/yyyy') : '')}
-                                  onChange={() => tarefa.id}
-                                  onBlur={() => tarefa.id}
-                                />
-                              </div>
-                            )
-                          )}
-                        </div>
-                      ))}
-                  </div>
+                              ) : (
+                                /* Dispensado + Data para outras não obrigatórias */
+                                !tarefa.tarefa.obrigatoria && (
+                                  <div className="flex items-center space-x-4 ml-4">
+                                    <div className="flex items-center space-x-2">
+                                      <Checkbox
+                                        id={`dispensado-${tarefa.id}`}
+                                        checked={tarefa.nao_aplicavel}
+                                        onCheckedChange={(checked) =>
+                                          handleDispensadoToggle(
+                                            tarefa.id,
+                                            checked === true
+                                          )
+                                        }
+                                      />
+                                      <Label
+                                        htmlFor={`dispensado-${tarefa.id}`}
+                                        className="text-sm text-muted-foreground"
+                                      >
+                                        N/A
+                                      </Label>
+                                    </div>
+                                    {/* Input de data */}
+                                    <DatePicker
+                                      id={`data-${tarefa.id}`}
+                                      placeholder="Data de expiração"
+                                      className="w-[160px]"
+                                      value={
+                                        tarefa.expire_at
+                                          ? format(
+                                              tarefa.expire_at,
+                                              "yyyy-MM-dd"
+                                            )
+                                          : ""
+                                      }
+                                      onChange={(date) =>
+                                        handleDateChange(tarefa.id, date)
+                                      }
+                                      onBlur={() => {}} // Pode adicionar validação adicional aqui se necessário
+                                    />
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          ))}
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
                 ))}

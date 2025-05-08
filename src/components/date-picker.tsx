@@ -70,6 +70,9 @@ export default function DatePicker({
   id,
   name,
 }: DatePickerProps) {
+  // State to manage dropdown open state for debugging
+  const [isOpen, setIsOpen] = useState(false);
+
   // Format the date for display in the button
   const formatDate = (dateString: string | undefined): string => {
     if (!dateString) {
@@ -91,6 +94,11 @@ export default function DatePicker({
     if (onBlur) onBlur();
   };
 
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) handleBlur();
+  };
+
   return (
     <div className={cn("flex flex-col gap-2 my-2", className)}>
       {label && (
@@ -99,7 +107,7 @@ export default function DatePicker({
         </label>
       )}
 
-      <DropdownMenu onOpenChange={(open: boolean) => !open && handleBlur()}>
+      <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
         <DropdownMenuTrigger asChild>
           <Button
             id={id}
@@ -108,7 +116,7 @@ export default function DatePicker({
             variant="outline"
             disabled={disabled}
             className={cn(
-              "w-full text-left font-normal ",
+              "w-full text-left font-normal",
               "flex justify-start", // flex to align icon
               !value && "text-gray-500",
               errorMessage && "border-red-500",
@@ -116,7 +124,7 @@ export default function DatePicker({
             )}
             aria-required={required}
           >
-            <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
+            {/* <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" /> */}
             {formatDate(value)}
           </Button>
         </DropdownMenuTrigger>
@@ -127,8 +135,10 @@ export default function DatePicker({
             selected={value ? parseISO(value) : undefined}
             onSelect={(date) => {
               if (!date) return;
-              const iso = date.toISOString().split("T")[0];
+              // Formato ISO YYYY-MM-DD
+              const iso = format(date, "yyyy-MM-dd");
               onChange(iso);
+              setIsOpen(false); // Fechar o dropdown após seleção
             }}
             initialFocus
             // desabilita sábado(6) e domingo(0)
@@ -136,7 +146,7 @@ export default function DatePicker({
               const d = date.getDay();
               return d === 0 || d === 6;
             }}
-            className="[&_[aria-selected='true']]:bg-[#FF8F3F] [&_[aria-selected='true']]:text-white"
+            className="[&_[aria-selected='true']]:bg-flowtech-gradient [&_[aria-selected='true']]:text-white"
           />
         </DropdownMenuContent>
       </DropdownMenu>
