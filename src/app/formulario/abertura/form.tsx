@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { FormularioDados } from "@/@types/Formulario";
+import { FormularioDados } from "@/types/Formulario";
 import { useFormActions } from "@/hooks/useForm";
 import InputMask from "react-input-mask";
 import { NumericFormat } from "react-number-format";

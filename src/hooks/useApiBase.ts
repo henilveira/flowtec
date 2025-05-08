@@ -1,6 +1,6 @@
 import useSWR, { SWRConfiguration } from "swr";
 import { useRouter } from "next/navigation";
-import { ApiError } from "@/@types/ApiBase";
+import { ApiError } from "@/types/ApiBase";
 import api from "./api";
 
 export function useApiBase<T>(

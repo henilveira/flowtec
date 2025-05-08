@@ -2,7 +2,7 @@ import { useApiBase } from "./useApiBase";
 import {
   ContabilidadeResponse,
   useListContabilidadesReturn,
-} from "@/@types/Contabilidades";
+} from "@/types/Contabilidades";
 
 export function useListContabilidades(
   page: number = 1

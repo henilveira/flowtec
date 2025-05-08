@@ -6,7 +6,7 @@ import {
   CreateSocietarioParams,
   ProcessosResponse,
   Processo,
-} from "@/@types/Societario"; // Certifique-se de criar este tipo em `@/@types/Societario`
+} from "@/types/Societario"; 
 import axiosInstance from "@/lib/axios";
 
 // Types para diferentes respostas de listagem
@@ -188,7 +188,7 @@ export function useSocietarioActions() {
   // Remover registro
   const remove = async (id: string) => {
     try {
-      await axiosInstance.delete(`/societario/${id}/`, {
+      await axiosInstance.delete(`/societario/delete-processo/?id=${id}`, {
         withCredentials: true, // Inclui os cookies de autenticação
       });
       return true;

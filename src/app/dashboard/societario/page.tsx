@@ -17,7 +17,7 @@ import { Requisicao } from "./requisicao";
 import { SkeletonColumn } from "@/components/skeleton-column";
 import { SkeletonSheet } from "@/components/skeleton-sheet";
 import { Input } from "@/components/ui/input";
-import { ProcessoPorEtapa, Processo } from "@/@types/Societario";
+import { ProcessoPorEtapa, Processo } from "@/types/Societario";
 
 export default function Societario() {
   const {
@@ -117,19 +117,6 @@ export default function Societario() {
     [atualizarProcessos, isRefreshing, isProcessosLoading]
   );
 
-  // const memoizedButtonFilter = useMemo(
-  //   () => (
-  //     <Button variant="outline" className="w-full sm:w-auto">
-  //       <FilterDropdown>
-  //         <span className="flex items-center justify-center">
-  //           <SlidersHorizontal className="mr-2 h-4 w-4" />
-  //           Filtrar
-  //         </span>
-  //       </FilterDropdown>
-  //     </Button>
-  //   ),
-  //   []
-  // );
 
   const memoizedSearchBar = useMemo(
     () => (

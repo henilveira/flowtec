@@ -5,7 +5,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetFooter } from "@/components/ui/sheet";
-import { Clock, CalendarIcon, Copy, FileText, Loader2 } from "lucide-react";
+import {
+  Clock,
+  CalendarIcon,
+  Copy,
+  FileText,
+  Loader2,
+  TrashIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import {
   Accordion,
@@ -13,7 +21,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useSocietarioActions } from "@/hooks/useSocietario";
+import { useProcessosByEtapas, useSocietarioActions } from "@/hooks/useSocietario";
 import { toast } from "sonner";
 import Link from "next/link";
 import {
@@ -26,6 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
+import { RemoveAlertDialog } from "./alert";
 
 const TiposTributacao = ["simples", "lucro", "real"];
 
@@ -117,6 +126,7 @@ export default function EditSheet({
   );
   const [isSaving, setIsSaving] = useState(false);
   const [dateInputs, setDateInputs] = useState<{ [key: string]: string }>({});
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Encontrar o tipo de tributação inicial a partir das tarefas
   const getTipoTributacaoInicial = (): string => {
@@ -137,8 +147,9 @@ export default function EditSheet({
       setTributacao(tipoInicial);
     }
   }, [processo.id]);
-
-  const { updateProcesso } = useSocietarioActions();
+  
+  const { mutate } = useProcessosByEtapas()
+  const { updateProcesso, remove } = useSocietarioActions();
   const linkToForm = `https://www.flowtec.dev/formulario/visualizar?id=${viewFormLink}`;
   const formLink = `https://www.flowtec.dev/formulario/abertura?id=${processo.id}`;
 
@@ -162,32 +173,6 @@ export default function EditSheet({
     }
 
     return formatted;
-  };
-
-  const handleDateInputChange = (tarefaId: string, value: string) => {
-    const formattedValue = formatDateInput(value);
-
-    // Tenta converter apenas quando o formato estiver completo (DD/MM/AAAA)
-    if (formattedValue.length === 10) {
-      const [day, month, year] = formattedValue.split("/").map(Number);
-
-      // Cria a data (lembre-se que o mês no construtor Date é 0-indexed)
-      const newDate = new Date(year, month - 1, day);
-
-      // Verifica se a data é válida
-      if (!isNaN(newDate.getTime())) {
-        setTarefasAtualizadas((prevTarefas) =>
-          prevTarefas.map((t) =>
-            t.id === tarefaId
-              ? {
-                  ...t,
-                  expire_at: newDate,
-                }
-              : t
-          )
-        );
-      }
-    }
   };
 
   // Atualiza o tipo de tributação de todas as tarefas na etapa relevante
@@ -336,7 +321,7 @@ export default function EditSheet({
       )
     );
   };
-  
+
   const getCurrentTributacao = () => {
     const etapa5Tarefas = tarefasAtualizadas.filter(
       (t) => etapas.find((e) => e.id === t.etapa.id)?.ordem === 5
@@ -358,8 +343,6 @@ export default function EditSheet({
         }
         return t;
       });
-
-
 
       // Prepara payload para API - inclui TODAS as tarefas com tipo de tributação modificado
       // Modificado para incluir tipo de tributação mesmo para tarefas não concluídas na etapa 5
@@ -452,6 +435,22 @@ export default function EditSheet({
     }
   };
 
+  const handleDeleteClick = () => {
+    setIsDialogOpen(true);
+  };
+
+  // executa a exclusão de fato
+  const confirmDelete = async () => {
+    try {
+      await remove(processo.id);
+      mutate()
+      toast.success("Processo excluído com sucesso!");
+      onCancel?.(); // fecha o sheet, se quiser
+    } catch (err) {
+      toast.error("Erro ao excluir processo");
+    }
+  };
+
   return (
     <Sheet open onOpenChange={() => onCancel?.()}>
       <SheetContent
@@ -460,13 +459,20 @@ export default function EditSheet({
       >
         <div className="flex-grow">
           <div className="flex justify-start items-center mb-6">
-            <div className="flex flex-col items-start justify-center gap-2">
-              <div>
+            <div className="flex items-start justify-between w-full gap-2">
+              <div className="flex-col flex ">
                 <h1 className="text-2xl font-bold">{processo.nome}</h1>
                 <p className="italic text-muted-foreground text-sm">
                   {processo.contabilidade.nome}
                 </p>
               </div>
+              <Button
+                variant={"destructive"}
+                className="px-3"
+                onClick={() => handleDeleteClick()}
+              >
+                <Trash2Icon className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
@@ -529,7 +535,7 @@ export default function EditSheet({
                   <AccordionItem key={etapa.id} value={etapa.id}>
                     <AccordionTrigger>{etapa.nome}</AccordionTrigger>
                     <AccordionContent>
-                    {etapa.ordem == 5 && (
+                      {etapa.ordem == 5 && (
                         <div className="space-y-2 mx-1 mb-4">
                           <Label>Tipo de tributação</Label>
                           <Select
@@ -724,6 +730,11 @@ export default function EditSheet({
           </Button>
         </SheetFooter>
       </SheetContent>
+      <RemoveAlertDialog
+        isOpen={isDialogOpen}
+        onConfirm={confirmDelete}
+        onCancel={() => setIsDialogOpen(false)}
+      />{" "}
     </Sheet>
   );
 }

@@ -4,7 +4,7 @@ import {
   Socios,
   FormularioDados,
   GetFormularioResponse,
-} from "@/@types/Formulario";
+} from "@/types/Formulario";
 import { useApiBase } from "./useApiBase";
 import axiosInstance from "@/lib/axios";
 import { storeFormId } from "@/lib/form-storage";

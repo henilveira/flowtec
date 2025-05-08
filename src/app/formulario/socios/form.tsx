@@ -1,4 +1,4 @@
-import { Socio, Socios } from "@/@types/Formulario";
+import { Socio, Socios } from "@/types/Formulario";
 import { useFormActions } from "@/hooks/useForm";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

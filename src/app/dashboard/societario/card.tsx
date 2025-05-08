@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { COLUMNS } from "./constantes-cor";
-import { Etapa, TipoProcesso } from "@/@types/Societario";
+import { Etapa, TipoProcesso } from "@/types/Societario";
 
 interface ProcessCardProps {
   id?: string;
