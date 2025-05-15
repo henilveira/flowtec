@@ -58,6 +58,7 @@ export interface Processo {
   nome: string;
   contabilidade: Contabilidade;
   tipo_processo: TipoProcesso;
+  observacao: string
   etapa_atual: Etapa;
   etapa_inicial: Etapa;
   expire_at: string;
