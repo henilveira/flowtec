@@ -87,7 +87,7 @@ export default function DashboardLayout({
                   </header>
                   <main className="flex-1 overflow-auto">
                     {children}
-                    <Toaster />
+                    <Toaster position="top-center"/>
                   </main>
                 </div>
               </div>

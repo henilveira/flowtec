@@ -79,6 +79,7 @@ interface Processo {
     id: string;
     nome: string;
   };
+  observacao: string
   tarefas: Tarefa[];
   expire_at: string;
   created_at: string;
@@ -135,7 +136,7 @@ export default function EditSheet({
   const [isSaving, setIsSaving] = useState(false);
   const [dateInputs, setDateInputs] = useState<{ [key: string]: string }>({});
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isSimplesNacional, setIsSimplesNacional] = useState(false);
+  const [viabilidadeLink, setViabilidadeLink] = useState("");
 
   // Encontrar o tipo de tributação inicial a partir das tarefas
   const getTipoTributacaoInicial = (): string => {
@@ -179,6 +180,11 @@ export default function EditSheet({
   const linkToForm = `https://www.flowtec.dev/formulario/visualizar?id=${viewFormLink}`;
   const formLink = `https://www.flowtec.dev/formulario/abertura?id=${processo.id}`;
 
+  const descricoesSimples = [
+    "Simples solicitado",
+    "Resultado simples liberado",
+  ];
+
   const copyToClipboard = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     navigator.clipboard.writeText(formLink).then(() => {
@@ -193,7 +199,7 @@ export default function EditSheet({
 
     setTarefasAtualizadas((prevTarefas) =>
       prevTarefas.map((t) => {
-        if (t.tarefa.descricao === "Simples solicitado") {
+        if (descricoesSimples.includes(t.tarefa.descricao)) {
           return {
             ...t,
             tipo_tributacao: novoTipo,
@@ -491,6 +497,8 @@ export default function EditSheet({
         processo_id: processo.id,
         etapa_id: novaEtapaId,
         tarefas: tarefasAlteradas,
+        observacao: viabilidadeLink,
+
       });
 
       // Atualiza o estado local com as mudanças
@@ -498,6 +506,7 @@ export default function EditSheet({
         ...processo,
         tarefas: tarefasComTipo,
         etapa: etapas.find((e) => e.id === novaEtapaId) || processo.etapa,
+        observacao: viabilidadeLink,
       };
 
       toast.success("Alterações salvas com sucesso!");
@@ -632,14 +641,26 @@ export default function EditSheet({
                           </Select>
                         </div>
                       )}
+
+{
+                                etapa.nome === "Viabilidade" &&
+                                <div className=" p-1 mb-2">
+                                  <Input
+                                  placeholder="Insira o link da viabilidade"
+                                  onChange={e => setViabilidadeLink(e.target.value)}
+                                  defaultValue={processo.observacao}
+
+                                  />
+
+                                </div>
+                              }
                       <div className="space-y-2">
                         {tarefasAtualizadas
                           .filter(
                             (t) =>
                               t.etapa.id === etapa.id &&
                               !(
-                                t.tarefa.descricao === "Simples solicitado" &&
-                                tributacao !== "simples"
+                                descricoesSimples.includes(t.tarefa.descricao) && tributacao !== "simples"
                               )
                           )
                           .map((tarefa) => (
@@ -672,9 +693,9 @@ export default function EditSheet({
                                 </Label>
                               </div>
 
+
                               {/* Checkbox N/A para Simples solicitado quando tributação simples */}
-                              {tarefa.tarefa.descricao ===
-                                "Simples solicitado" &&
+                              {descricoesSimples.includes(tarefa.tarefa.descricao) &&
                               tributacao === "simples" ? (
                                 <div className="flex items-center space-x-2 ml-4">
                                   <Checkbox
