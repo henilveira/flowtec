@@ -26,14 +26,12 @@ export function makeManagementColumns(
 ): ColumnDef<Accounting>[] {
   return [
     {
-      id: 'nome_fantasia',
-      accessorKey: 'nome_fantasia',
+      id: 'nome',
+      accessorKey: 'nome',
       header: ({ column }: { column: Column<Accounting, unknown> }) => (
-        <DataTableColumnHeader column={column} title="Nome Fantasia" />
+        <DataTableColumnHeader column={column} title="Nome" />
       ),
-      cell: ({ cell }) => (
-        <div>{cell.getValue<Accounting['nome_fantasia']>()}</div>
-      ),
+      cell: ({ cell }) => <div>{cell.getValue<Accounting['nome']>()}</div>,
       meta: {
         label: 'Nome',
         placeholder: 'Procurar nome...',
